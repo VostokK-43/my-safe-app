@@ -933,8 +933,16 @@
 </div>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.ready(); tg.expand();
+// === Защита от отсутствия telegram-web-app.js ===
+// Работает в Telegram (CloudStorage) и в обычном браузере (заглушка).
+const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : {
+  ready: () => {},
+  expand: () => {},
+  CloudStorage: null,
+  themeParams: {}
+};
+try { tg.ready(); } catch(e){}
+try { if (typeof tg.expand === 'function') tg.expand(); } catch(e){}
 
 const META_KEY        = 'safe_meta_v4';
 const CONF_KEY        = 'safe_conf_v4';
@@ -1116,6 +1124,7 @@ async function tryUnlockWithRecoveryKey(recoveryKey, meta){
   return { pinKey };
 }
 
+// CloudStorage если есть, иначе localStorage (для браузера)
 const useCloud = tg.CloudStorage && typeof tg.CloudStorage.getItem === 'function';
 function storeGet(k){
   if(useCloud) return new Promise((res,rej)=>tg.CloudStorage.getItem(k,(e,v)=>e?rej(e):res(v)));
@@ -2411,6 +2420,8 @@ function lockNow(){
 
 async function init(){
   buildPinPad(); renderPinDots(); renderTemplates(); setupPhotoUpload();
+  // В браузере без Telegram CloudStorage = null — тогда работаем с localStorage.
+  // Ошибку показываем только если CloudStorage объявлен, но реально не отвечает.
   let found;
   try {
     found = await detectMeta();
@@ -2424,7 +2435,7 @@ async function init(){
   storageError = false;
   if(found){
     pinMode='unlock';
-    $('lockHint').textContent='Введите PIN';
+    $('lockHint').textContent = useCloud ? 'Введите PIN' : 'Демо-режим (браузер). Введите PIN';
     $('pinSubmitBtn').textContent = '✓ Открыть';
   } else {
     pinMode='create';
