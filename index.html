@@ -7,9 +7,7 @@
 <title>Сейф+</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-  /* ============ iOS Design System ============ */
   :root{
-    /* Системные цвета iOS (light) */
     --ios-bg: #F2F2F7;
     --ios-bg-elevated: #FFFFFF;
     --ios-bg-grouped: #FFFFFF;
@@ -39,7 +37,6 @@
 
     --ios-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
 
-    /* Синхронизация с темой Telegram */
     --bg: var(--tg-theme-bg-color, var(--ios-bg));
     --text: var(--tg-theme-text-color, var(--ios-label));
     --hint: var(--tg-theme-hint-color, var(--ios-label-secondary));
@@ -49,7 +46,6 @@
     --danger: var(--ios-red);
   }
 
-  /* Тёмная тема через Telegram */
   @media (prefers-color-scheme: dark){
     :root{
       --ios-bg: #000000;
@@ -80,7 +76,6 @@
     letter-spacing:-0.4px;
   }
 
-  /* ============ Экраны ============ */
   .screen{
     display:none;
     min-height:100vh;
@@ -93,7 +88,6 @@
     to{opacity:1;transform:translateY(0)}
   }
 
-  /* ============ Типографика ============ */
   h1{
     font-size:34px;
     font-weight:700;
@@ -132,7 +126,6 @@
   }
   h1 span.act:active{transform:scale(.92);background:var(--ios-fill-secondary)}
 
-  /* ============ Кнопки ============ */
   button{
     width:100%;
     padding:16px 20px;
@@ -151,10 +144,7 @@
   }
   button:active{transform:scale(.98);opacity:.85}
   button:disabled{opacity:.35;cursor:not-allowed}
-  button.sec{
-    background:var(--ios-fill);
-    color:var(--ios-blue);
-  }
+  button.sec{background:var(--ios-fill);color:var(--ios-blue)}
   button.sec:active{background:var(--ios-fill-secondary)}
   button.danger{background:var(--ios-red);color:#fff}
   button.filled-tint{background:var(--ios-fill);color:var(--ios-blue)}
@@ -163,7 +153,6 @@
   .row{display:flex;gap:10px}
   .row button{flex:1;width:auto}
 
-  /* ============ Инпуты (iOS-стиль) ============ */
   input,textarea,select{
     width:100%;
     padding:14px 16px;
@@ -206,7 +195,6 @@
     letter-spacing:0.4px;
   }
 
-  /* ============ PIN-клавиатура ============ */
   #pinDots{
     display:flex;gap:20px;justify-content:center;
     margin:48px 0 40px;
@@ -231,7 +219,6 @@
     aspect-ratio:1;
     padding:0;
     font-size:30px;
-    font-weight:400;
     border-radius:50%;
     background:var(--ios-fill);
     color:var(--text);
@@ -284,7 +271,6 @@
   }
   .forgot-link:active{opacity:.6}
 
-  /* ============ Чипы папок ============ */
   .cat-row{
     display:flex;
     gap:8px;
@@ -326,7 +312,6 @@
   }
   .cat.active .cnt{opacity:.85}
 
-  /* ============ Карточка (список) ============ */
   .cards-group{
     background:var(--ios-bg-grouped);
     border-radius:var(--ios-radius-l);
@@ -392,7 +377,6 @@
     letter-spacing:-0.3px;
   }
 
-  /* ============ Папки ============ */
   .folder-item{
     padding:16px;
     background:var(--ios-bg-grouped);
@@ -428,7 +412,6 @@
     box-shadow:var(--ios-shadow-s);
   }
 
-  /* ============ Шаблоны ============ */
   .tpl-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -460,7 +443,6 @@
   }
   .tpl-btn.wide{grid-column:span 2}
 
-  /* ============ Сетка иконок ============ */
   .icon-grid{
     display:grid;
     grid-template-columns:repeat(6,1fr);
@@ -490,7 +472,6 @@
     background:rgba(0,122,255,.12);
   }
 
-  /* ============ Просмотр карточки ============ */
   #viewFields{
     background:var(--ios-bg-grouped);
     border-radius:var(--ios-radius-l);
@@ -547,7 +528,6 @@
     background:var(--ios-fill-secondary);
   }
 
-  /* ============ Поля в редакторе ============ */
   .field-wrap{
     background:var(--ios-bg-grouped);
     border-radius:var(--ios-radius-m);
@@ -602,7 +582,6 @@
     border-radius:2px;
   }
 
-  /* ============ Превью иконки ============ */
   .icon-preview{
     width:64px;height:64px;
     border-radius:16px;
@@ -619,7 +598,6 @@
   .icon-preview:active{transform:scale(.94)}
   .icon-preview img{width:100%;height:100%;object-fit:cover}
 
-  /* ============ Настройки ============ */
   #storageStatus, .status{
     font-size:13px;
     color:var(--hint);
@@ -655,7 +633,6 @@
     flex-shrink:0;
   }
 
-  /* ============ Recovery Key ============ */
   .rec-key{
     font-family:ui-monospace, 'SF Mono', Menlo, monospace;
     font-size:16px;
@@ -674,7 +651,6 @@
     box-shadow:inset 0 0 0 1px var(--ios-separator);
   }
 
-  /* ============ Toast ============ */
   .toast{
     position:fixed;
     bottom:max(32px, env(safe-area-inset-bottom));
@@ -702,7 +678,6 @@
     transform:translateX(-50%) translateY(0);
   }
 
-  /* ============ Модальное окно ============ */
   .modal-overlay{
     position:fixed;
     inset:0;
@@ -774,14 +749,12 @@
     letter-spacing:-0.1px;
   }
 
-  /* ============ Утилиты ============ */
   .muted{color:var(--hint)}
   .divider{height:0.5px;background:var(--ios-separator);margin:16px 0}
 </style>
 </head>
 <body>
 
-<!-- ============ LOCK ============ -->
 <div id="lockScreen" class="screen active">
   <h1 class="large" style="justify-content:center;margin-top:40px;margin-bottom:8px">🔐 Сейф+</h1>
   <p style="text-align:center;color:var(--hint);font-size:15px;margin:0 0 40px">Ваш менеджер паролей</p>
@@ -793,7 +766,6 @@
   <a class="forgot-link" id="forgotPinLink">Не помню PIN</a>
 </div>
 
-<!-- ============ VAULT ============ -->
 <div id="vaultScreen" class="screen">
   <h1 class="large">🔐 Хранилище
     <span class="act" id="foldersBtn" title="Папки">📂</span>
@@ -805,14 +777,12 @@
   <button id="addCardBtn" style="margin-top:8px">+ Новая карточка</button>
 </div>
 
-<!-- ============ FOLDERS ============ -->
 <div id="foldersScreen" class="screen">
   <h1><span class="back" id="foldersBack">‹</span> Мои папки</h1>
   <div id="foldersList"></div>
   <button id="addFolderBtn" class="sec">+ Новая папка</button>
 </div>
 
-<!-- ============ FOLDER EDITOR ============ -->
 <div id="folderEditorScreen" class="screen">
   <h1><span class="back" id="folderEditorBack">‹</span> <span id="folderEditorTitle">Новая папка</span></h1>
   <label>Название</label>
@@ -825,14 +795,12 @@
   <button id="deleteFolderBtn" class="danger" style="margin-top:8px">Удалить папку</button>
 </div>
 
-<!-- ============ TEMPLATES ============ -->
 <div id="tplScreen" class="screen">
   <h1><span class="back" id="tplBack">‹</span> Шаблон</h1>
   <p class="info" style="margin-bottom:20px">Выберите готовый шаблон или начните с пустой карточки.</p>
   <div class="tpl-grid" id="tplGrid"></div>
 </div>
 
-<!-- ============ VIEW CARD ============ -->
 <div id="viewScreen" class="screen">
   <h1>
     <span class="back" id="viewBack">‹</span>
@@ -848,7 +816,6 @@
   </div>
 </div>
 
-<!-- ============ EDIT CARD ============ -->
 <div id="editScreen" class="screen">
   <h1><span class="back" id="editBack">‹</span> <span id="editTitle">Карточка</span></h1>
   <div style="display:flex;gap:14px;align-items:center;margin-bottom:20px">
@@ -867,7 +834,6 @@
   <button id="deleteCardBtn" class="danger" style="margin-top:8px">Удалить</button>
 </div>
 
-<!-- ============ ICON PICKER ============ -->
 <div id="iconScreen" class="screen">
   <h1><span class="back" id="iconBack">‹</span> Иконка</h1>
   <button id="uploadPhotoBtn" class="sec" style="margin-bottom:10px">📷 Загрузить фото</button>
@@ -877,7 +843,6 @@
   <div class="icon-grid" id="cardIconGrid"></div>
 </div>
 
-<!-- ============ SETTINGS ============ -->
 <div id="settingsScreen" class="screen">
   <h1><span class="back" id="settingsBack">‹</span> Настройки</h1>
 
@@ -903,7 +868,6 @@
   <button id="resetBtn" class="danger">⚠️ Сбросить всё</button>
 </div>
 
-<!-- ============ RESTORE ============ -->
 <div id="restoreScreen" class="screen">
   <h1><span class="back" id="restoreBack">‹</span> Восстановление</h1>
   <p class="info">
@@ -918,7 +882,6 @@
   <p class="info" style="margin-top:16px">Восстановление заменит текущие данные.</p>
 </div>
 
-<!-- ============ RECOVERY: SHOW ============ -->
 <div id="recoveryShowScreen" class="screen">
   <h1 style="justify-content:center;margin-top:20px">🔑 Recovery Key</h1>
   <p class="info">
@@ -935,7 +898,6 @@
   <button id="recoverySkipBtn" class="sec" style="color:var(--ios-red);margin-top:8px">Пропустить</button>
 </div>
 
-<!-- ============ RECOVERY: INPUT ============ -->
 <div id="recoveryInputScreen" class="screen">
   <h1><span class="back" id="recoveryInputBack">‹</span> Восстановление</h1>
   <p class="info">
@@ -950,7 +912,6 @@
   <button id="recoveryWipeBtn" class="danger" style="margin-top:24px">⚠️ Стереть и создать заново</button>
 </div>
 
-<!-- ============ RECOVERY: MANAGE ============ -->
 <div id="recoveryManageScreen" class="screen">
   <h1><span class="back" id="recoveryManageBack">‹</span> Recovery Key</h1>
   <p class="info" id="recoveryManageInfo"></p>
@@ -958,10 +919,8 @@
   <p class="status">Recovery Key хранится в мета-данных хранилища и защищён вашим PIN.</p>
 </div>
 
-<!-- ============ TOAST ============ -->
 <div id="toast" class="toast"></div>
 
-<!-- ============ WIPE MODAL ============ -->
 <div id="wipeModal" class="modal-overlay" style="display:none">
   <div class="modal-box">
     <h2>⚠️ Удаление данных</h2>
@@ -977,7 +936,6 @@
 const tg = window.Telegram.WebApp;
 tg.ready(); tg.expand();
 
-// ============ Ключи ============
 const META_KEY        = 'safe_meta_v4';
 const CONF_KEY        = 'safe_conf_v4';
 const INDEX_KEY       = 'safe_index_v4';
@@ -1030,7 +988,6 @@ let currentMeta = null;
 let wipeTimer = null;
 let storageError = false;
 
-// ============ Утилиты ============
 const $ = id => document.getElementById(id);
 const show = s => document.querySelectorAll('.screen').forEach(x => x.classList.toggle('active', x.id === s));
 const b64 = a => btoa(String.fromCharCode(...new Uint8Array(a)));
@@ -1092,7 +1049,6 @@ function normalizeCards(arr){
   return (arr || []).map(normalizeCard).filter(Boolean);
 }
 
-// ============ Recovery Key ============
 function generateRecoveryKey(){
   const groups = 6, len = 4;
   const arr = new Uint32Array(groups * len);
@@ -1112,7 +1068,6 @@ function normalizeRecoveryKey(s){
   return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
-// ============ Шифрование ============
 async function deriveKey(pin, salt){
   const km = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey(
@@ -1161,7 +1116,6 @@ async function tryUnlockWithRecoveryKey(recoveryKey, meta){
   return { pinKey };
 }
 
-// ============ Хранилище ============
 const useCloud = tg.CloudStorage && typeof tg.CloudStorage.getItem === 'function';
 function storeGet(k){
   if(useCloud) return new Promise((res,rej)=>tg.CloudStorage.getItem(k,(e,v)=>e?rej(e):res(v)));
@@ -1388,7 +1342,6 @@ async function fixOrphanCards(){
   return fixed;
 }
 
-// ============ PIN ============
 function renderPinDots(){
   const n = pinBuffer.length;
   $('pinDots').innerHTML = Array.from({length: Math.max(n,4)}, (_,i)=>
@@ -1599,7 +1552,6 @@ async function tryPin(){
   }
 }
 
-// ============ Recovery: создание ============
 function startRecoveryOffer(){
   pendingRecoveryKey = generateRecoveryKey();
   $('recoveryKeyDisplay').textContent = pendingRecoveryKey;
@@ -1647,7 +1599,6 @@ async function recoverySkip(){
   openVault();
 }
 
-// ============ Recovery: ввод ============
 async function openRecoveryInput(){
   $('recoveryInputField').value = '';
   $('recoveryInputError').textContent = '';
@@ -1706,7 +1657,6 @@ async function submitRecovery(){
   toast('Доступ восстановлен');
 }
 
-// ============ Удаление с защитой 30 сек ============
 function openWipeConfirm(){
   clearInterval(wipeTimer);
   let sec = 30;
@@ -1768,7 +1718,6 @@ async function wipeVault(){
   location.reload();
 }
 
-// ============ Recovery: управление ============
 function openRecoveryManage(){
   const has = currentMeta && currentMeta.hasRecovery;
   $('recoveryManageInfo').innerHTML = has
@@ -1779,7 +1728,6 @@ function openRecoveryManage(){
   show('recoveryManageScreen');
 }
 
-// ============ Vault UI ============
 function openVault(){
   renderChips(); renderCards(); show('vaultScreen'); resetLockTimer();
 }
@@ -1855,7 +1803,6 @@ function renderCards(){
   list.appendChild(group);
 }
 
-// ============ Папки ============
 function openFolders(){ renderFoldersList(); show('foldersScreen'); }
 function renderFoldersList(){
   const box = $('foldersList'); box.innerHTML='';
@@ -1995,7 +1942,6 @@ async function deleteFolder(){
   show('foldersScreen');
 }
 
-// ============ Шаблоны ============
 const TEMPLATES = [
   { id:'login',   icon:'🌐', name:'Логин / Пароль', folder:'Пароли',   fields:['Логин','Пароль','Сайт','Заметка'] },
   { id:'email',   icon:'📧', name:'Email', folder:'Пароли',           fields:['Email','Пароль','Сервер (IMAP)','Порт','Заметка'] },
@@ -2025,7 +1971,6 @@ function renderTemplates(){
 }
 function pickTemplate(t){ pendingTemplate = t; openEditor(null); }
 
-// ============ Просмотр карточки ============
 function viewCard(id){
   const c = vault.cards.find(x=>x.id===id); if(!c) return;
   $('viewTitle').textContent = c.title;
@@ -2115,7 +2060,6 @@ async function copyToClipboard(v){
   } catch(e){ toast('Не удалось скопировать'); }
 }
 
-// ============ Редактор карточки ============
 function openEditor(id){
   editingId = id||null;
   const c = id ? vault.cards.find(x=>x.id===id) : null;
@@ -2259,7 +2203,6 @@ async function deleteCard(){
   renderChips(); renderCards(); show('vaultScreen');
 }
 
-// ============ Иконка ============
 function openIconPicker(){
   $('removePhotoBtn').style.display = editingCardIcon.customIcon ? 'block' : 'none';
   renderIconGrid('cardIconGrid', editingCardIcon.customIcon ? null : editingCardIcon.icon, (ic) => {
@@ -2304,7 +2247,6 @@ function setupPhotoUpload(){
   };
 }
 
-// ============ Настройки ============
 async function openSettings(){
   $('autoLockInput').value = vault.settings.autoLock || 60;
   $('clipClearChk').checked = vault.settings.clipClear !== false;
@@ -2334,7 +2276,6 @@ async function saveSettings(){
   toast('Сохранено'); show('vaultScreen');
 }
 
-// ============ Бэкап ============
 async function makeBackup(){
   if(!cryptoKey){ toast('Сначала разблокируйте'); return; }
   let metaStr = null;
@@ -2376,7 +2317,6 @@ async function makeBackup(){
   }
 }
 
-// ============ Восстановление из копии ============
 function openRestore(){
   $('restoreText').value = '';
   $('restorePin').value = '';
@@ -2451,7 +2391,6 @@ async function doRestore(){
   toast(`Восстановлено: ${vault.cards.length}`);
 }
 
-// ============ Автоблокировка ============
 function resetLockTimer(){
   clearTimeout(lockTimer);
   if(!cryptoKey) return;
@@ -2470,7 +2409,6 @@ function lockNow(){
   renderPinDots(); show('lockScreen');
 }
 
-// ============ Инициализация ============
 async function init(){
   buildPinPad(); renderPinDots(); renderTemplates(); setupPhotoUpload();
   let found;
@@ -2495,7 +2433,6 @@ async function init(){
   }
 }
 
-// ============ Обработчики ============
 $('forgotPinLink').onclick = openRecoveryInput;
 $('pinSubmitBtn').onclick = tryPin;
 
