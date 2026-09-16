@@ -1,0 +1,2560 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7">
+<title>Сейф+</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  /* ============ iOS Design System ============ */
+  :root{
+    /* Системные цвета iOS (light) */
+    --ios-bg: #F2F2F7;
+    --ios-bg-elevated: #FFFFFF;
+    --ios-bg-grouped: #FFFFFF;
+    --ios-separator: rgba(60,60,67,0.13);
+    --ios-label: #000000;
+    --ios-label-secondary: rgba(60,60,67,0.6);
+    --ios-label-tertiary: rgba(60,60,67,0.3);
+    --ios-blue: #007AFF;
+    --ios-green: #34C759;
+    --ios-red: #FF3B30;
+    --ios-orange: #FF9500;
+    --ios-yellow: #FFCC00;
+    --ios-purple: #AF52DE;
+    --ios-fill: rgba(120,120,128,0.12);
+    --ios-fill-secondary: rgba(120,120,128,0.16);
+    --ios-fill-tertiary: rgba(118,118,128,0.08);
+
+    --ios-radius-s: 8px;
+    --ios-radius-m: 12px;
+    --ios-radius-l: 16px;
+    --ios-radius-xl: 22px;
+    --ios-radius-2xl: 28px;
+
+    --ios-shadow-s: 0 1px 2px rgba(0,0,0,0.04), 0 0 1px rgba(0,0,0,0.06);
+    --ios-shadow-m: 0 4px 16px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --ios-shadow-l: 0 12px 32px rgba(0,0,0,0.16);
+
+    --ios-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+
+    /* Синхронизация с темой Telegram */
+    --bg: var(--tg-theme-bg-color, var(--ios-bg));
+    --text: var(--tg-theme-text-color, var(--ios-label));
+    --hint: var(--tg-theme-hint-color, var(--ios-label-secondary));
+    --sec: var(--tg-theme-secondary-bg-color, var(--ios-bg-elevated));
+    --btn: var(--tg-theme-button-color, var(--ios-blue));
+    --btntext: var(--tg-theme-button-text-color, #FFFFFF);
+    --danger: var(--ios-red);
+  }
+
+  /* Тёмная тема через Telegram */
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ios-bg: #000000;
+      --ios-bg-elevated: #1C1C1E;
+      --ios-bg-grouped: #1C1C1E;
+      --ios-separator: rgba(84,84,88,0.65);
+      --ios-label: #FFFFFF;
+      --ios-label-secondary: rgba(235,235,245,0.6);
+      --ios-label-tertiary: rgba(235,235,245,0.3);
+      --ios-fill: rgba(120,120,128,0.36);
+      --ios-fill-secondary: rgba(120,120,128,0.32);
+      --ios-fill-tertiary: rgba(118,118,128,0.24);
+    }
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:var(--ios-font);
+    font-size:17px;
+    line-height:1.3;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    background:var(--bg);
+    color:var(--text);
+    overflow-x:hidden;
+    letter-spacing:-0.4px;
+  }
+
+  /* ============ Экраны ============ */
+  .screen{
+    display:none;
+    min-height:100vh;
+    padding:24px 20px max(24px, env(safe-area-inset-bottom));
+    animation:screenIn .28s cubic-bezier(.32,.72,0,1);
+  }
+  .screen.active{display:block}
+  @keyframes screenIn{
+    from{opacity:0;transform:translateY(6px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  /* ============ Типографика ============ */
+  h1{
+    font-size:34px;
+    font-weight:700;
+    letter-spacing:-1.2px;
+    line-height:1.15;
+    margin:0 0 20px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  h1.large{font-size:40px;letter-spacing:-1.6px}
+  h1 span.back{
+    cursor:pointer;
+    font-size:28px;
+    line-height:1;
+    width:36px;height:36px;
+    border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+    background:var(--ios-fill);
+    transition:background .15s, transform .15s;
+    flex-shrink:0;
+    margin-left:-6px;
+  }
+  h1 span.back:active{transform:scale(.92);background:var(--ios-fill-secondary)}
+  h1 span.act{
+    margin-left:auto;
+    font-size:22px;
+    line-height:1;
+    width:38px;height:38px;
+    border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+    background:var(--ios-fill);
+    cursor:pointer;
+    transition:background .15s, transform .15s;
+    font-weight:600;
+  }
+  h1 span.act:active{transform:scale(.92);background:var(--ios-fill-secondary)}
+
+  /* ============ Кнопки ============ */
+  button{
+    width:100%;
+    padding:16px 20px;
+    margin:0 0 10px;
+    border:none;
+    border-radius:var(--ios-radius-m);
+    font-size:17px;
+    font-weight:600;
+    font-family:var(--ios-font);
+    letter-spacing:-0.4px;
+    background:var(--btn);
+    color:var(--btntext);
+    cursor:pointer;
+    transition:transform .12s cubic-bezier(.32,.72,0,1), opacity .12s, background .15s;
+    -webkit-user-select:none;user-select:none;
+  }
+  button:active{transform:scale(.98);opacity:.85}
+  button:disabled{opacity:.35;cursor:not-allowed}
+  button.sec{
+    background:var(--ios-fill);
+    color:var(--ios-blue);
+  }
+  button.sec:active{background:var(--ios-fill-secondary)}
+  button.danger{background:var(--ios-red);color:#fff}
+  button.filled-tint{background:var(--ios-fill);color:var(--ios-blue)}
+  button.ghost{background:transparent;color:var(--ios-blue)}
+
+  .row{display:flex;gap:10px}
+  .row button{flex:1;width:auto}
+
+  /* ============ Инпуты (iOS-стиль) ============ */
+  input,textarea,select{
+    width:100%;
+    padding:14px 16px;
+    margin:0 0 12px;
+    border-radius:var(--ios-radius-m);
+    font-size:17px;
+    font-family:var(--ios-font);
+    letter-spacing:-0.4px;
+    border:none;
+    background:var(--ios-fill-tertiary);
+    color:var(--text);
+    transition:background .15s, box-shadow .15s;
+    -webkit-appearance:none;appearance:none;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;
+    background:var(--ios-fill);
+    box-shadow:0 0 0 3px rgba(0,122,255,.15);
+  }
+  textarea{
+    min-height:120px;
+    resize:vertical;
+    font-family:ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size:14px;
+    line-height:1.5;
+  }
+  select{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238E8E93' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 16px center;
+    padding-right:40px;
+  }
+  label{
+    font-size:13px;
+    font-weight:500;
+    color:var(--hint);
+    display:block;
+    margin:16px 4px 8px;
+    text-transform:uppercase;
+    letter-spacing:0.4px;
+  }
+
+  /* ============ PIN-клавиатура ============ */
+  #pinDots{
+    display:flex;gap:20px;justify-content:center;
+    margin:48px 0 40px;
+  }
+  .dot{
+    width:16px;height:16px;border-radius:50%;
+    background:var(--ios-fill);
+    transition:background .2s cubic-bezier(.32,.72,0,1), transform .2s;
+  }
+  .dot.filled{
+    background:var(--text);
+    transform:scale(1.1);
+  }
+  #pinPad{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+    max-width:320px;
+    margin:0 auto;
+  }
+  #pinPad button{
+    aspect-ratio:1;
+    padding:0;
+    font-size:30px;
+    font-weight:400;
+    border-radius:50%;
+    background:var(--ios-fill);
+    color:var(--text);
+    letter-spacing:0;
+    font-weight:500;
+  }
+  #pinPad button:active{
+    background:var(--ios-fill-secondary);
+    transform:scale(.94);
+  }
+  #pinPad button.placeholder{
+    visibility:hidden;
+    pointer-events:none;
+  }
+  #pinSubmitBtn{
+    max-width:320px;
+    margin:20px auto 0;
+    display:block;
+    padding:16px;
+    font-size:19px;
+    font-weight:600;
+    background:var(--ios-blue);
+    color:#fff;
+    border-radius:var(--ios-radius-l);
+    letter-spacing:-0.4px;
+    box-shadow:0 6px 20px rgba(0,122,255,.32);
+  }
+  #pinSubmitBtn:active{
+    transform:scale(.98);
+    box-shadow:0 3px 10px rgba(0,122,255,.3);
+  }
+  #pinError{
+    text-align:center;
+    color:var(--ios-red);
+    margin-top:16px;
+    font-size:15px;
+    min-height:20px;
+    font-weight:500;
+  }
+  .forgot-link{
+    display:block;
+    text-align:center;
+    color:var(--ios-blue);
+    font-size:15px;
+    font-weight:500;
+    margin-top:32px;
+    cursor:pointer;
+    padding:12px;
+    -webkit-user-select:none;user-select:none;
+  }
+  .forgot-link:active{opacity:.6}
+
+  /* ============ Чипы папок ============ */
+  .cat-row{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding:0 0 4px;
+    margin:0 -20px 20px;
+    padding-left:20px;
+    padding-right:20px;
+    scrollbar-width:none;
+  }
+  .cat-row::-webkit-scrollbar{display:none}
+  .cat{
+    padding:8px 16px;
+    border-radius:20px;
+    background:var(--ios-fill);
+    font-size:15px;
+    font-weight:500;
+    cursor:pointer;
+    white-space:nowrap;
+    border:none;
+    transition:background .18s cubic-bezier(.32,.72,0,1), transform .12s, color .18s;
+    letter-spacing:-0.3px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    -webkit-user-select:none;user-select:none;
+  }
+  .cat:active{transform:scale(.95)}
+  .cat.active{
+    background:var(--ios-blue);
+    color:#fff;
+  }
+  .cat .cnt{
+    font-size:12px;
+    font-weight:600;
+    opacity:.65;
+    min-width:16px;
+    text-align:center;
+  }
+  .cat.active .cnt{opacity:.85}
+
+  /* ============ Карточка (список) ============ */
+  .cards-group{
+    background:var(--ios-bg-grouped);
+    border-radius:var(--ios-radius-l);
+    overflow:hidden;
+    margin-bottom:24px;
+    box-shadow:var(--ios-shadow-s);
+  }
+  .card-item{
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+    border-bottom:0.5px solid var(--ios-separator);
+    transition:background .15s;
+    -webkit-user-select:none;user-select:none;
+    position:relative;
+  }
+  .card-item:last-child{border-bottom:none}
+  .card-item:active{background:var(--ios-fill-tertiary)}
+  .card-icon{
+    width:44px;height:44px;
+    border-radius:11px;
+    background:var(--ios-fill);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    flex-shrink:0;
+    overflow:hidden;
+  }
+  .card-icon img{width:100%;height:100%;object-fit:cover}
+  .card-body{flex:1;min-width:0}
+  .card-title{
+    font-size:17px;
+    font-weight:500;
+    letter-spacing:-0.4px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .card-sub{
+    font-size:13px;
+    color:var(--hint);
+    margin-top:2px;
+    display:flex;
+    gap:10px;
+    letter-spacing:-0.1px;
+  }
+  .card-fav{color:var(--ios-yellow);font-size:15px}
+  .card-chevron{
+    color:var(--ios-label-tertiary);
+    font-size:18px;
+    font-weight:600;
+    flex-shrink:0;
+    line-height:1;
+  }
+  .empty{
+    text-align:center;
+    color:var(--hint);
+    padding:60px 20px;
+    font-size:15px;
+    letter-spacing:-0.3px;
+  }
+
+  /* ============ Папки ============ */
+  .folder-item{
+    padding:16px;
+    background:var(--ios-bg-grouped);
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+    border-bottom:0.5px solid var(--ios-separator);
+    transition:background .15s;
+  }
+  .folder-item:active{background:var(--ios-fill-tertiary)}
+  .folder-item:last-child{border-bottom:none}
+  .folder-name{
+    font-size:17px;
+    font-weight:500;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    letter-spacing:-0.4px;
+    flex:1;
+  }
+  .folder-name .ico{font-size:22px}
+  .folder-cnt{
+    font-size:15px;
+    color:var(--hint);
+    letter-spacing:-0.2px;
+  }
+  #foldersList{
+    background:var(--ios-bg-grouped);
+    border-radius:var(--ios-radius-l);
+    overflow:hidden;
+    margin-bottom:24px;
+    box-shadow:var(--ios-shadow-s);
+  }
+
+  /* ============ Шаблоны ============ */
+  .tpl-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-bottom:24px;
+  }
+  .tpl-btn{
+    background:var(--ios-bg-grouped);
+    border-radius:var(--ios-radius-l);
+    padding:20px 14px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    cursor:pointer;
+    text-align:center;
+    transition:transform .12s cubic-bezier(.32,.72,0,1), background .15s;
+    box-shadow:var(--ios-shadow-s);
+    -webkit-user-select:none;user-select:none;
+  }
+  .tpl-btn:active{transform:scale(.96);background:var(--ios-fill-tertiary)}
+  .tpl-btn .ico{font-size:36px;line-height:1}
+  .tpl-btn .nm{
+    font-size:14px;
+    font-weight:600;
+    color:var(--text);
+    letter-spacing:-0.3px;
+    line-height:1.2;
+  }
+  .tpl-btn.wide{grid-column:span 2}
+
+  /* ============ Сетка иконок ============ */
+  .icon-grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:8px;
+    margin-bottom:20px;
+    background:var(--ios-bg-grouped);
+    padding:12px;
+    border-radius:var(--ios-radius-l);
+    box-shadow:var(--ios-shadow-s);
+  }
+  .icon-pick{
+    aspect-ratio:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+    background:var(--ios-fill-tertiary);
+    border-radius:11px;
+    cursor:pointer;
+    border:2px solid transparent;
+    transition:transform .12s cubic-bezier(.32,.72,0,1), background .15s, border-color .15s;
+    -webkit-user-select:none;user-select:none;
+  }
+  .icon-pick:active{transform:scale(.9)}
+  .icon-pick.sel{
+    border-color:var(--ios-blue);
+    background:rgba(0,122,255,.12);
+  }
+
+  /* ============ Просмотр карточки ============ */
+  #viewFields{
+    background:var(--ios-bg-grouped);
+    border-radius:var(--ios-radius-l);
+    overflow:hidden;
+    margin-bottom:20px;
+    box-shadow:var(--ios-shadow-s);
+  }
+  .view-field{
+    padding:14px 16px;
+    border-bottom:0.5px solid var(--ios-separator);
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .view-field:last-child{border-bottom:none}
+  .view-field-label{
+    font-size:15px;
+    color:var(--hint);
+    flex-shrink:0;
+    min-width:90px;
+    letter-spacing:-0.2px;
+  }
+  .view-field-value{
+    flex:1;
+    font-size:15px;
+    font-weight:500;
+    letter-spacing:-0.3px;
+    word-break:break-all;
+    text-align:right;
+    user-select:text;
+    -webkit-user-select:text;
+  }
+  .view-field-value.mono{
+    font-family:ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size:14px;
+  }
+  .view-field-actions{
+    display:flex;
+    gap:6px;
+    flex-shrink:0;
+  }
+  .view-field-actions button{
+    width:32px;height:32px;
+    padding:0;
+    font-size:14px;
+    margin:0;
+    border-radius:50%;
+    background:var(--ios-fill);
+    color:var(--ios-blue);
+    font-weight:600;
+  }
+  .view-field-actions button:active{
+    transform:scale(.88);
+    background:var(--ios-fill-secondary);
+  }
+
+  /* ============ Поля в редакторе ============ */
+  .field-wrap{
+    background:var(--ios-bg-grouped);
+    border-radius:var(--ios-radius-m);
+    padding:12px;
+    margin-bottom:10px;
+    box-shadow:var(--ios-shadow-s);
+    position:relative;
+  }
+  .field-row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .field-row input{
+    margin:0;
+    background:transparent;
+    padding:10px 12px;
+    font-size:15px;
+    border-radius:var(--ios-radius-s);
+  }
+  .field-row input.fName{
+    flex:1;
+    font-weight:600;
+    background:var(--ios-fill-tertiary);
+  }
+  .field-row input.fValue{
+    flex:1.6;
+    background:var(--ios-fill-tertiary);
+  }
+  .field-row button{
+    width:36px;height:36px;
+    padding:0;
+    font-size:15px;
+    margin:0;
+    flex-shrink:0;
+    border-radius:50%;
+    background:var(--ios-fill);
+  }
+  .field-row .delBtn{color:var(--ios-red);font-size:18px}
+  .field-row .genBtn{color:var(--ios-blue);font-size:18px}
+  .pwd-bar{
+    height:3px;
+    background:var(--ios-fill);
+    border-radius:2px;
+    margin-top:8px;
+    overflow:hidden;
+  }
+  .pwd-fill{
+    height:100%;
+    width:0;
+    transition:width .25s cubic-bezier(.32,.72,0,1), background .25s;
+    border-radius:2px;
+  }
+
+  /* ============ Превью иконки ============ */
+  .icon-preview{
+    width:64px;height:64px;
+    border-radius:16px;
+    background:var(--ios-fill);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:36px;
+    cursor:pointer;
+    overflow:hidden;
+    flex-shrink:0;
+    transition:transform .12s cubic-bezier(.32,.72,0,1);
+  }
+  .icon-preview:active{transform:scale(.94)}
+  .icon-preview img{width:100%;height:100%;object-fit:cover}
+
+  /* ============ Настройки ============ */
+  #storageStatus, .status{
+    font-size:13px;
+    color:var(--hint);
+    margin:10px 4px 0;
+    text-align:left;
+    line-height:1.5;
+    letter-spacing:-0.1px;
+  }
+  .info{
+    font-size:14px;
+    color:var(--hint);
+    line-height:1.55;
+    margin:0 4px 20px;
+    letter-spacing:-0.2px;
+  }
+  .info b{color:var(--text);font-weight:600}
+
+  .chk{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:15px;
+    color:var(--text);
+    margin:12px 4px;
+    letter-spacing:-0.3px;
+    cursor:pointer;
+    -webkit-user-select:none;user-select:none;
+  }
+  .chk input{
+    width:22px;height:22px;
+    margin:0;
+    accent-color:var(--ios-blue);
+    flex-shrink:0;
+  }
+
+  /* ============ Recovery Key ============ */
+  .rec-key{
+    font-family:ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size:16px;
+    background:var(--ios-fill-tertiary);
+    padding:20px;
+    border-radius:var(--ios-radius-l);
+    letter-spacing:1.5px;
+    text-align:center;
+    word-break:break-all;
+    margin:20px 0;
+    user-select:all;
+    -webkit-user-select:all;
+    line-height:1.7;
+    font-weight:600;
+    color:var(--text);
+    box-shadow:inset 0 0 0 1px var(--ios-separator);
+  }
+
+  /* ============ Toast ============ */
+  .toast{
+    position:fixed;
+    bottom:max(32px, env(safe-area-inset-bottom));
+    left:50%;
+    transform:translateX(-50%) translateY(8px);
+    background:rgba(0,0,0,.85);
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+    color:#fff;
+    padding:12px 20px;
+    border-radius:14px;
+    font-size:15px;
+    font-weight:500;
+    letter-spacing:-0.3px;
+    opacity:0;
+    transition:opacity .25s, transform .25s cubic-bezier(.32,.72,0,1);
+    pointer-events:none;
+    z-index:9999;
+    max-width:90%;
+    text-align:center;
+    box-shadow:var(--ios-shadow-m);
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  /* ============ Модальное окно ============ */
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.4);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    z-index:9998;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    animation:fadeIn .2s;
+  }
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal-box{
+    background:var(--ios-bg-elevated);
+    color:var(--text);
+    padding:24px;
+    border-radius:var(--ios-radius-2xl);
+    max-width:340px;
+    width:100%;
+    box-shadow:var(--ios-shadow-l);
+    animation:modalIn .32s cubic-bezier(.32,.72,0,1);
+  }
+  @keyframes modalIn{
+    from{opacity:0;transform:scale(.92) translateY(10px)}
+    to{opacity:1;transform:scale(1) translateY(0)}
+  }
+  .modal-box h2{
+    margin:0 0 12px;
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:-0.6px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .modal-box p{
+    margin:0 0 16px;
+    font-size:14px;
+    line-height:1.5;
+    color:var(--hint);
+    letter-spacing:-0.2px;
+  }
+  .modal-box p.danger-text{
+    color:var(--ios-red);
+    font-weight:500;
+    background:rgba(255,59,48,.08);
+    padding:12px 14px;
+    border-radius:12px;
+  }
+  .countdown{
+    font-size:64px;
+    font-weight:800;
+    text-align:center;
+    margin:24px 0 8px;
+    color:var(--ios-red);
+    font-variant-numeric:tabular-nums;
+    letter-spacing:-2px;
+    line-height:1;
+    transition:color .3s;
+  }
+  .countdown.ready{color:var(--ios-green)}
+  .countdown-label{
+    text-align:center;
+    font-size:13px;
+    color:var(--hint);
+    margin:0 0 20px;
+    letter-spacing:-0.1px;
+  }
+
+  /* ============ Утилиты ============ */
+  .muted{color:var(--hint)}
+  .divider{height:0.5px;background:var(--ios-separator);margin:16px 0}
+</style>
+</head>
+<body>
+
+<!-- ============ LOCK ============ -->
+<div id="lockScreen" class="screen active">
+  <h1 class="large" style="justify-content:center;margin-top:40px;margin-bottom:8px">🔐 Сейф+</h1>
+  <p style="text-align:center;color:var(--hint);font-size:15px;margin:0 0 40px">Ваш менеджер паролей</p>
+  <div id="pinDots"></div>
+  <div id="pinPad"></div>
+  <button id="pinSubmitBtn">✓ Открыть</button>
+  <div id="pinError"></div>
+  <p style="text-align:center;color:var(--hint);font-size:13px;margin-top:24px" id="lockHint"></p>
+  <a class="forgot-link" id="forgotPinLink">Не помню PIN</a>
+</div>
+
+<!-- ============ VAULT ============ -->
+<div id="vaultScreen" class="screen">
+  <h1 class="large">🔐 Хранилище
+    <span class="act" id="foldersBtn" title="Папки">📂</span>
+    <span class="act" id="settingsBtn" title="Настройки">⚙️</span>
+  </h1>
+  <input id="searchInput" placeholder="Поиск" style="margin-bottom:16px;background:var(--ios-fill-tertiary);padding-left:16px">
+  <div id="catRow" class="cat-row"></div>
+  <div id="cardsList"></div>
+  <button id="addCardBtn" style="margin-top:8px">+ Новая карточка</button>
+</div>
+
+<!-- ============ FOLDERS ============ -->
+<div id="foldersScreen" class="screen">
+  <h1><span class="back" id="foldersBack">‹</span> Мои папки</h1>
+  <div id="foldersList"></div>
+  <button id="addFolderBtn" class="sec">+ Новая папка</button>
+</div>
+
+<!-- ============ FOLDER EDITOR ============ -->
+<div id="folderEditorScreen" class="screen">
+  <h1><span class="back" id="folderEditorBack">‹</span> <span id="folderEditorTitle">Новая папка</span></h1>
+  <label>Название</label>
+  <input id="folderName" placeholder="Например, Банки" autocomplete="off">
+  <label>Родительская папка</label>
+  <select id="folderParent"></select>
+  <label>Иконка</label>
+  <div class="icon-grid" id="folderIconGrid"></div>
+  <button id="saveFolderBtn">Сохранить</button>
+  <button id="deleteFolderBtn" class="danger" style="margin-top:8px">Удалить папку</button>
+</div>
+
+<!-- ============ TEMPLATES ============ -->
+<div id="tplScreen" class="screen">
+  <h1><span class="back" id="tplBack">‹</span> Шаблон</h1>
+  <p class="info" style="margin-bottom:20px">Выберите готовый шаблон или начните с пустой карточки.</p>
+  <div class="tpl-grid" id="tplGrid"></div>
+</div>
+
+<!-- ============ VIEW CARD ============ -->
+<div id="viewScreen" class="screen">
+  <h1>
+    <span class="back" id="viewBack">‹</span>
+    <span id="viewIcon"></span>
+    <span id="viewTitle" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    <span class="act" id="favBtn">☆</span>
+  </h1>
+  <div id="viewFields"></div>
+  <p style="font-size:13px;color:var(--hint);text-align:center;margin:16px 0 20px" id="viewUpdated"></p>
+  <div class="row">
+    <button id="editBtn">Изменить</button>
+    <button id="shareBtn" class="sec">Поделиться</button>
+  </div>
+</div>
+
+<!-- ============ EDIT CARD ============ -->
+<div id="editScreen" class="screen">
+  <h1><span class="back" id="editBack">‹</span> <span id="editTitle">Карточка</span></h1>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:20px">
+    <div class="icon-preview" id="iconPreview"></div>
+    <div style="flex:1">
+      <input id="cardTitle" placeholder="Название" style="margin-bottom:0;font-weight:600;font-size:17px">
+    </div>
+  </div>
+  <button id="iconPickBtn" class="sec" style="margin-bottom:16px">🖼 Выбрать иконку</button>
+  <label>Папка</label>
+  <select id="cardFolder" style="margin-bottom:20px"></select>
+  <label>Поля</label>
+  <div id="fieldsContainer"></div>
+  <button id="addFieldBtn" class="sec" style="margin-top:4px">+ Добавить поле</button>
+  <button id="saveCardBtn" style="margin-top:12px">Сохранить</button>
+  <button id="deleteCardBtn" class="danger" style="margin-top:8px">Удалить</button>
+</div>
+
+<!-- ============ ICON PICKER ============ -->
+<div id="iconScreen" class="screen">
+  <h1><span class="back" id="iconBack">‹</span> Иконка</h1>
+  <button id="uploadPhotoBtn" class="sec" style="margin-bottom:10px">📷 Загрузить фото</button>
+  <input type="file" id="photoInput" accept="image/*" style="display:none">
+  <button id="removePhotoBtn" class="sec danger" style="display:none;margin-bottom:20px">Удалить фото</button>
+  <label>Эмодзи</label>
+  <div class="icon-grid" id="cardIconGrid"></div>
+</div>
+
+<!-- ============ SETTINGS ============ -->
+<div id="settingsScreen" class="screen">
+  <h1><span class="back" id="settingsBack">‹</span> Настройки</h1>
+
+  <label>Автоблокировка</label>
+  <input id="autoLockInput" type="number" min="15" value="60">
+  <div class="chk">
+    <input type="checkbox" id="clipClearChk">
+    <label for="clipClearChk" style="margin:0;font-size:15px;color:var(--text);text-transform:none;letter-spacing:-0.3px">Очищать буфер через 30 сек</label>
+  </div>
+  <button id="saveSettingsBtn" class="sec" style="margin-top:16px">Сохранить</button>
+
+  <label style="margin-top:32px">Восстановление доступа</label>
+  <button id="recoveryManageBtn" class="sec">🔑 Recovery Key</button>
+  <p class="status" id="recoveryStatus">—</p>
+
+  <label style="margin-top:32px">Резервное копирование</label>
+  <button id="backupBtn" class="sec">💾 Создать копию</button>
+  <button id="restoreBtn" class="sec">📥 Восстановить из копии</button>
+  <p class="status" id="storageStatus">Хранилище: проверка...</p>
+
+  <label style="margin-top:32px">Опасная зона</label>
+  <button id="lockNowBtn" class="sec">🔒 Заблокировать</button>
+  <button id="resetBtn" class="danger">⚠️ Сбросить всё</button>
+</div>
+
+<!-- ============ RESTORE ============ -->
+<div id="restoreScreen" class="screen">
+  <h1><span class="back" id="restoreBack">‹</span> Восстановление</h1>
+  <p class="info">
+    Откройте «Избранное» Telegram, найдите сообщение с <b>#backup</b>, скопируйте длинную строку, вставьте сюда и введите PIN, под которым создавалась копия.
+  </p>
+  <label>Строка копии</label>
+  <textarea id="restoreText" placeholder="Вставьте сюда строку из Избранного"></textarea>
+  <button id="pasteBtn" class="sec">📋 Вставить из буфера</button>
+  <label>PIN-код от копии</label>
+  <input id="restorePin" type="password" inputmode="numeric" placeholder="PIN" autocomplete="off">
+  <button id="restoreConfirmBtn" style="margin-top:8px">Восстановить</button>
+  <p class="info" style="margin-top:16px">Восстановление заменит текущие данные.</p>
+</div>
+
+<!-- ============ RECOVERY: SHOW ============ -->
+<div id="recoveryShowScreen" class="screen">
+  <h1 style="justify-content:center;margin-top:20px">🔑 Recovery Key</h1>
+  <p class="info">
+    Сохраните эту фразу в надёжном месте. <b>Она показывается только один раз.</b><br><br>
+    С её помощью вы сможете восстановить доступ, если забудете PIN. Запишите её на бумаге или в отдельный менеджер паролей. Не храните её в Telegram.
+  </p>
+  <div class="rec-key" id="recoveryKeyDisplay">····</div>
+  <button id="copyRecoveryBtn" class="sec">📋 Скопировать</button>
+  <div class="chk" style="margin-top:20px">
+    <input type="checkbox" id="recoveryConfirmChk">
+    <label for="recoveryConfirmChk" style="margin:0;font-size:15px;color:var(--text);text-transform:none;letter-spacing:-0.3px;line-height:1.35">Я сохранил(а) Recovery Key в надёжном месте</label>
+  </div>
+  <button id="recoveryContinueBtn" disabled style="margin-top:12px">Продолжить</button>
+  <button id="recoverySkipBtn" class="sec" style="color:var(--ios-red);margin-top:8px">Пропустить</button>
+</div>
+
+<!-- ============ RECOVERY: INPUT ============ -->
+<div id="recoveryInputScreen" class="screen">
+  <h1><span class="back" id="recoveryInputBack">‹</span> Восстановление</h1>
+  <p class="info">
+    Введите Recovery Key, который вы сохранили при создании хранилища. Дефисы и регистр не важны.
+  </p>
+  <input id="recoveryInputField" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX"
+    autocomplete="off" autocapitalize="characters" spellcheck="false"
+    style="font-family:ui-monospace, 'SF Mono', Menlo, monospace;letter-spacing:1.5px;text-align:center;font-size:14px">
+  <button id="submitRecoveryBtn" style="margin-top:8px">🔓 Открыть</button>
+  <p class="status" id="recoveryInputError" style="color:var(--ios-red);min-height:20px;text-align:center"></p>
+  <p class="status" id="recoveryInputHelp" style="text-align:center"></p>
+  <button id="recoveryWipeBtn" class="danger" style="margin-top:24px">⚠️ Стереть и создать заново</button>
+</div>
+
+<!-- ============ RECOVERY: MANAGE ============ -->
+<div id="recoveryManageScreen" class="screen">
+  <h1><span class="back" id="recoveryManageBack">‹</span> Recovery Key</h1>
+  <p class="info" id="recoveryManageInfo"></p>
+  <button id="recoveryRegenBtn" style="display:none">🔑 Создать Recovery Key</button>
+  <p class="status">Recovery Key хранится в мета-данных хранилища и защищён вашим PIN.</p>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div id="toast" class="toast"></div>
+
+<!-- ============ WIPE MODAL ============ -->
+<div id="wipeModal" class="modal-overlay" style="display:none">
+  <div class="modal-box">
+    <h2>⚠️ Удаление данных</h2>
+    <p class="danger-text">Все карточки, папки и настройки будут удалены безвозвратно. Восстановить их можно только из резервной копии.</p>
+    <div class="countdown" id="wipeCountdown">30</div>
+    <p class="countdown-label" id="wipeCountdownLabel">Защита от случайного нажатия</p>
+    <button id="wipeCancelBtn" class="sec">Отмена</button>
+    <button id="wipeConfirmBtn" class="danger" disabled>Удалить навсегда</button>
+  </div>
+</div>
+
+<script>
+const tg = window.Telegram.WebApp;
+tg.ready(); tg.expand();
+
+// ============ Ключи ============
+const META_KEY        = 'safe_meta_v4';
+const CONF_KEY        = 'safe_conf_v4';
+const INDEX_KEY       = 'safe_index_v4';
+const CARD_PREFIX     = 'safe_card_v4_';
+const PACK_PREFIX     = 'safe_pack_v4_';
+const META_BACKUP     = 'safe_meta_v4_backup';
+const CONF_BACKUP     = 'safe_conf_v4_backup';
+const INDEX_BACKUP    = 'safe_index_v4_backup';
+const LEGACY_META  = ['safe_meta_v3','safe_meta_v2','safe_meta_v1'];
+const LEGACY_DATA  = ['safe_data_v3','safe_data_v2','safe_data_v1','safe_data_v3_backup'];
+
+const PACK_SIZE      = 6;
+const PACK_THRESHOLD = 800;
+const SERVICE_KEYS   = 6;
+
+const enc = new TextEncoder(), dec = new TextDecoder();
+
+const DEFAULT_FOLDERS = [
+  {id:'f_pass',  name:'Пароли',    icon:'🌐', parentId:null},
+  {id:'f_cards', name:'Карты',     icon:'💳', parentId:null},
+  {id:'f_bank',  name:'Банки',     icon:'🏦', parentId:null},
+  {id:'f_docs',  name:'Документы', icon:'🪪', parentId:null},
+  {id:'f_notes', name:'Заметки',   icon:'📝', parentId:null},
+  {id:'f_other', name:'Разное',    icon:'📁', parentId:null},
+];
+const ICONS = ['📁','🌐','💳','🪪','📝','🏦','📧','📶','📱','🔑','₿','🎮','🎬','🎵',
+               '🛒','💼','🏥','🚗','🏠','✈️','🎓','📚','⚙️','🔒','💰','🎁','☁️','🔧',
+               '⭐','❤️','🎯','🏢','🛡️','🔐','🗝️','📊','🧾','📋','🎨'];
+
+const RECOVERY_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const WEAK_PINS = ['0000','1111','2222','3333','4444','5555','6666','7777','8888','9999',
+                   '1234','4321','0123','3210','1212','2121','1122','2211'];
+
+let cryptoKey = null;
+let vault = { folders: [], cards: [], settings: { autoLock: 60, clipClear: true } };
+let storageMode = 'individual';
+let currentFolder = 'all';
+let editingId = null;
+let editingFolderId = null;
+let selectedIcon = '📁';
+let editingCardIcon = null;
+let pinBuffer = '';
+let pinMode = 'unlock';
+let tempPin = '';
+let lockTimer = null;
+let clipboardTimer = null;
+let pendingTemplate = null;
+let pendingRecoveryKey = null;
+let currentMeta = null;
+let wipeTimer = null;
+let storageError = false;
+
+// ============ Утилиты ============
+const $ = id => document.getElementById(id);
+const show = s => document.querySelectorAll('.screen').forEach(x => x.classList.toggle('active', x.id === s));
+const b64 = a => btoa(String.fromCharCode(...new Uint8Array(a)));
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const uid = p => (p||'') + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const PWD_FIELD_RE = /pass(?!port)|парол|pin(?!k|g|e)|пин(?!г|к)|cvv|seed|ключ|приватн/i;
+function isPasswordField(name){ return PWD_FIELD_RE.test(String(name||'')); }
+
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
+
+function timeAgo(ts){
+  if(!ts) return '';
+  const diff = Date.now() - ts;
+  const m = 60*1000, h = 60*m, d = 24*h, w = 7*d, mo = 30*d;
+  if(diff < m) return 'только что';
+  if(diff < h) return Math.floor(diff/m) + ' мин';
+  if(diff < d) return Math.floor(diff/h) + ' ч';
+  if(diff < w) return Math.floor(diff/d) + ' дн';
+  if(diff < mo) return Math.floor(diff/w) + ' нед';
+  return new Date(ts).toLocaleDateString('ru-RU');
+}
+
+function genPassword(len=16){
+  const pool = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%&*';
+  const arr = new Uint32Array(len);
+  crypto.getRandomValues(arr);
+  return [...arr].map(n => pool[n % pool.length]).join('');
+}
+
+function scorePassword(pwd){
+  if(!pwd) return 0;
+  let s = 0;
+  if(pwd.length >= 6) s++;
+  if(pwd.length >= 10) s++;
+  if(pwd.length >= 14) s++;
+  if(/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) s++;
+  if(/[0-9]/.test(pwd)) s++;
+  if(/[^a-zA-Z0-9]/.test(pwd)) s++;
+  return Math.min(s, 6);
+}
+
+function normalizeCard(c){
+  if(!c || typeof c !== 'object') return null;
+  if(!c.id) c.id = uid('c_');
+  if(typeof c.title !== 'string') c.title = String(c.title || '');
+  if(!Array.isArray(c.fields)) c.fields = [];
+  c.fields = c.fields.map(f => ({
+    id: (f && f.id) || uid(),
+    name: (f && f.name) || '',
+    value: (f && f.value) || ''
+  }));
+  if(!c.icon) c.icon = '📄';
+  return c;
+}
+
+function normalizeCards(arr){
+  return (arr || []).map(normalizeCard).filter(Boolean);
+}
+
+// ============ Recovery Key ============
+function generateRecoveryKey(){
+  const groups = 6, len = 4;
+  const arr = new Uint32Array(groups * len);
+  crypto.getRandomValues(arr);
+  const parts = [];
+  for(let g = 0; g < groups; g++){
+    let s = '';
+    for(let i = 0; i < len; i++){
+      s += RECOVERY_ALPHABET[arr[g*len + i] % RECOVERY_ALPHABET.length];
+    }
+    parts.push(s);
+  }
+  return parts.join('-');
+}
+
+function normalizeRecoveryKey(s){
+  return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g, '');
+}
+
+// ============ Шифрование ============
+async function deriveKey(pin, salt){
+  const km = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt, iterations:150000, hash:'SHA-256' },
+    km, { name:'AES-GCM', length:256 },
+    true,
+    ['encrypt','decrypt']);
+}
+async function encryptJSON(key, obj){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM',iv}, key, enc.encode(JSON.stringify(obj)));
+  return { iv: b64(iv), ct: b64(ct) };
+}
+async function decryptJSON(key, p){
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:unb64(p.iv)}, key, unb64(p.ct));
+  return JSON.parse(dec.decode(pt));
+}
+
+async function createRecoveryRecord(pinKey, recoveryKey){
+  const recSalt = crypto.getRandomValues(new Uint8Array(16));
+  const recKey = await deriveKey(normalizeRecoveryKey(recoveryKey), recSalt);
+  const pkRaw = await crypto.subtle.exportKey('raw', pinKey);
+  const encPinKeyWithRec = await encryptJSON(recKey, { pk: b64(pkRaw) });
+  return { hasRecovery: true, recSalt: b64(recSalt), encPinKeyWithRec };
+}
+
+async function tryUnlockWithRecoveryKey(recoveryKey, meta){
+  if(!meta.hasRecovery || !meta.recSalt || !meta.encPinKeyWithRec){
+    return { error: 'Recovery Key не установлен для этого хранилища' };
+  }
+  let recKey;
+  try {
+    recKey = await deriveKey(normalizeRecoveryKey(recoveryKey), unb64(meta.recSalt));
+  } catch(e){ return { error: 'Ошибка хранилища' }; }
+  let obj;
+  try { obj = await decryptJSON(recKey, meta.encPinKeyWithRec); }
+  catch { return { error: 'Неверный Recovery Key' }; }
+  if(!obj || !obj.pk) return { error: 'Повреждены данные' };
+  let pinKey;
+  try {
+    pinKey = await crypto.subtle.importKey('raw', unb64(obj.pk),
+      { name:'AES-GCM' }, true, ['encrypt','decrypt']);
+  } catch(e){ return { error: 'Повреждены данные' }; }
+  try { await decryptJSON(pinKey, meta.verify); }
+  catch { return { error: 'Повреждены данные' }; }
+  return { pinKey };
+}
+
+// ============ Хранилище ============
+const useCloud = tg.CloudStorage && typeof tg.CloudStorage.getItem === 'function';
+function storeGet(k){
+  if(useCloud) return new Promise((res,rej)=>tg.CloudStorage.getItem(k,(e,v)=>e?rej(e):res(v)));
+  return Promise.resolve(localStorage.getItem(k));
+}
+function storeSet(k,v){
+  if(useCloud) return new Promise((res,rej)=>tg.CloudStorage.setItem(k,v,(e,ok)=>e?rej(e):res(ok)));
+  localStorage.setItem(k,v); return Promise.resolve(true);
+}
+function storeRemove(k){
+  if(useCloud) return new Promise((res,rej)=>tg.CloudStorage.removeItem(k,(e,ok)=>e?rej(e):res(ok)));
+  localStorage.removeItem(k); return Promise.resolve(true);
+}
+function storeKeysFallback(){
+  if(useCloud && typeof tg.CloudStorage.getKeys === 'function'){
+    return new Promise((res,rej)=>tg.CloudStorage.getKeys((e,ks)=>e?rej(e):res(ks||[])));
+  }
+  return Promise.resolve(Object.keys(localStorage));
+}
+
+async function getIndex(){
+  for(const k of [INDEX_KEY, INDEX_BACKUP]){
+    let raw;
+    try { raw = await storeGet(k); } catch(e){ continue; }
+    if(!raw) continue;
+    try { return JSON.parse(raw); } catch(e){}
+  }
+  return { cards: [], packs: [] };
+}
+async function setIndex(idx){
+  const str = JSON.stringify(idx);
+  let ok1 = false, ok2 = false;
+  try { await storeSet(INDEX_KEY, str); ok1 = true; } catch(e){}
+  try { await storeSet(INDEX_BACKUP, str); ok2 = true; } catch(e){}
+  return ok1 || ok2;
+}
+async function rebuildIndexFromCloud(){
+  const idx = { cards: [], packs: [] };
+  try {
+    const all = await storeKeysFallback();
+    all.forEach(k => {
+      if(k.startsWith(CARD_PREFIX)) idx.cards.push(k);
+      else if(k.startsWith(PACK_PREFIX)) idx.packs.push(k);
+    });
+  } catch(e){}
+  return idx;
+}
+
+async function saveConf(){
+  if(!cryptoKey) return false;
+  try {
+    const conf = { folders: vault.folders, settings: vault.settings, storageMode };
+    const payload = await encryptJSON(cryptoKey, conf);
+    const str = JSON.stringify(payload);
+    await storeSet(CONF_KEY, str);
+    try { await storeSet(CONF_BACKUP, str); } catch(e){}
+    return true;
+  } catch(e){
+    toast('Не удалось сохранить настройки');
+    return false;
+  }
+}
+
+async function saveCardStorage(card){
+  if(!cryptoKey) return false;
+  try {
+    if(storageMode === 'packed'){
+      if(card._pid){
+        const raw = await storeGet(card._pid);
+        if(raw){
+          try {
+            const arr = await decryptJSON(cryptoKey, JSON.parse(raw));
+            const idx = arr.findIndex(c => c.id === card.id);
+            if(idx >= 0) arr[idx] = card; else arr.push(card);
+            const payload = await encryptJSON(cryptoKey, arr);
+            await storeSet(card._pid, JSON.stringify(payload));
+            return true;
+          } catch(e){}
+        }
+      }
+      const index = await getIndex();
+      for(const pk of index.packs){
+        const raw = await storeGet(pk);
+        if(!raw) continue;
+        try {
+          const arr = await decryptJSON(cryptoKey, JSON.parse(raw));
+          if(arr.length < PACK_SIZE){
+            arr.push(card);
+            const payload = await encryptJSON(cryptoKey, arr);
+            await storeSet(pk, JSON.stringify(payload));
+            card._pid = pk;
+            return true;
+          }
+        } catch(e){}
+      }
+      const newPid = PACK_PREFIX + uid('');
+      const payload = await encryptJSON(cryptoKey, [card]);
+      await storeSet(newPid, JSON.stringify(payload));
+      card._pid = newPid;
+      index.packs.push(newPid);
+      await setIndex(index);
+      return true;
+    } else {
+      const payload = await encryptJSON(cryptoKey, card);
+      await storeSet(CARD_PREFIX + card.id, JSON.stringify(payload));
+      const index = await getIndex();
+      const key = CARD_PREFIX + card.id;
+      if(!index.cards.includes(key)){ index.cards.push(key); await setIndex(index); }
+      return true;
+    }
+  } catch(e){
+    toast('Не удалось сохранить карточку');
+    return false;
+  }
+}
+
+async function removeCardStorage(card){
+  try {
+    if(storageMode === 'packed' && card._pid){
+      const raw = await storeGet(card._pid);
+      if(raw){
+        try {
+          const arr = await decryptJSON(cryptoKey, JSON.parse(raw));
+          const filtered = arr.filter(c => c.id !== card.id);
+          if(filtered.length === 0){
+            await storeRemove(card._pid);
+            const index = await getIndex();
+            index.packs = index.packs.filter(p => p !== card._pid);
+            await setIndex(index);
+          } else {
+            const payload = await encryptJSON(cryptoKey, filtered);
+            await storeSet(card._pid, JSON.stringify(payload));
+          }
+        } catch(e){}
+      }
+    } else {
+      const key = CARD_PREFIX + card.id;
+      await storeRemove(key);
+      const index = await getIndex();
+      index.cards = index.cards.filter(k => k !== key);
+      await setIndex(index);
+    }
+  } catch(e){}
+}
+
+async function loadAllCards(){
+  let index = await getIndex();
+  if(!index.cards.length && !index.packs.length){
+    index = await rebuildIndexFromCloud();
+    if(index.cards.length || index.packs.length) await setIndex(index);
+  }
+  let corrupted = 0;
+  if(index.packs.length > 0){
+    storageMode = 'packed';
+    const cards = [];
+    for(const pk of index.packs){
+      const raw = await storeGet(pk);
+      if(!raw){ corrupted++; continue; }
+      try {
+        const arr = await decryptJSON(cryptoKey, JSON.parse(raw));
+        if(Array.isArray(arr)) arr.forEach(c => { c._pid = pk; cards.push(c); });
+      } catch(e){ corrupted++; }
+    }
+    if(corrupted > 0) toast(`⚠️ Повреждено пакетов: ${corrupted}`);
+    return normalizeCards(cards);
+  }
+  storageMode = 'individual';
+  const cards = [];
+  for(const ck of index.cards){
+    const raw = await storeGet(ck);
+    if(!raw){ corrupted++; continue; }
+    try { cards.push(await decryptJSON(cryptoKey, JSON.parse(raw))); } catch(e){ corrupted++; }
+  }
+  if(corrupted > 0) toast(`⚠️ Повреждено карточек: ${corrupted}`);
+  return normalizeCards(cards);
+}
+
+async function packAllCards(){
+  const index = await getIndex();
+  if(vault.cards.length === 0){
+    for(const k of index.cards) await storeRemove(k);
+    for(const k of index.packs) await storeRemove(k);
+    await setIndex({ cards: [], packs: [] });
+    storageMode = 'individual';
+    await saveConf();
+    return;
+  }
+  toast('Переупаковка хранилища...');
+  for(const k of index.cards) await storeRemove(k);
+  for(const k of index.packs) await storeRemove(k);
+  const newIdx = { cards: [], packs: [] };
+  for(let i = 0; i < vault.cards.length; i += PACK_SIZE){
+    const chunk = vault.cards.slice(i, i + PACK_SIZE);
+    const pid = PACK_PREFIX + uid('');
+    const payload = await encryptJSON(cryptoKey, chunk);
+    await storeSet(pid, JSON.stringify(payload));
+    chunk.forEach(c => { c._pid = pid; });
+    newIdx.packs.push(pid);
+  }
+  await setIndex(newIdx);
+  storageMode = 'packed';
+  await saveConf();
+  toast(`Готово! Режим: упакованный, ${vault.cards.length} карточек`);
+}
+
+async function checkAndPackIfNeeded(){
+  if(storageMode === 'individual' && vault.cards.length >= PACK_THRESHOLD){
+    await packAllCards();
+  }
+}
+
+async function fixOrphanCards(){
+  const folderIds = new Set(vault.folders.map(f => f.id));
+  const other = vault.folders.find(f => f.id === 'f_other') || vault.folders[0];
+  if(!other) return 0;
+  let fixed = 0;
+  for(const c of vault.cards){
+    if(!c.folderId || !folderIds.has(c.folderId)){
+      c.folderId = other.id;
+      fixed++;
+      await saveCardStorage(c);
+    }
+  }
+  return fixed;
+}
+
+// ============ PIN ============
+function renderPinDots(){
+  const n = pinBuffer.length;
+  $('pinDots').innerHTML = Array.from({length: Math.max(n,4)}, (_,i)=>
+    `<div class="dot ${i<n?'filled':''}"></div>`).join('');
+}
+
+function buildPinPad(){
+  const pad = $('pinPad'); pad.innerHTML='';
+  ['1','2','3','4','5','6','7','8','9','⌫','0',''].forEach(k=>{
+    const b = document.createElement('button');
+    if(k === ''){
+      b.className = 'placeholder';
+      b.textContent = '·';
+      b.disabled = true;
+    } else if(k === '⌫'){
+      b.textContent = k;
+      b.onclick = () => onPinKey('⌫');
+    } else {
+      b.textContent = k;
+      b.onclick = () => onPinKey(k);
+    }
+    pad.appendChild(b);
+  });
+}
+
+function onPinKey(k){
+  if(k==='⌫'){
+    pinBuffer = pinBuffer.slice(0,-1);
+    $('pinError').textContent = '';
+    renderPinDots();
+    return;
+  }
+  if(pinBuffer.length>=9) return;
+  pinBuffer += k;
+  $('pinError').textContent = '';
+  renderPinDots();
+}
+
+async function detectMeta(){
+  const v = await storeGet(META_KEY);
+  if(v) return { key: META_KEY, value: v };
+  const v2 = await storeGet(META_BACKUP);
+  if(v2) return { key: META_BACKUP, value: v2 };
+  for(const k of LEGACY_META){
+    const vv = await storeGet(k);
+    if(vv) return { key: k, value: vv };
+  }
+  return null;
+}
+
+async function loadVaultAfterUnlock(){
+  let confStr = null;
+  try {
+    confStr = (await storeGet(CONF_KEY)) || (await storeGet(CONF_BACKUP));
+  } catch(e){}
+  if(confStr){
+    try {
+      const conf = await decryptJSON(cryptoKey, JSON.parse(confStr));
+      vault.folders = conf.folders || [];
+      vault.settings = conf.settings || { autoLock: 60, clipClear: true };
+    } catch(e){}
+  } else {
+    let migrated = false;
+    for(const lk of LEGACY_DATA){
+      let lv = null;
+      try { lv = await storeGet(lk); } catch(e){ continue; }
+      if(!lv) continue;
+      try {
+        const d = await decryptJSON(cryptoKey, JSON.parse(lv));
+        if(d && d.vault){
+          vault.folders = (d.vault.folders || []).map(f => ({...f, parentId: f.parentId || null}));
+          vault.settings = d.settings || { autoLock: 60, clipClear: true };
+          storageMode = 'individual';
+          for(const c of normalizeCards(d.vault.cards)){
+            vault.cards.push(c);
+            await saveCardStorage(c);
+          }
+          migrated = true;
+          break;
+        }
+      } catch(e){}
+    }
+    if(!migrated) vault.folders = DEFAULT_FOLDERS.slice();
+    storageMode = 'individual';
+    await saveConf();
+  }
+  if(!vault.folders.length) vault.folders = DEFAULT_FOLDERS.slice();
+  vault.cards = await loadAllCards();
+  const fixed = await fixOrphanCards();
+  if(fixed > 0) toast(`Перемещено в «Разное»: ${fixed}`);
+  await checkAndPackIfNeeded();
+}
+
+async function tryPin(){
+  if(pinBuffer.length < 4){
+    $('pinError').textContent = 'Минимум 4 цифры';
+    return;
+  }
+  if(pinMode==='unlock'){
+    if(storageError){
+      $('pinError').textContent = 'Хранилище недоступно. Перезапустите приложение.';
+      return;
+    }
+    let found;
+    try { found = await detectMeta(); }
+    catch(e) {
+      $('pinError').textContent = 'Ошибка хранилища. Попробуйте позже';
+      return;
+    }
+    if(!found){
+      pinMode='create';
+      $('pinError').textContent='Придумайте PIN (мин. 4 цифры)';
+      $('pinSubmitBtn').textContent = '✓ Далее';
+      pinBuffer=''; renderPinDots(); return;
+    }
+    let meta;
+    try { meta = JSON.parse(found.value); }
+    catch {
+      $('pinError').textContent = 'Повреждены данные. Восстановите из копии';
+      pinBuffer=''; renderPinDots(); return;
+    }
+
+    let key;
+    try { key = await deriveKey(pinBuffer, unb64(meta.salt)); }
+    catch(e){
+      $('pinError').textContent = 'Повреждены данные. Восстановите из копии';
+      pinBuffer=''; renderPinDots(); return;
+    }
+
+    try { await decryptJSON(key, meta.verify); }
+    catch {
+      $('pinError').textContent='Неверный PIN';
+      pinBuffer=''; renderPinDots(); return;
+    }
+
+    cryptoKey = key;
+    currentMeta = meta;
+    pinBuffer=''; renderPinDots();
+
+    try {
+      await loadVaultAfterUnlock();
+    } catch(e){
+      cryptoKey = null;
+      currentMeta = null;
+      $('pinError').textContent = 'Не удалось загрузить данные. Попробуйте снова';
+      return;
+    }
+
+    if(found.key !== META_KEY && found.key !== META_BACKUP){
+      try {
+        await storeSet(META_KEY, found.value);
+        await storeSet(META_BACKUP, found.value);
+      } catch(e){}
+    }
+
+    if(!meta.hasRecovery && !meta.recoveryOffered){
+      startRecoveryOffer();
+      return;
+    }
+
+    openVault();
+  }
+  else if(pinMode==='create'){
+    tempPin = pinBuffer; pinBuffer=''; pinMode='confirm';
+    $('pinError').textContent='Повторите PIN';
+    $('pinSubmitBtn').textContent = '✓ Создать';
+    renderPinDots(); return;
+  }
+  else if(pinMode==='confirm'){
+    if(pinBuffer !== tempPin){
+      $('pinError').textContent='PIN не совпал';
+      pinBuffer=''; pinMode='create'; tempPin='';
+      $('pinSubmitBtn').textContent = '✓ Далее';
+      renderPinDots(); return;
+    }
+    if(pinBuffer.length <= 4 && WEAK_PINS.includes(pinBuffer)){
+      if(!confirm('PIN «' + pinBuffer + '» слишком простой и легко угадывается. Всё равно использовать?')){
+        pinBuffer=''; pinMode='create'; tempPin='';
+        $('pinError').textContent = 'Придумайте другой PIN';
+        $('pinSubmitBtn').textContent = '✓ Далее';
+        renderPinDots(); return;
+      }
+    }
+
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    cryptoKey = await deriveKey(pinBuffer, salt);
+    const verify = await encryptJSON(cryptoKey, {ok:true});
+    const meta = { salt: b64(salt), verify, hasRecovery: false, recoveryOffered: false };
+    currentMeta = meta;
+
+    vault = { folders: DEFAULT_FOLDERS.slice(), cards: [], settings: { autoLock: 60, clipClear: true } };
+    storageMode = 'individual';
+
+    try {
+      await storeSet(META_KEY, JSON.stringify(meta));
+      await storeSet(META_BACKUP, JSON.stringify(meta));
+    } catch(e){
+      cryptoKey = null; currentMeta = null;
+      $('pinError').textContent = 'Ошибка хранилища. Попробуйте позже';
+      return;
+    }
+    await setIndex({ cards: [], packs: [] });
+    await saveConf();
+
+    $('pinError').textContent=''; pinBuffer=''; tempPin='';
+    renderPinDots();
+    startRecoveryOffer();
+  }
+}
+
+// ============ Recovery: создание ============
+function startRecoveryOffer(){
+  pendingRecoveryKey = generateRecoveryKey();
+  $('recoveryKeyDisplay').textContent = pendingRecoveryKey;
+  $('recoveryConfirmChk').checked = false;
+  $('recoveryContinueBtn').disabled = true;
+  $('recoveryContinueBtn').textContent = 'Продолжить';
+  show('recoveryShowScreen');
+}
+
+async function recoveryContinue(){
+  if(!pendingRecoveryKey) return;
+  if(!$('recoveryConfirmChk').checked){ toast('Отметьте галочку'); return; }
+  $('recoveryContinueBtn').disabled = true;
+  $('recoveryContinueBtn').textContent = 'Сохранение...';
+  try {
+    const rec = await createRecoveryRecord(cryptoKey, pendingRecoveryKey);
+    Object.assign(currentMeta, rec);
+    currentMeta.recoveryOffered = true;
+    await storeSet(META_KEY, JSON.stringify(currentMeta));
+    await storeSet(META_BACKUP, JSON.stringify(currentMeta));
+    toast('Recovery Key сохранён');
+    pendingRecoveryKey = null;
+    $('recoveryKeyDisplay').textContent = '····';
+    $('recoveryContinueBtn').textContent = 'Продолжить';
+    openVault();
+  } catch(e){
+    toast('Не удалось сохранить. Попробуйте ещё раз.');
+    $('recoveryContinueBtn').disabled = false;
+    $('recoveryContinueBtn').textContent = 'Продолжить';
+  }
+}
+
+async function recoverySkip(){
+  if(!confirm('Без Recovery Key вы не сможете восстановить доступ, если забудете PIN. Пропустить?')) return;
+  try {
+    currentMeta.recoveryOffered = true;
+    currentMeta.hasRecovery = false;
+    delete currentMeta.recSalt;
+    delete currentMeta.encPinKeyWithRec;
+    await storeSet(META_KEY, JSON.stringify(currentMeta));
+    await storeSet(META_BACKUP, JSON.stringify(currentMeta));
+  } catch(e){}
+  pendingRecoveryKey = null;
+  $('recoveryKeyDisplay').textContent = '····';
+  openVault();
+}
+
+// ============ Recovery: ввод ============
+async function openRecoveryInput(){
+  $('recoveryInputField').value = '';
+  $('recoveryInputError').textContent = '';
+  let hasRec = false;
+  try {
+    const found = await detectMeta();
+    if(found){
+      const meta = JSON.parse(found.value);
+      hasRec = !!meta.hasRecovery;
+    }
+  } catch(e){}
+  $('recoveryWipeBtn').style.display = 'block';
+  $('recoveryInputHelp').textContent = hasRec
+    ? 'Если вы не помните Recovery Key — восстановить доступ невозможно. Единственный выход — стереть данные и создать хранилище заново.'
+    : 'Recovery Key для этого хранилища не установлен. Восстановить доступ нельзя — только стереть данные и начать заново.';
+  show('recoveryInputScreen');
+}
+
+async function submitRecovery(){
+  const raw = $('recoveryInputField').value;
+  const norm = normalizeRecoveryKey(raw);
+  if(norm.length !== 24){
+    $('recoveryInputError').textContent = 'Recovery Key должен содержать 24 символа';
+    return;
+  }
+  $('recoveryInputError').textContent = '';
+
+  let found;
+  try { found = await detectMeta(); }
+  catch(e){ $('recoveryInputError').textContent = 'Ошибка хранилища'; return; }
+  if(!found){ $('recoveryInputError').textContent = 'Хранилище не найдено'; return; }
+
+  let meta;
+  try { meta = JSON.parse(found.value); }
+  catch(e){ $('recoveryInputError').textContent = 'Повреждены данные'; return; }
+
+  const res = await tryUnlockWithRecoveryKey(norm, meta);
+  if(res.error){
+    $('recoveryInputError').textContent = res.error;
+    return;
+  }
+
+  cryptoKey = res.pinKey;
+  currentMeta = meta;
+
+  try {
+    await loadVaultAfterUnlock();
+  } catch(e){
+    cryptoKey = null; currentMeta = null;
+    $('recoveryInputError').textContent = 'Не удалось загрузить данные. Повторите.';
+    return;
+  }
+
+  $('recoveryInputField').value = '';
+  openVault();
+  toast('Доступ восстановлен');
+}
+
+// ============ Удаление с защитой 30 сек ============
+function openWipeConfirm(){
+  clearInterval(wipeTimer);
+  let sec = 30;
+  $('wipeCountdown').textContent = sec;
+  $('wipeCountdown').classList.remove('ready');
+  $('wipeCountdownLabel').textContent = 'Защита от случайного нажатия';
+  $('wipeConfirmBtn').disabled = true;
+  $('wipeModal').style.display = 'flex';
+
+  wipeTimer = setInterval(() => {
+    sec--;
+    if(sec > 0){
+      $('wipeCountdown').textContent = sec;
+    } else {
+      clearInterval(wipeTimer);
+      wipeTimer = null;
+      $('wipeCountdown').textContent = '✓';
+      $('wipeCountdown').classList.add('ready');
+      $('wipeCountdownLabel').textContent = 'Теперь можно удалить';
+      $('wipeConfirmBtn').disabled = false;
+    }
+  }, 1000);
+}
+
+function closeWipeConfirm(){
+  clearInterval(wipeTimer);
+  wipeTimer = null;
+  $('wipeModal').style.display = 'none';
+}
+
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden && wipeTimer){
+    closeWipeConfirm();
+  }
+});
+
+async function wipeVault(){
+  closeWipeConfirm();
+  try {
+    const idx = await getIndex();
+    for(const k of idx.cards) await storeRemove(k);
+    for(const k of idx.packs) await storeRemove(k);
+    await storeRemove(META_KEY);
+    await storeRemove(META_BACKUP);
+    await storeRemove(CONF_KEY);
+    await storeRemove(CONF_BACKUP);
+    await storeRemove(INDEX_KEY);
+    await storeRemove(INDEX_BACKUP);
+    for(const k of LEGACY_META) await storeRemove(k);
+    for(const k of LEGACY_DATA) await storeRemove(k);
+    await storeRemove('safe_settings_v3');
+    try {
+      const all = await storeKeysFallback();
+      for(const k of all){
+        if(k.startsWith('safe_')) await storeRemove(k);
+      }
+    } catch(e){}
+  } catch(e){}
+  location.reload();
+}
+
+// ============ Recovery: управление ============
+function openRecoveryManage(){
+  const has = currentMeta && currentMeta.hasRecovery;
+  $('recoveryManageInfo').innerHTML = has
+    ? 'Recovery Key установлен. Вы можете создать новый — старый перестанет работать.'
+    : 'Recovery Key не установлен. Если забудете PIN, восстановить доступ будет невозможно.';
+  $('recoveryRegenBtn').style.display = 'block';
+  $('recoveryRegenBtn').textContent = has ? '🔑 Создать новый Recovery Key' : '🔑 Создать Recovery Key';
+  show('recoveryManageScreen');
+}
+
+// ============ Vault UI ============
+function openVault(){
+  renderChips(); renderCards(); show('vaultScreen'); resetLockTimer();
+}
+function countInFolder(fid){ return vault.cards.filter(c => c.folderId === fid).length; }
+
+function renderChips(){
+  const row = $('catRow'); row.innerHTML='';
+  const all = document.createElement('div');
+  all.className = 'cat' + (currentFolder==='all'?' active':'');
+  all.innerHTML = `Все <span class="cnt">${vault.cards.length}</span>`;
+  all.onclick = ()=>{ currentFolder='all'; renderChips(); renderCards(); };
+  row.appendChild(all);
+  const fav = document.createElement('div');
+  fav.className = 'cat' + (currentFolder==='fav'?' active':'');
+  fav.innerHTML = `⭐ Избранное <span class="cnt">${vault.cards.filter(c=>c.favorite).length}</span>`;
+  fav.onclick = ()=>{ currentFolder='fav'; renderChips(); renderCards(); };
+  row.appendChild(fav);
+  vault.folders.forEach(f=>{
+    const el = document.createElement('div');
+    el.className = 'cat' + (currentFolder===f.id?' active':'');
+    el.innerHTML = `${esc(f.icon)} ${esc(f.name)} <span class="cnt">${countInFolder(f.id)}</span>`;
+    el.onclick = ()=>{ currentFolder=f.id; renderChips(); renderCards(); };
+    row.appendChild(el);
+  });
+}
+
+function renderCards(){
+  const q = ($('searchInput').value||'').toLowerCase();
+  const list = $('cardsList'); list.innerHTML='';
+  let cards = vault.cards.slice();
+  if(currentFolder==='fav') cards = cards.filter(c=>c.favorite);
+  else if(currentFolder!=='all') cards = cards.filter(c=>c.folderId===currentFolder);
+  if(q){
+    cards = cards.filter(c => {
+      if((c.title||'').toLowerCase().includes(q)) return true;
+      for(const f of (c.fields||[])){
+        if((f.name||'').toLowerCase().includes(q)) return true;
+        if((f.value||'').toLowerCase().includes(q)) return true;
+      }
+      const fld = vault.folders.find(x => x.id === c.folderId);
+      if(fld && ((fld.name||'').toLowerCase().includes(q) || (fld.icon||'').includes(q))) return true;
+      return false;
+    });
+  }
+  if(!cards.length){
+    list.innerHTML='<div class="empty">Здесь пока ничего нет</div>';
+    return;
+  }
+  cards.sort((a,b)=>(b.updated||0)-(a.updated||0));
+
+  const group = document.createElement('div');
+  group.className = 'cards-group';
+
+  cards.forEach(c=>{
+    const f = vault.folders.find(x=>x.id===c.folderId);
+    const d = document.createElement('div');
+    d.className='card-item';
+    const iconHtml = c.customIcon ? `<img src="${c.customIcon}">` : esc(c.icon||'📄');
+    const favMark = c.favorite ? '<span class="card-fav">★</span>' : '';
+    d.innerHTML = `
+      <div class="card-icon">${iconHtml}</div>
+      <div class="card-body">
+        <div class="card-title">${esc(c.title)} ${favMark}</div>
+        <div class="card-sub">
+          ${f ? esc(f.icon+' '+f.name) : ''}
+          <span>${timeAgo(c.updated)}</span>
+        </div>
+      </div>
+      <div class="card-chevron">›</div>`;
+    d.onclick = ()=>viewCard(c.id);
+    group.appendChild(d);
+  });
+  list.appendChild(group);
+}
+
+// ============ Папки ============
+function openFolders(){ renderFoldersList(); show('foldersScreen'); }
+function renderFoldersList(){
+  const box = $('foldersList'); box.innerHTML='';
+  const renderLevel = (parentId, depth) => {
+    vault.folders.filter(f => (f.parentId||null) === parentId).forEach(f=>{
+      const d = document.createElement('div');
+      d.className='folder-item';
+      d.style.paddingLeft = (16 + depth*20) + 'px';
+      const childCount = vault.folders.filter(x=>x.parentId===f.id).length;
+      const cnt = countInFolder(f.id) + (childCount ? ' · 📁'+childCount : '');
+      d.innerHTML = `<div class="folder-name"><span class="ico">${esc(f.icon)}</span>${esc(f.name)}</div>
+        <div class="folder-cnt">${cnt}</div>
+        <div class="card-chevron">›</div>`;
+      d.onclick = ()=>openFolderEditor(f.id);
+      box.appendChild(d);
+      renderLevel(f.id, depth+1);
+    });
+  };
+  renderLevel(null, 0);
+}
+
+function openFolderEditor(id){
+  editingFolderId = id||null;
+  const f = id ? vault.folders.find(x=>x.id===id) : null;
+  $('folderEditorTitle').textContent = id ? 'Редактировать' : 'Новая папка';
+  $('folderName').value = f ? f.name : '';
+  selectedIcon = f ? f.icon : '📁';
+  const descendants = new Set();
+  if(editingFolderId){
+    const collect = (pid) => vault.folders.forEach(x => {
+      if(x.parentId === pid && !descendants.has(x.id)){
+        descendants.add(x.id);
+        collect(x.id);
+      }
+    });
+    collect(editingFolderId);
+  }
+  const sel = $('folderParent'); sel.innerHTML='';
+  const none = document.createElement('option');
+  none.value=''; none.textContent = '— Корень —';
+  sel.appendChild(none);
+  const addOptions = (parentId, depth) => {
+    vault.folders.filter(x => (x.parentId||null) === parentId).forEach(x => {
+      if(x.id === editingFolderId) return;
+      if(descendants.has(x.id)) return;
+      const o = document.createElement('option');
+      o.value = x.id;
+      o.textContent = '  '.repeat(depth) + x.icon + ' ' + x.name;
+      if(f && f.parentId === x.id) o.selected = true;
+      sel.appendChild(o);
+      addOptions(x.id, depth+1);
+    });
+  };
+  addOptions(null, 0);
+  renderIconGrid('folderIconGrid', selectedIcon, (ic) => { selectedIcon = ic; });
+  $('deleteFolderBtn').style.display = id ? 'block' : 'none';
+  show('folderEditorScreen');
+}
+
+function renderIconGrid(gridId, selected, onClick){
+  const g = $(gridId); g.innerHTML='';
+  ICONS.forEach(ic=>{
+    const b = document.createElement('div');
+    b.className = 'icon-pick' + (ic===selected?' sel':'');
+    b.textContent = ic;
+    b.dataset.icon = ic;
+    b.onclick = () => {
+      g.querySelectorAll('.icon-pick').forEach(x => x.classList.remove('sel'));
+      b.classList.add('sel');
+      if(onClick) onClick(ic);
+    };
+    g.appendChild(b);
+  });
+}
+
+async function saveFolder(){
+  const name = $('folderName').value.trim();
+  if(!name){ toast('Введите название'); return; }
+  const parentId = $('folderParent').value || null;
+  if(editingFolderId){
+    const f = vault.folders.find(x=>x.id===editingFolderId);
+    f.name = name; f.icon = selectedIcon; f.parentId = parentId;
+  } else {
+    vault.folders.push({ id: uid('f_'), name, icon: selectedIcon, parentId });
+  }
+  const ok = await saveConf();
+  if(!ok){ toast('Не удалось сохранить папку'); return; }
+  renderFoldersList(); renderChips(); renderCards();
+  show('foldersScreen');
+}
+
+async function deleteFolder(){
+  if(!editingFolderId) return;
+  const f = vault.folders.find(x=>x.id===editingFolderId);
+  if(!f) return;
+  if(f.id === 'f_other'){ toast('Папку «Разное» удалить нельзя'); return; }
+  const toDelete = new Set([f.id]);
+  let added = true;
+  while(added){
+    added = false;
+    vault.folders.forEach(x => {
+      if(x.parentId && toDelete.has(x.parentId) && !toDelete.has(x.id)){ toDelete.add(x.id); added = true; }
+    });
+  }
+  const cardsToMove = vault.cards.filter(c => toDelete.has(c.folderId));
+  const childrenCount = toDelete.size - 1;
+  let other = vault.folders.find(x=>x.id==='f_other' && !toDelete.has(x.id));
+  if(!other) other = vault.folders.find(x=>!toDelete.has(x.id));
+  let needRecreateOther = false;
+  if(cardsToMove.length && !other){
+    other = { id: 'f_other', name: 'Разное', icon: '📁', parentId: null };
+    needRecreateOther = true;
+  }
+  const msg = `Удалить папку «${f.name}»?` +
+    (childrenCount ? `\nВложенных папок: ${childrenCount}` : '') +
+    (cardsToMove.length ? `\n${cardsToMove.length} карточек переместятся в «${other ? other.name : 'Разное'}».` : '');
+  if(!confirm(msg)) return;
+  if(other){
+    for(const c of cardsToMove){
+      c.folderId = other.id;
+      await saveCardStorage(c);
+    }
+  }
+  vault.folders = vault.folders.filter(x => !toDelete.has(x.id));
+  if(needRecreateOther && other) vault.folders.push(other);
+  if(vault.folders.length === 0){
+    vault.folders.push({ id: 'f_other', name: 'Разное', icon: '📁', parentId: null });
+  }
+  if(toDelete.has(currentFolder)) currentFolder = 'all';
+  if(currentFolder !== 'all' && currentFolder !== 'fav'
+     && !vault.folders.some(f => f.id === currentFolder)){
+    currentFolder = 'all';
+  }
+  await saveConf();
+  renderFoldersList(); renderChips(); renderCards();
+  toast('Папка удалена');
+  show('foldersScreen');
+}
+
+// ============ Шаблоны ============
+const TEMPLATES = [
+  { id:'login',   icon:'🌐', name:'Логин / Пароль', folder:'Пароли',   fields:['Логин','Пароль','Сайт','Заметка'] },
+  { id:'email',   icon:'📧', name:'Email', folder:'Пароли',           fields:['Email','Пароль','Сервер (IMAP)','Порт','Заметка'] },
+  { id:'card',    icon:'💳', name:'Банковская карта', folder:'Карты', fields:['Номер карты','Срок действия','CVV','Пин-код','Банк','Владелец'] },
+  { id:'account', icon:'🏦', name:'Банковский счёт', folder:'Банки',  fields:['Банк','Номер счёта','БИК','ИНН','Корр. счёт'] },
+  { id:'wifi',    icon:'📶', name:'Wi-Fi', folder:'Разное',           fields:['Сеть (SSID)','Пароль','Тип шифрования','Роутер (IP)'] },
+  { id:'sim',     icon:'📱', name:'SIM / Мобильный', folder:'Разное', fields:['Оператор','Номер','PIN','PUK','Тариф'] },
+  { id:'passport',icon:'🪪', name:'Паспорт', folder:'Документы', fields:['Тип документа','Серия','Номер','Кем выдан','Дата выдачи','Код подразделения'] },
+  { id:'crypto',  icon:'₿',  name:'Криптокошелёк', folder:'Разное',   fields:['Кошелёк','Seed-фраза','Приватный ключ','Сеть','Заметка'] },
+  { id:'license', icon:'🔑', name:'Лицензия', folder:'Разное', fields:['Продукт','Ключ','Срок действия','Привязан к'] },
+  { id:'note',    icon:'📝', name:'Заметка', folder:'Заметки', fields:['Текст','Теги'] }
+];
+function renderTemplates(){
+  const grid = $('tplGrid'); grid.innerHTML='';
+  TEMPLATES.forEach(t=>{
+    const b = document.createElement('div');
+    b.className = 'tpl-btn';
+    b.innerHTML = `<div class="ico">${t.icon}</div><div class="nm">${t.name}</div>`;
+    b.onclick = ()=>pickTemplate(t);
+    grid.appendChild(b);
+  });
+  const blank = document.createElement('div');
+  blank.className = 'tpl-btn wide';
+  blank.innerHTML = `<div class="ico">📄</div><div class="nm">Пустая карточка</div>`;
+  blank.onclick = ()=>pickTemplate(null);
+  grid.appendChild(blank);
+}
+function pickTemplate(t){ pendingTemplate = t; openEditor(null); }
+
+// ============ Просмотр карточки ============
+function viewCard(id){
+  const c = vault.cards.find(x=>x.id===id); if(!c) return;
+  $('viewTitle').textContent = c.title;
+  const iconEl = $('viewIcon');
+  if(c.customIcon){
+    iconEl.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = c.customIcon;
+    img.style.cssText = 'width:28px;height:28px;border-radius:8px;vertical-align:middle';
+    iconEl.appendChild(img);
+  } else {
+    iconEl.textContent = c.icon || '📄';
+  }
+  $('favBtn').textContent = c.favorite ? '⭐' : '☆';
+  $('viewUpdated').textContent = c.updated ? 'Обновлено ' + timeAgo(c.updated) : '';
+
+  const box = $('viewFields'); box.innerHTML='';
+  (c.fields||[]).forEach(f=>{
+    if(!f.value) return;
+    const isPass = isPasswordField(f.name);
+    const div = document.createElement('div');
+    div.className = 'view-field';
+    div.innerHTML = `
+      <div class="view-field-label">${esc(f.name)}</div>
+      <div class="view-field-value ${isPass?'mono':''}" id="val-${f.id}">
+        ${isPass?'••••••••':esc(f.value)}
+      </div>
+      <div class="view-field-actions">
+        ${isPass?`<button class="viewBtn" data-action="toggle" data-fid="${f.id}">👁</button>`:''}
+        <button class="viewBtn" data-action="copy" data-val="${esc(f.value)}">📋</button>
+      </div>`;
+    box.appendChild(div);
+  });
+
+  box.querySelectorAll('.viewBtn').forEach(btn=>{
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const act = btn.dataset.action;
+      if(act === 'toggle'){
+        const el = $('val-' + btn.dataset.fid);
+        if(!el) return;
+        const f = (c.fields||[]).find(x => x.id === btn.dataset.fid);
+        if(!f) return;
+        el.textContent = el.textContent.includes('•') ? f.value : '••••••••';
+      } else if(act === 'copy'){
+        copyToClipboard(btn.dataset.val);
+      }
+    };
+  });
+
+  $('editBtn').onclick = ()=>openEditor(id);
+  $('shareBtn').onclick = ()=>{
+    const txt = `${c.title}\n` + (c.fields||[]).map(f=>`${f.name}: ${f.value}`).join('\n');
+    try {
+      if(navigator.share){
+        const p = navigator.share({text:txt});
+        if(p && typeof p.catch === 'function') p.catch(()=>{});
+      } else {
+        navigator.clipboard.writeText(txt).then(()=>toast('Скопировано')).catch(()=>toast('Не удалось'));
+      }
+    } catch(e){
+      navigator.clipboard.writeText(txt).then(()=>toast('Скопировано')).catch(()=>toast('Не удалось'));
+    }
+  };
+  $('favBtn').onclick = async ()=>{
+    c.favorite = !c.favorite;
+    const ok = await saveCardStorage(c);
+    if(!ok){ c.favorite = !c.favorite; return; }
+    $('favBtn').textContent = c.favorite ? '⭐' : '☆';
+    toast(c.favorite ? 'В избранном' : 'Убрано из избранного');
+  };
+  show('viewScreen'); resetLockTimer();
+}
+
+async function copyToClipboard(v){
+  try {
+    await navigator.clipboard.writeText(v);
+    if(vault.settings.clipClear){
+      toast('Скопировано · буфер очистится');
+      clearTimeout(clipboardTimer);
+      clipboardTimer = setTimeout(async ()=>{
+        try { await navigator.clipboard.writeText('[Сейф+: буфер очищен]'); } catch(e){}
+      }, 30000);
+    } else {
+      toast('Скопировано');
+    }
+  } catch(e){ toast('Не удалось скопировать'); }
+}
+
+// ============ Редактор карточки ============
+function openEditor(id){
+  editingId = id||null;
+  const c = id ? vault.cards.find(x=>x.id===id) : null;
+  $('editTitle').textContent = id ? 'Редактирование' : (pendingTemplate ? pendingTemplate.name : 'Новая карточка');
+  $('cardTitle').value = c ? c.title : '';
+  editingCardIcon = {
+    icon: c ? (c.icon || '📄') : (pendingTemplate ? pendingTemplate.icon : '📄'),
+    customIcon: c ? (c.customIcon || null) : null
+  };
+  updateIconPreview();
+  const sel = $('cardFolder'); sel.innerHTML='';
+  vault.folders.forEach(f=>{
+    const o = document.createElement('option'); o.value=f.id;
+    o.textContent = `${f.icon} ${f.name}`;
+    if(c && c.folderId===f.id) o.selected=true;
+    else if(!c && pendingTemplate && f.name===pendingTemplate.folder) o.selected=true;
+    else if(!c && !pendingTemplate && currentFolder!=='all' && currentFolder!=='fav' && f.id===currentFolder) o.selected=true;
+    sel.appendChild(o);
+  });
+  if(!c && !pendingTemplate && (currentFolder==='all'||currentFolder==='fav')){
+    const f = vault.folders.find(x=>x.id==='f_other') || vault.folders.find(x=>x.name==='Разное');
+    if(f) sel.value = f.id;
+  }
+  const box = $('fieldsContainer'); box.innerHTML='';
+  if(c && c.fields){
+    c.fields.forEach(f=>addFieldRow(f.name, f.value, f.id));
+  } else if(pendingTemplate){
+    pendingTemplate.fields.forEach(name=>addFieldRow(name,'',uid()));
+  } else {
+    addFieldRow('Логин','',uid());
+    addFieldRow('Пароль','',uid());
+    addFieldRow('Заметка','',uid());
+  }
+  $('deleteCardBtn').style.display = id ? 'block' : 'none';
+  show('editScreen');
+}
+function updateIconPreview(){
+  const el = $('iconPreview');
+  if(editingCardIcon.customIcon){
+    el.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = editingCardIcon.customIcon;
+    el.appendChild(img);
+  } else {
+    el.innerHTML = '';
+    el.textContent = editingCardIcon.icon || '📄';
+  }
+}
+function addFieldRow(name='', value='', id=uid()){
+  const box = $('fieldsContainer');
+  const wrap = document.createElement('div');
+  wrap.className = 'field-wrap';
+  wrap.dataset.id = id;
+  const row = document.createElement('div');
+  row.className = 'field-row';
+  row.innerHTML = `
+    <input placeholder="Название" value="${esc(name)}" class="fName">
+    <input placeholder="Значение" value="${esc(value)}" class="fValue">
+    <button type="button" class="genBtn" title="Сгенерировать" style="display:none">🎲</button>
+    <button type="button" class="delBtn">✕</button>
+  `;
+  wrap.appendChild(row);
+  const bar = document.createElement('div');
+  bar.className = 'pwd-bar';
+  bar.style.display = 'none';
+  bar.innerHTML = `<div class="pwd-fill"></div>`;
+  wrap.appendChild(bar);
+  const nameInput = row.querySelector('.fName');
+  const valInput = row.querySelector('.fValue');
+  const genBtn = row.querySelector('.genBtn');
+  const fill = bar.querySelector('.pwd-fill');
+  const updateBar = () => {
+    const s = scorePassword(valInput.value);
+    fill.style.width = (s/6*100) + '%';
+    fill.style.background = s <= 2 ? 'var(--ios-red)' : s <= 4 ? 'var(--ios-orange)' : 'var(--ios-green)';
+  };
+  const checkFieldType = () => {
+    if(isPasswordField(nameInput.value)){
+      genBtn.style.display = '';
+      bar.style.display = '';
+      updateBar();
+    } else {
+      genBtn.style.display = 'none';
+      bar.style.display = 'none';
+    }
+  };
+  nameInput.addEventListener('input', checkFieldType);
+  valInput.addEventListener('input', () => {
+    if(bar.style.display !== 'none') updateBar();
+  });
+  genBtn.onclick = () => {
+    valInput.value = genPassword(16);
+    updateBar();
+  };
+  row.querySelector('.delBtn').onclick = () => wrap.remove();
+  box.appendChild(wrap);
+  checkFieldType();
+}
+
+async function saveCard(){
+  const title = $('cardTitle').value.trim(); if(!title){ toast('Введите название'); return; }
+  const fields = [...$('fieldsContainer').querySelectorAll('.field-wrap')].map(w=>({
+    id: w.dataset.id,
+    name: w.querySelector('.fName').value,
+    value: w.querySelector('.fValue').value
+  })).filter(f=>f.name||f.value);
+
+  const existing = editingId ? vault.cards.find(x=>x.id===editingId) : null;
+
+  const cardData = {
+    id: existing ? existing.id : uid('c_'),
+    title,
+    folderId: $('cardFolder').value,
+    icon: editingCardIcon.customIcon ? '📄' : (editingCardIcon.icon || '📄'),
+    customIcon: editingCardIcon.customIcon || null,
+    fields,
+    favorite: existing ? (existing.favorite || false) : false,
+    updated: Date.now()
+  };
+  if(existing && existing._pid) cardData._pid = existing._pid;
+
+  const ok = await saveCardStorage(cardData);
+  if(!ok) return;
+
+  if(existing){
+    const i = vault.cards.findIndex(x=>x.id===editingId);
+    vault.cards[i] = cardData;
+  } else {
+    vault.cards.push(cardData);
+  }
+
+  pendingTemplate = null;
+  await checkAndPackIfNeeded();
+  renderChips(); renderCards(); show('vaultScreen');
+}
+async function deleteCard(){
+  if(!editingId || !confirm('Удалить карточку?')) return;
+  const card = vault.cards.find(x => x.id === editingId);
+  if(card) await removeCardStorage(card);
+  vault.cards = vault.cards.filter(x=>x.id!==editingId);
+  renderChips(); renderCards(); show('vaultScreen');
+}
+
+// ============ Иконка ============
+function openIconPicker(){
+  $('removePhotoBtn').style.display = editingCardIcon.customIcon ? 'block' : 'none';
+  renderIconGrid('cardIconGrid', editingCardIcon.customIcon ? null : editingCardIcon.icon, (ic) => {
+    editingCardIcon.icon = ic;
+    editingCardIcon.customIcon = null;
+    updateIconPreview();
+    $('removePhotoBtn').style.display = 'none';
+  });
+  show('iconScreen');
+}
+function setupPhotoUpload(){
+  $('uploadPhotoBtn').onclick = () => $('photoInput').click();
+  $('photoInput').onchange = (e) => {
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const size = 48;
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const scale = Math.max(size/img.width, size/img.height);
+        const w = img.width*scale, h = img.height*scale;
+        ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+        editingCardIcon.customIcon = dataUrl;
+        updateIconPreview();
+        toast('Фото добавлено');
+        $('removePhotoBtn').style.display = 'block';
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+  $('removePhotoBtn').onclick = () => {
+    editingCardIcon.customIcon = null;
+    updateIconPreview();
+    $('removePhotoBtn').style.display = 'none';
+    toast('Фото удалено');
+  };
+}
+
+// ============ Настройки ============
+async function openSettings(){
+  $('autoLockInput').value = vault.settings.autoLock || 60;
+  $('clipClearChk').checked = vault.settings.clipClear !== false;
+  show('settingsScreen');
+  const has = currentMeta && currentMeta.hasRecovery;
+  $('recoveryStatus').textContent = has
+    ? '✅ Recovery Key установлен'
+    : '⚠️ Recovery Key не установлен';
+  let usedKeys = SERVICE_KEYS;
+  try {
+    const idx = await getIndex();
+    usedKeys = idx.cards.length + idx.packs.length + SERVICE_KEYS;
+  } catch(e){}
+  const modeStr = storageMode === 'packed'
+    ? `📦 Упакованный (до ~5000 карточек)`
+    : `📄 Обычный (до ${PACK_THRESHOLD} карточек)`;
+  $('storageStatus').innerHTML =
+    `Режим: <b>${modeStr}</b><br>` +
+    `Карточек: <b>${vault.cards.length}</b> · Ключей: <b>${usedKeys}</b> из 1024`;
+}
+async function saveSettings(){
+  vault.settings.autoLock = Math.max(15, parseInt($('autoLockInput').value)||60);
+  vault.settings.clipClear = $('clipClearChk').checked;
+  const ok = await saveConf();
+  if(!ok){ toast('Не удалось сохранить'); return; }
+  resetLockTimer();
+  toast('Сохранено'); show('vaultScreen');
+}
+
+// ============ Бэкап ============
+async function makeBackup(){
+  if(!cryptoKey){ toast('Сначала разблокируйте'); return; }
+  let metaStr = null;
+  try {
+    metaStr = (await storeGet(META_KEY)) || (await storeGet(META_BACKUP));
+  } catch(e){
+    toast('Ошибка хранилища. Попробуйте позже'); return;
+  }
+  if(!metaStr){ toast('Нет мета-данных'); return; }
+  let meta;
+  try { meta = JSON.parse(metaStr); }
+  catch { toast('Мета-данные повреждены'); return; }
+  const conf = await encryptJSON(cryptoKey, { folders: vault.folders, settings: vault.settings });
+  const cards = [];
+  for(const c of vault.cards){
+    const copy = { ...c };
+    delete copy._pid;
+    cards.push(await encryptJSON(cryptoKey, copy));
+  }
+  const backup = {
+    app: 'safe_plus_mini',
+    version: 4,
+    salt: meta.salt,
+    conf,
+    cards,
+    created: new Date().toISOString()
+  };
+  const str = JSON.stringify(backup);
+  if(str.length > 500000){
+    if(!confirm('Размер копии ' + Math.round(str.length/1024) + ' КБ. Может не поместиться в буфер. Продолжить?')) return;
+  }
+  try {
+    await navigator.clipboard.writeText(str);
+    toast('Копия скопирована (' + Math.round(str.length/1024) + ' КБ)');
+  } catch(e){
+    $('restoreText').value = str;
+    show('restoreScreen');
+    toast('Скопируйте текст вручную');
+  }
+}
+
+// ============ Восстановление из копии ============
+function openRestore(){
+  $('restoreText').value = '';
+  $('restorePin').value = '';
+  show('restoreScreen');
+}
+async function pasteFromClipboard(){
+  try {
+    const text = await navigator.clipboard.readText();
+    if(text){ $('restoreText').value = text; toast('Вставлено'); }
+    else toast('Буфер пуст');
+  } catch(e){ toast('Вставьте вручную'); }
+}
+async function doRestore(){
+  const str = $('restoreText').value.trim();
+  const pin = $('restorePin').value.trim();
+  if(!str){ toast('Вставьте строку копии'); return; }
+  if(pin.length < 4){ toast('PIN минимум 4 цифры'); return; }
+  let backup;
+  try { backup = JSON.parse(str); } catch(e){ toast('Повреждённый формат'); return; }
+  if(!backup.salt || !backup.conf){ toast('Формат не распознан'); return; }
+
+  let key;
+  try { key = await deriveKey(pin, unb64(backup.salt)); }
+  catch(e){ toast('Повреждённая копия'); return; }
+
+  let conf;
+  try { conf = await decryptJSON(key, backup.conf); }
+  catch(e){ toast('Неверный PIN или повреждена копия'); return; }
+
+  const cardsCount = (backup.cards||[]).length;
+  if(!confirm(`Восстановить ${cardsCount} карточек?\nТекущие данные будут заменены.`)) return;
+
+  const idx = await getIndex();
+  for(const k of idx.cards) await storeRemove(k);
+  for(const k of idx.packs) await storeRemove(k);
+  await setIndex({ cards: [], packs: [] });
+
+  cryptoKey = key;
+  vault.folders = conf.folders || [];
+  vault.settings = conf.settings || { autoLock: 60, clipClear: true };
+  vault.cards = [];
+
+  for(const encCard of (backup.cards||[])){
+    try {
+      const c = await decryptJSON(key, encCard);
+      const nc = normalizeCard(c);
+      if(nc) vault.cards.push(nc);
+    } catch(e){}
+  }
+  if(!vault.folders.length) vault.folders = DEFAULT_FOLDERS.slice();
+
+  storageMode = 'individual';
+  if(vault.cards.length >= PACK_THRESHOLD){
+    await packAllCards();
+  } else {
+    for(const c of vault.cards) await saveCardStorage(c);
+    await saveConf();
+  }
+  await fixOrphanCards();
+
+  const verify = await encryptJSON(key, {ok:true});
+  const metaPayload = JSON.stringify({ salt: backup.salt, verify, hasRecovery: false, recoveryOffered: false });
+  currentMeta = JSON.parse(metaPayload);
+  try {
+    await storeSet(META_KEY, metaPayload);
+    await storeSet(META_BACKUP, metaPayload);
+  } catch(e){}
+
+  $('restoreText').value = '';
+  $('restorePin').value = '';
+  openVault();
+  toast(`Восстановлено: ${vault.cards.length}`);
+}
+
+// ============ Автоблокировка ============
+function resetLockTimer(){
+  clearTimeout(lockTimer);
+  if(!cryptoKey) return;
+  const sec = vault.settings.autoLock || 60;
+  lockTimer = setTimeout(lockNow, sec*1000);
+}
+['click','touchstart','keydown'].forEach(e => document.addEventListener(e, () => resetLockTimer()));
+
+function lockNow(){
+  cryptoKey=null; pinBuffer=''; pinMode='unlock';
+  vault.cards = [];
+  currentMeta = null;
+  $('lockHint').textContent='Введите PIN и нажмите кнопку';
+  $('pinError').textContent='';
+  $('pinSubmitBtn').textContent = '✓ Открыть';
+  renderPinDots(); show('lockScreen');
+}
+
+// ============ Инициализация ============
+async function init(){
+  buildPinPad(); renderPinDots(); renderTemplates(); setupPhotoUpload();
+  let found;
+  try {
+    found = await detectMeta();
+  } catch(e){
+    storageError = true;
+    pinMode = 'unlock';
+    $('lockHint').textContent = '';
+    $('pinError').textContent = 'Ошибка хранилища. Проверьте интернет и перезапустите.';
+    return;
+  }
+  storageError = false;
+  if(found){
+    pinMode='unlock';
+    $('lockHint').textContent='Введите PIN';
+    $('pinSubmitBtn').textContent = '✓ Открыть';
+  } else {
+    pinMode='create';
+    $('pinError').textContent='Придумайте PIN (мин. 4 цифры)';
+    $('pinSubmitBtn').textContent = '✓ Далее';
+  }
+}
+
+// ============ Обработчики ============
+$('forgotPinLink').onclick = openRecoveryInput;
+$('pinSubmitBtn').onclick = tryPin;
+
+$('foldersBtn').onclick = openFolders;
+$('foldersBack').onclick = ()=>{ renderChips(); renderCards(); show('vaultScreen'); };
+$('addFolderBtn').onclick = ()=>openFolderEditor(null);
+$('folderEditorBack').onclick = ()=>{ editingFolderId=null; show('foldersScreen'); };
+$('saveFolderBtn').onclick = saveFolder;
+$('deleteFolderBtn').onclick = deleteFolder;
+
+$('settingsBtn').onclick = openSettings;
+$('settingsBack').onclick = ()=>show('vaultScreen');
+$('saveSettingsBtn').onclick = saveSettings;
+$('backupBtn').onclick = makeBackup;
+$('restoreBtn').onclick = openRestore;
+$('restoreBack').onclick = ()=>show('settingsScreen');
+$('pasteBtn').onclick = pasteFromClipboard;
+$('restoreConfirmBtn').onclick = doRestore;
+$('lockNowBtn').onclick = lockNow;
+$('resetBtn').onclick = openWipeConfirm;
+
+$('recoveryManageBtn').onclick = openRecoveryManage;
+$('recoveryManageBack').onclick = ()=>show('settingsScreen');
+$('recoveryRegenBtn').onclick = ()=>{
+  if(!confirm('Создать новый Recovery Key? Старый перестанет работать.')) return;
+  startRecoveryOffer();
+};
+
+$('copyRecoveryBtn').onclick = async ()=>{
+  if(!pendingRecoveryKey) return;
+  try {
+    await navigator.clipboard.writeText(pendingRecoveryKey);
+    toast('Скопировано');
+  } catch(e){ toast('Не удалось скопировать'); }
+};
+$('recoveryConfirmChk').onchange = () => {
+  $('recoveryContinueBtn').disabled = !$('recoveryConfirmChk').checked;
+};
+$('recoveryContinueBtn').onclick = recoveryContinue;
+$('recoverySkipBtn').onclick = recoverySkip;
+
+$('recoveryInputBack').onclick = ()=>show('lockScreen');
+$('submitRecoveryBtn').onclick = submitRecovery;
+$('recoveryWipeBtn').onclick = openWipeConfirm;
+
+$('wipeCancelBtn').onclick = closeWipeConfirm;
+$('wipeConfirmBtn').onclick = wipeVault;
+
+$('addCardBtn').onclick = ()=>{ pendingTemplate = null; renderTemplates(); show('tplScreen'); };
+$('tplBack').onclick = ()=>show('vaultScreen');
+$('saveCardBtn').onclick = saveCard;
+$('deleteCardBtn').onclick = deleteCard;
+$('editBack').onclick = ()=>{ pendingTemplate = null; show('vaultScreen'); };
+$('viewBack').onclick = ()=>{ renderCards(); show('vaultScreen'); };
+$('addFieldBtn').onclick = ()=>addFieldRow();
+$('iconPickBtn').onclick = openIconPicker;
+$('iconBack').onclick = ()=>show('editScreen');
+
+init();
+</script>
+</body>
+</html>
