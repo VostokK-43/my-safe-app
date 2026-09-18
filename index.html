@@ -617,7 +617,8 @@
 
 <script>
 const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : {
-  ready: () => {}, expand: () => {}, CloudStorage: null, themeParams: {}
+  ready: () => {}, expand: () => {}, CloudStorage: null, themeParams: {},
+  BiometricManager: null
 };
 try { tg.ready(); } catch(e){}
 try { if (typeof tg.expand === 'function') tg.expand(); } catch(e){}
@@ -636,7 +637,6 @@ const PACK_SIZE      = 6;
 const PACK_THRESHOLD = 800;
 const SERVICE_KEYS   = 6;
 const enc = new TextEncoder(), dec = new TextDecoder();
-const PRF_SALT = 'safe_plus_webauthn_prf_v1';
 
 const DEFAULT_FOLDERS = [
   {id:'f_pass',  name:'Пароли',    icon:'🌐', parentId:null},
@@ -668,6 +668,9 @@ let bioAvailable = false;
 let patternFromWizard = false;
 let expectedPinLength = null;
 let patternFailCount = 0;
+let bioInited = false;
+let bioInitDone = false;
+let bioInitCallback = null;
 
 const $ = id => document.getElementById(id);
 const show = s => document.querySelectorAll('.screen').forEach(x => x.classList.toggle('active', x.id === s));
@@ -679,6 +682,148 @@ const PWD_FIELD_RE = /pass(?!port)|парол|pin(?!k|g|e)|пин(?!г|к)|cvv|s
 function isPasswordField(name){ return PWD_FIELD_RE.test(String(name||'')); }
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
 
+// ============ BiometricManager (нативный Telegram) ============
+function getBio(){
+  try { return tg.BiometricManager || null; } catch(e){ return null; }
+}
+function initBiometric(){
+  if(bioInited) return Promise.resolve(bioInitDone);
+  bioInited = true;
+  return new Promise((resolve) => {
+    const bm = getBio();
+    if(!bm){
+      bioInitDone = false;
+      resolve(false);
+      return;
+    }
+    let resolved = false;
+    const finish = (ok) => {
+      if(resolved) return;
+      resolved = true;
+      bioInitDone = !!ok;
+      resolve(!!ok);
+    };
+    // Fallback: если callback не сработает за 1.5 сек — считаем по свойствам
+    setTimeout(() => {
+      if(!resolved){
+        const ok = !!(bm.isBiometricAvailable && bm.isAccessGranted !== undefined);
+        finish(ok);
+      }
+    }, 1500);
+    try {
+      bm.init(() => {
+        const ok = !!bm.isBiometricAvailable;
+        finish(ok);
+      });
+    } catch(e){
+      finish(false);
+    }
+  });
+}
+function isBioAvailable(){
+  const bm = getBio();
+  if(!bm) return false;
+  return !!bm.isBiometricAvailable;
+}
+function isBioAccessGranted(){
+  const bm = getBio();
+  if(!bm) return false;
+  return !!bm.isAccessGranted;
+}
+function getBioDeviceId(){
+  const bm = getBio();
+  if(!bm) return null;
+  return bm.deviceId || null;
+}
+function getBioType(){
+  const bm = getBio();
+  if(!bm) return 'unknown';
+  const t = bm.biometricType;
+  if(Array.isArray(t)) return t[0] || 'unknown';
+  return t || 'unknown';
+}
+function bioLabelText(){
+  const t = getBioType();
+  if(t === 'face') return 'Face ID';
+  if(t === 'fingerprint') return 'Отпечаток';
+  return 'Отпечаток / Face ID';
+}
+
+function requestBioAccess(){
+  return new Promise((resolve) => {
+    const bm = getBio();
+    if(!bm){ resolve(false); return; }
+    try {
+      bm.requestAccess({ reason: 'Разрешить вход в Сейф+ по биометрии' }, (granted) => {
+        resolve(!!granted);
+      });
+    } catch(e){ resolve(false); }
+  });
+}
+
+function bioAuthenticate(reason){
+  return new Promise((resolve, reject) => {
+    const bm = getBio();
+    if(!bm){ reject(new Error('NOT_SUPPORTED')); return; }
+    try {
+      bm.authenticate({ reason: reason || 'Вход в Сейф+' }, (success, token) => {
+        if(success && token) resolve(token);
+        else reject(new Error('Отменено'));
+      });
+    } catch(e){ reject(e); }
+  });
+}
+
+async function createBiometricRecord(pinKey){
+  const bm = getBio();
+  if(!bm) throw new Error('NOT_SUPPORTED');
+  if(!bm.isBiometricAvailable) throw new Error('NOT_AVAILABLE');
+  if(!bm.isAccessGranted){
+    const granted = await requestBioAccess();
+    if(!granted) throw new Error('ACCESS_DENIED');
+  }
+  const token = await bioAuthenticate('Подтвердить добавление биометрии');
+  const bioSalt = crypto.getRandomValues(new Uint8Array(16));
+  const bioKey = await deriveKey(token, bioSalt);
+  const pkRaw = await crypto.subtle.exportKey('raw', pinKey);
+  const encPinKeyWithBio = await encryptJSON(bioKey, { pk: b64(pkRaw) });
+  return {
+    hasBiometric: true,
+    bioSalt: b64(bioSalt),
+    encPinKeyWithBio,
+    bioDeviceId: getBioDeviceId(),
+    bioType: getBioType()
+  };
+}
+
+async function tryUnlockWithBiometric(meta){
+  if(!meta.hasBiometric || !meta.bioSalt || !meta.encPinKeyWithBio)
+    return { error: 'Биометрия не установлена' };
+  const bm = getBio();
+  if(!bm || !bm.isBiometricAvailable)
+    return { error: 'Биометрия недоступна' };
+  if(meta.bioDeviceId && getBioDeviceId() && meta.bioDeviceId !== getBioDeviceId())
+    return { error: 'Биометрия настроена на другом устройстве' };
+  if(!bm.isAccessGranted)
+    return { error: 'Доступ к биометрии не выдан' };
+  let token;
+  try { token = await bioAuthenticate('Вход в Сейф+'); }
+  catch(e){ return { error: 'Отменено' }; }
+  let bioKey;
+  try { bioKey = await deriveKey(token, unb64(meta.bioSalt)); }
+  catch(e){ return { error: 'Ошибка хранилища' }; }
+  let obj;
+  try { obj = await decryptJSON(bioKey, meta.encPinKeyWithBio); }
+  catch { return { error: 'Токен не совпал' }; }
+  if(!obj || !obj.pk) return { error: 'Повреждены данные' };
+  try {
+    const pinKey = await importPinKey(obj.pk);
+    await decryptJSON(pinKey, meta.verify);
+    return { pinKey };
+  } catch(e){ return { error: 'Повреждены данные' }; }
+}
+
+// ============ Утилиты ============
 function timeAgo(ts){
   if(!ts) return '';
   const diff = Date.now() - ts;
@@ -726,6 +871,7 @@ function generateRecoveryKey(){
 }
 function normalizeRecoveryKey(s){ return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
 
+// ============ Крипто ============
 async function deriveKey(pin, salt){
   const km = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey({ name:'PBKDF2', salt, iterations:150000, hash:'SHA-256' },
@@ -788,80 +934,8 @@ async function tryUnlockWithPattern(patternKey, meta){
   } catch(e){ return { error: 'Повреждены данные' }; }
 }
 
-async function checkBiometricSupport(){
-  if(!window.PublicKeyCredential) return false;
-  if(!navigator.credentials || !navigator.credentials.create) return false;
-  try {
-    if(PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable){
-      return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-    }
-  } catch(e){}
-  return false;
-}
-async function createBiometricRecord(pinKey){
-  const challenge = crypto.getRandomValues(new Uint8Array(32));
-  const userId = crypto.getRandomValues(new Uint8Array(16));
-  const prfSalt = enc.encode(PRF_SALT);
-  const cred = await navigator.credentials.create({
-    publicKey: {
-      challenge,
-      rp: { name: 'Сейф+', id: location.hostname },
-      user: { id: userId, name: 'safe_user', displayName: 'Сейф+' },
-      pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
-      authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'preferred' },
-      timeout: 60000,
-      attestation: 'none',
-      extensions: { prf: { eval: { first: prfSalt } } }
-    }
-  });
-  const ext = cred.getClientExtensionResults();
-  const prfResult = ext && ext.prf && ext.prf.results && ext.prf.results.first;
-  if(!prfResult) throw new Error('PRF_UNSUPPORTED');
-  const bioKeyRaw = new Uint8Array(prfResult);
-  const bioSalt = crypto.getRandomValues(new Uint8Array(16));
-  const bioKey = await deriveKey(b64(bioKeyRaw), bioSalt);
-  const pkRaw = await crypto.subtle.exportKey('raw', pinKey);
-  const encPinKeyWithBio = await encryptJSON(bioKey, { pk: b64(pkRaw) });
-  return { hasBiometric: true, bioCredId: b64(cred.rawId), bioSalt: b64(bioSalt), encPinKeyWithBio };
-}
-async function tryUnlockWithBiometric(meta){
-  if(!meta.hasBiometric || !meta.bioCredId || !meta.bioSalt || !meta.encPinKeyWithBio)
-    return { error: 'Биометрия не установлена' };
-  const challenge = crypto.getRandomValues(new Uint8Array(32));
-  const prfSalt = enc.encode(PRF_SALT);
-  let assertion;
-  try {
-    assertion = await navigator.credentials.get({
-      publicKey: {
-        challenge,
-        rpId: location.hostname,
-        allowCredentials: [{ id: unb64(meta.bioCredId), type: 'public-key' }],
-        userVerification: 'required',
-        timeout: 60000,
-        extensions: { prf: { eval: { first: prfSalt } } }
-      }
-    });
-  } catch(e){ return { error: 'Отменено' }; }
-  const ext = assertion.getClientExtensionResults();
-  const prfResult = ext && ext.prf && ext.prf.results && ext.prf.results.first;
-  if(!prfResult) return { error: 'Биометрия не поддерживается' };
-  const bioKeyRaw = new Uint8Array(prfResult);
-  let bioKey;
-  try { bioKey = await deriveKey(b64(bioKeyRaw), unb64(meta.bioSalt)); }
-  catch(e){ return { error: 'Ошибка хранилища' }; }
-  let obj;
-  try { obj = await decryptJSON(bioKey, meta.encPinKeyWithBio); }
-  catch { return { error: 'Отпечаток не распознан' }; }
-  if(!obj || !obj.pk) return { error: 'Повреждены данные' };
-  try {
-    const pinKey = await importPinKey(obj.pk);
-    await decryptJSON(pinKey, meta.verify);
-    return { pinKey };
-  } catch(e){ return { error: 'Повреждены данные' }; }
-}
-
+// ============ Pattern canvas ============
 const PATTERN = { canvas: null, ctx: null, size: 0, cells: [], active: false, sequence: [], pointerPos: null, bound: false };
-
 function initPatternCanvas(){
   PATTERN.canvas = $('patternCanvas');
   if(!PATTERN.canvas) return false;
@@ -896,7 +970,6 @@ function scheduleInitPatternCanvas(tries){
     setTimeout(() => scheduleInitPatternCanvas(tries - 1), 80);
   }
 }
-
 function drawPattern(){
   if(!PATTERN.ctx) return;
   const ctx = PATTERN.ctx, size = PATTERN.size;
@@ -1015,7 +1088,6 @@ function openPatternScreen(mode){
   PATTERN.bound = false;
   requestAnimationFrame(() => scheduleInitPatternCanvas(8));
 }
-
 async function handlePatternComplete(seq){
   if(seq.split('-').length < 4){
     setPatternStatus('Слишком короткий — минимум 4 точки', true);
@@ -1082,10 +1154,8 @@ async function handlePatternComplete(seq){
   }
 }
 
-function openWizard(){
-  refreshWizard();
-  show('wizardScreen');
-}
+// ============ Мастер ============
+function openWizard(){ refreshWizard(); show('wizardScreen'); }
 function refreshWizard(){
   const hasPat = currentMeta && currentMeta.hasPattern;
   const patBtn = $('wizPatternBtn');
@@ -1142,15 +1212,17 @@ async function wizardBioSetup(){
     Object.assign(currentMeta, rec);
     await storeSet(META_KEY, JSON.stringify(currentMeta));
     await storeSet(META_BACKUP, JSON.stringify(currentMeta));
-    toast('Отпечаток добавлен');
+    toast('Биометрия добавлена');
     refreshWizard();
   } catch(e){
-    if(e.message === 'PRF_UNSUPPORTED') toast('Устройство не поддерживает PRF');
-    else if(String(e.message).includes('cancel') || String(e.name).includes('Abort')) toast('Отменено');
+    if(e.message === 'ACCESS_DENIED') toast('Доступ не выдан');
+    else if(e.message === 'AUTH_FAILED') toast('Аутентификация не удалась');
+    else if(e.message === 'NOT_AVAILABLE') toast('Биометрия недоступна');
     else toast('Не удалось добавить');
   }
 }
 
+// ============ Хранилище ============
 const useCloud = tg.CloudStorage && typeof tg.CloudStorage.getItem === 'function';
 function storeGet(k){
   if(useCloud) return new Promise((res,rej)=>tg.CloudStorage.getItem(k,(e,v)=>e?rej(e):res(v)));
@@ -1357,6 +1429,7 @@ async function fixOrphanCards(){
   return fixed;
 }
 
+// ============ PIN ============
 function renderPinDots(){
   const n = pinBuffer.length;
   $('pinDots').innerHTML = Array.from({length: Math.max(n,4)}, (_,i)=>
@@ -1613,7 +1686,6 @@ async function changePinSubmit(){
   const newPin = $('changePinNew').value.trim();
   const newPin2 = $('changePinNew2').value.trim();
   const errEl = $('changePinError');
-
   if(oldPin.length < 4){ errEl.textContent = 'Текущий PIN слишком короткий'; return; }
   if(newPin.length < 4){ errEl.textContent = 'Новый PIN — минимум 4 цифры'; return; }
   if(newPin.length > 9){ errEl.textContent = 'Новый PIN — максимум 9 цифр'; return; }
@@ -1647,25 +1719,18 @@ async function changePinSubmit(){
     const newSalt = crypto.getRandomValues(new Uint8Array(16));
     const newKey = await deriveKey(newPin, newSalt);
     const newVerify = await encryptJSON(newKey, {ok:true});
-
     cryptoKey = newKey;
-
     const idx = await getIndex();
     for(const k of idx.cards) await storeRemove(k);
     for(const k of idx.packs) await storeRemove(k);
     await setIndex({ cards: [], packs: [] });
     storageMode = 'individual';
-    for(const c of vault.cards){
-      delete c._pid;
-      await saveCardStorage(c);
-    }
-
+    for(const c of vault.cards){ delete c._pid; await saveCardStorage(c); }
     await saveConf();
 
     currentMeta.salt = b64(newSalt);
     currentMeta.verify = newVerify;
     currentMeta.pinLength = newPin.length;
-
     currentMeta.hasRecovery = false;
     currentMeta.recoveryOffered = false;
     delete currentMeta.recSalt;
@@ -1674,9 +1739,10 @@ async function changePinSubmit(){
     delete currentMeta.patternSalt;
     delete currentMeta.encPinKeyWithPattern;
     delete currentMeta.hasBiometric;
-    delete currentMeta.bioCredId;
     delete currentMeta.bioSalt;
     delete currentMeta.encPinKeyWithBio;
+    delete currentMeta.bioDeviceId;
+    delete currentMeta.bioType;
 
     await storeSet(META_KEY, JSON.stringify(currentMeta));
     await storeSet(META_BACKUP, JSON.stringify(currentMeta));
@@ -1703,8 +1769,7 @@ function showChangePinResult(flags){
   const parts = [];
   if(flags.wasRecovery) parts.push('🔑 Recovery Key');
   if(flags.wasPattern) parts.push('🔷 Графический ключ');
-  if(flags.wasBio && bioAvailable) parts.push('👆 Отпечаток / Face ID');
-
+  if(flags.wasBio && bioAvailable) parts.push('👆 ' + bioLabelText());
   if(parts.length){
     info.innerHTML = '<b>Сброшены способы входа:</b><br>' + parts.join('<br>') +
       '<br><br>Настройте их заново в разделе «Способы входа» в настройках.';
@@ -1779,8 +1844,8 @@ async function onBioToggle(){
   if(!bioAvailable){ toggle.checked = false; toast('Не поддерживается'); return; }
   if(toggle.checked){
     toggle.checked = false;
-    const ok = await showWarning('Включить биометрию',
-      'Отпечаток / Face ID позволит входить без PIN. PIN при этом остаётся резервным способом.\n\n⚠️ ВАЖНО: PIN-код забывать нельзя! Если забудете PIN и биометрия перестанет работать — данные будут утеряны.');
+    const ok = await showWarning('Включить ' + bioLabelText(),
+      'Позволит входить без PIN. PIN при этом остаётся резервным способом.\n\n⚠️ ВАЖНО: PIN-код забывать нельзя! Если забудете PIN и биометрия перестанет работать — данные будут утеряны.');
     if(!ok) return;
     try {
       toast('Приложите палец...');
@@ -1790,19 +1855,21 @@ async function onBioToggle(){
       await storeSet(META_BACKUP, JSON.stringify(currentMeta));
       toggle.checked = true;
       $('bioSub').textContent = 'Настроен';
-      toast('Отпечаток добавлен');
+      toast('Биометрия добавлена');
     } catch(e){
-      if(e.message === 'PRF_UNSUPPORTED') toast('Устройство не поддерживает PRF');
+      if(e.message === 'ACCESS_DENIED') toast('Доступ не выдан');
+      else if(e.message === 'NOT_AVAILABLE') toast('Биометрия недоступна');
       else toast('Не удалось добавить');
     }
   } else {
-    const ok = await showWarning('Отключить биометрию',
+    const ok = await showWarning('Отключить ' + bioLabelText(),
       'Дополнительный способ входа будет удалён. Для входа останется PIN и графический ключ (если включён).');
     if(!ok){ toggle.checked = true; return; }
     delete currentMeta.hasBiometric;
-    delete currentMeta.bioCredId;
     delete currentMeta.bioSalt;
     delete currentMeta.encPinKeyWithBio;
+    delete currentMeta.bioDeviceId;
+    delete currentMeta.bioType;
     await storeSet(META_KEY, JSON.stringify(currentMeta));
     await storeSet(META_BACKUP, JSON.stringify(currentMeta));
     $('bioSub').textContent = 'Не настроен';
@@ -2275,6 +2342,7 @@ async function openSettings(){
 
   const hasBio = currentMeta && currentMeta.hasBiometric;
   const bioToggle = $('bioToggle');
+  $('bioLabel').textContent = bioAvailable ? bioLabelText() : 'Отпечаток / Face ID';
   if(!bioAvailable){
     bioToggle.checked = false;
     bioToggle.disabled = true;
@@ -2438,7 +2506,7 @@ async function refreshAltAuthRow(){
     const btn = document.createElement('button');
     btn.className = 'alt-auth-btn';
     btn.type = 'button';
-    btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 2c-3 0-5 2-5 5v1h2V7c0-2 1.5-3 3-3s3 1 3 3v3c0 5-2 8-4 9v2c3-1 6-5 6-11V7c0-3-2-5-5-5zM7 9v1c0 4 1 7 3 8v-2c-1-1-1-3-1-6V9H7zm10 0v1c0 4-1 6-2 7v2c2-1 4-4 4-9V9h-2z"/></svg>Отпечаток`;
+    btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 2c-3 0-5 2-5 5v1h2V7c0-2 1.5-3 3-3s3 1 3 3v3c0 5-2 8-4 9v2c3-1 6-5 6-11V7c0-3-2-5-5-5zM7 9v1c0 4 1 7 3 8v-2c-1-1-1-3-1-6V9H7zm10 0v1c0 4-1 6-2 7v2c2-1 4-4 4-9V9h-2z"/></svg>${bioLabelText()}`;
     btn.onclick = () => onBioLogin();
     row.appendChild(btn);
   }
@@ -2447,7 +2515,7 @@ async function onBioLogin(){
   if(!currentMeta){
     try { const f = await detectMeta(); if(f) currentMeta = JSON.parse(f.value); } catch(e){}
   }
-  if(!currentMeta || !currentMeta.hasBiometric){ toast('Отпечаток не настроен'); return; }
+  if(!currentMeta || !currentMeta.hasBiometric){ toast('Биометрия не настроена'); return; }
   $('pinError').textContent = '';
   const res = await tryUnlockWithBiometric(currentMeta);
   if(res.error){
@@ -2463,7 +2531,8 @@ async function onBioLogin(){
 
 async function init(){
   buildPinPad(); renderPinDots(); renderTemplates(); setupPhotoUpload();
-  bioAvailable = await checkBiometricSupport();
+  await initBiometric();
+  bioAvailable = isBioAvailable();
   let found;
   try { found = await detectMeta(); }
   catch(e){
