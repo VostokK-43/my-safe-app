@@ -497,6 +497,7 @@
       <label class="switch"><input type="checkbox" id="bioToggle"><span class="slider"></span></label>
     </div>
   </div>
+  <button id="openBioSettingsBtn" class="sec" style="margin-top:8px;display:none">⚙️ Открыть настройки биометрии</button>
   <p class="status" style="margin-bottom:16px">⚠️ PIN-код забывать нельзя — он базовый способ доступа.</p>
 
   <label style="margin-top:16px">Восстановление доступа</label>
@@ -703,7 +704,6 @@ function initBiometric(){
       bioInitDone = !!ok;
       resolve(!!ok);
     };
-    // Fallback: если callback не сработает за 1.5 сек — считаем по свойствам
     setTimeout(() => {
       if(!resolved){
         const ok = !!(bm.isBiometricAvailable && bm.isAccessGranted !== undefined);
@@ -761,6 +761,20 @@ function requestBioAccess(){
   });
 }
 
+function openBioSettings(){
+  const bm = getBio();
+  if(!bm || typeof bm.openSettings !== 'function'){
+    toast('Обновите Telegram до последней версии');
+    return;
+  }
+  try {
+    bm.openSettings();
+    toast('Откройте настройки биометрии в Telegram и разрешите доступ');
+  } catch(e){
+    toast('Не удалось открыть настройки');
+  }
+}
+
 function bioAuthenticate(reason){
   return new Promise((resolve, reject) => {
     const bm = getBio();
@@ -780,7 +794,11 @@ async function createBiometricRecord(pinKey){
   if(!bm.isBiometricAvailable) throw new Error('NOT_AVAILABLE');
   if(!bm.isAccessGranted){
     const granted = await requestBioAccess();
-    if(!granted) throw new Error('ACCESS_DENIED');
+    if(!granted){
+      // Показываем подсказку — как открыть настройки
+      toast('Доступ не выдан. Откройте настройки биометрии в Telegram');
+      throw new Error('ACCESS_DENIED');
+    }
   }
   const token = await bioAuthenticate('Подтвердить добавление биометрии');
   const bioSalt = crypto.getRandomValues(new Uint8Array(16));
@@ -805,7 +823,7 @@ async function tryUnlockWithBiometric(meta){
   if(meta.bioDeviceId && getBioDeviceId() && meta.bioDeviceId !== getBioDeviceId())
     return { error: 'Биометрия настроена на другом устройстве' };
   if(!bm.isAccessGranted)
-    return { error: 'Доступ к биометрии не выдан' };
+    return { error: 'Доступ к биометрии не выдан. Откройте настройки биометрии в Telegram' };
   let token;
   try { token = await bioAuthenticate('Вход в Сейф+'); }
   catch(e){ return { error: 'Отменено' }; }
@@ -1215,7 +1233,7 @@ async function wizardBioSetup(){
     toast('Биометрия добавлена');
     refreshWizard();
   } catch(e){
-    if(e.message === 'ACCESS_DENIED') toast('Доступ не выдан');
+    if(e.message === 'ACCESS_DENIED') toast('Доступ не выдан. Откройте настройки биометрии в Telegram');
     else if(e.message === 'AUTH_FAILED') toast('Аутентификация не удалась');
     else if(e.message === 'NOT_AVAILABLE') toast('Биометрия недоступна');
     else toast('Не удалось добавить');
@@ -1857,7 +1875,10 @@ async function onBioToggle(){
       $('bioSub').textContent = 'Настроен';
       toast('Биометрия добавлена');
     } catch(e){
-      if(e.message === 'ACCESS_DENIED') toast('Доступ не выдан');
+      if(e.message === 'ACCESS_DENIED'){
+        toast('Доступ не выдан. Откройте настройки биометрии в Telegram');
+        $('openBioSettingsBtn').style.display = 'block';
+      }
       else if(e.message === 'NOT_AVAILABLE') toast('Биометрия недоступна');
       else toast('Не удалось добавить');
     }
@@ -2342,15 +2363,24 @@ async function openSettings(){
 
   const hasBio = currentMeta && currentMeta.hasBiometric;
   const bioToggle = $('bioToggle');
+  const bioSettingsBtn = $('openBioSettingsBtn');
   $('bioLabel').textContent = bioAvailable ? bioLabelText() : 'Отпечаток / Face ID';
   if(!bioAvailable){
     bioToggle.checked = false;
     bioToggle.disabled = true;
     $('bioSub').textContent = 'Не поддерживается на этом устройстве';
+    if(bioSettingsBtn) bioSettingsBtn.style.display = 'none';
   } else {
     bioToggle.disabled = false;
     bioToggle.checked = !!hasBio;
     $('bioSub').textContent = hasBio ? 'Настроен' : 'Не настроен';
+    if(bioSettingsBtn){
+      if(!hasBio && !isBioAccessGranted()){
+        bioSettingsBtn.style.display = 'block';
+      } else {
+        bioSettingsBtn.style.display = 'none';
+      }
+    }
   }
 
   show('settingsScreen');
@@ -2660,6 +2690,7 @@ $('warnCancelBtn').onclick = () => closeWarning(false);
 $('warnConfirmBtn').onclick = () => closeWarning(true);
 $('patternToggle').onchange = onPatternToggle;
 $('bioToggle').onchange = onBioToggle;
+$('openBioSettingsBtn').onclick = openBioSettings;
 $('addCardBtn').onclick = ()=>{ pendingTemplate = null; renderTemplates(); show('tplScreen'); };
 $('tplBack').onclick = ()=>show('vaultScreen');
 $('saveCardBtn').onclick = saveCard;
