@@ -89,7 +89,6 @@
   .row{display:flex;gap:10px}
   .row button{flex:1;width:auto}
 
-  /* Поля ввода, но НЕ чекбоксы и НЕ radio — чтобы у чекбоксов работала системная галочка */
   input:not([type="checkbox"]):not([type="radio"]),textarea,select{width:100%;padding:14px 16px;margin:0 0 12px;border-radius:var(--ios-radius-m);
     font-size:17px;font-family:var(--ios-font);letter-spacing:-0.4px;border:none;
     background:var(--ios-fill-tertiary);color:var(--text);transition:background .15s, box-shadow .15s;
@@ -138,7 +137,8 @@
 
   #patternWrap{display:flex;flex-direction:column;align-items:center;justify-content:center;
     padding:20px 0;user-select:none;-webkit-user-select:none}
-  #patternCanvas{width:min(300px, 80vw);height:min(300px, 80vw);touch-action:none;cursor:pointer}
+  #patternCanvas{width:min(300px, 80vw);height:min(300px, 80vw);touch-action:none;cursor:pointer;
+    background:transparent;display:block}
   #patternStatus{text-align:center;font-size:15px;color:var(--hint);margin:16px 0 0;min-height:20px}
   #patternStatus.error{color:var(--ios-red);font-weight:500}
 
@@ -293,18 +293,35 @@
     box-shadow:0 3px 8px rgba(0,0,0,.15), 0 1px 2px rgba(0,0,0,.1)}
   .switch input:checked + .slider{background:var(--ios-green)}
   .switch input:checked + .slider:before{transform:translateX(20px)}
-  .switch input:disabled + .slider{opacity:.5;cursor:not-allowed}
+  .switch input:disabled + .slider{opacity:.4;cursor:not-allowed}
   .switch-group{background:var(--ios-bg-grouped);border-radius:var(--ios-radius-l);
     margin-bottom:16px;box-shadow:var(--ios-shadow-s);overflow:hidden}
 
-  .wizard-wrap{display:flex;flex-direction:column;justify-content:center;min-height:100vh;min-height:100dvh;
-    padding:32px 20px max(24px, env(safe-area-inset-bottom));text-align:center}
-  .wizard-icon{font-size:88px;line-height:1;margin:0 0 24px;display:block}
-  .wizard-title{font-size:28px;font-weight:700;letter-spacing:-0.9px;margin:0 0 12px;line-height:1.15}
-  .wizard-text{font-size:15px;color:var(--hint);line-height:1.5;margin:0 0 32px;letter-spacing:-0.2px}
-  .wizard-buttons{display:flex;flex-direction:column;gap:10px;margin-top:auto}
-  .wizard-step{font-size:13px;color:var(--hint);margin:0 0 20px;letter-spacing:0.3px;text-transform:uppercase;font-weight:500}
-  #wizardPatternScreen.active, #wizardBioScreen.active{display:flex}
+  /* Мастер первого запуска — единый экран с двумя опциями */
+  .wizard-wrap{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;
+    padding:24px 20px max(24px, env(safe-area-inset-bottom))}
+  .wizard-header{text-align:center;margin:16px 0 24px}
+  .wizard-icon{font-size:72px;line-height:1;margin:0 0 16px;display:block}
+  .wizard-title{font-size:26px;font-weight:700;letter-spacing:-0.9px;margin:0 0 10px;line-height:1.15}
+  .wizard-text{font-size:14px;color:var(--hint);line-height:1.5;margin:0;letter-spacing:-0.2px}
+  .wizard-opts{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+  .wizard-opt{background:var(--ios-bg-grouped);border-radius:var(--ios-radius-l);
+    padding:16px;box-shadow:var(--ios-shadow-s);display:flex;align-items:center;gap:14px;
+    transition:transform .12s, opacity .15s}
+  .wizard-opt.done{background:rgba(52,199,89,.1)}
+  .wizard-opt.disabled{opacity:.5;pointer-events:none}
+  .wizard-opt .opt-icon{font-size:32px;flex-shrink:0;width:44px;text-align:center}
+  .wizard-opt .opt-body{flex:1;min-width:0}
+  .wizard-opt .opt-title{font-size:16px;font-weight:600;letter-spacing:-0.4px;display:flex;align-items:center;gap:8px}
+  .wizard-opt .opt-desc{font-size:12px;color:var(--hint);margin-top:3px;letter-spacing:-0.1px;line-height:1.35}
+  .wizard-opt .opt-action{padding:8px 14px;border-radius:20px;background:var(--ios-blue);color:#fff;
+    font-size:14px;font-weight:600;border:none;width:auto;margin:0;letter-spacing:-0.2px;
+    transition:transform .12s, background .15s;cursor:pointer}
+  .wizard-opt .opt-action:active{transform:scale(.94)}
+  .wizard-opt .opt-action.done{background:var(--ios-green)}
+  .wizard-opt .opt-action.off{background:var(--ios-fill);color:var(--hint)}
+  .wizard-bottom{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+  .wizard-note{text-align:center;font-size:12px;color:var(--hint);margin:16px 4px 0;line-height:1.5}
 </style>
 </head>
 <body>
@@ -331,28 +348,38 @@
   <button id="patternCancelBtn" class="sec" style="margin-top:16px">Отмена</button>
 </div>
 
-<div id="wizardPatternScreen" class="screen">
+<div id="wizardScreen" class="screen">
   <div class="wizard-wrap">
-    <p class="wizard-step">Шаг 1 из 2</p>
-    <span class="wizard-icon">🔷</span>
-    <h2 class="wizard-title">Графический ключ</h2>
-    <p class="wizard-text">Быстрый вход без ввода PIN.<br>Соединяйте точки пальцем на экране.</p>
-    <div class="wizard-buttons">
-      <button id="wizardPatternSetupBtn">Настроить</button>
-      <button id="wizardPatternSkipBtn" class="sec">Пропустить</button>
+    <div class="wizard-header">
+      <span class="wizard-icon">🔐</span>
+      <h2 class="wizard-title">Дополнительные способы входа</h2>
+      <p class="wizard-text">Можно выбрать оба, один или пропустить — настроите позже в Настройках.</p>
     </div>
-  </div>
-</div>
 
-<div id="wizardBioScreen" class="screen">
-  <div class="wizard-wrap">
-    <p class="wizard-step">Шаг 2 из 2</p>
-    <span class="wizard-icon">👆</span>
-    <h2 class="wizard-title">Отпечаток / Face ID</h2>
-    <p class="wizard-text">Вход одним касанием.<br>Используется биометрия вашего устройства.</p>
-    <div class="wizard-buttons">
-      <button id="wizardBioSetupBtn">Настроить</button>
-      <button id="wizardBioSkipBtn" class="sec">Пропустить</button>
+    <div class="wizard-opts">
+      <div class="wizard-opt" id="wizPatternOpt">
+        <div class="opt-icon">🔷</div>
+        <div class="opt-body">
+          <div class="opt-title">Графический ключ</div>
+          <div class="opt-desc" id="wizPatternDesc">Соединяйте точки пальцем на экране</div>
+        </div>
+        <button class="opt-action" id="wizPatternBtn">Настроить</button>
+      </div>
+
+      <div class="wizard-opt" id="wizBioOpt">
+        <div class="opt-icon">👆</div>
+        <div class="opt-body">
+          <div class="opt-title">Отпечаток / Face ID</div>
+          <div class="opt-desc" id="wizBioDesc">Вход одним касанием</div>
+        </div>
+        <button class="opt-action" id="wizBioBtn">Настроить</button>
+      </div>
+    </div>
+
+    <p class="wizard-note">⚠️ PIN-код забывать нельзя — он базовый способ доступа.</p>
+
+    <div class="wizard-bottom">
+      <button id="wizContinueBtn">Продолжить</button>
     </div>
   </div>
 </div>
@@ -462,10 +489,10 @@
       </div>
       <label class="switch"><input type="checkbox" id="patternToggle"><span class="slider"></span></label>
     </div>
-    <div class="switch-row" id="bioSwitchRow" style="display:none">
+    <div class="switch-row" id="bioSwitchRow">
       <div>
         <div class="sr-label"><span class="ico">👆</span> <span id="bioLabel">Отпечаток / Face ID</span></div>
-        <div class="sr-sub" id="bioSub">Не настроен</div>
+        <div class="sr-sub" id="bioSub">Проверка...</div>
       </div>
       <label class="switch"><input type="checkbox" id="bioToggle"><span class="slider"></span></label>
     </div>
@@ -638,8 +665,8 @@ let wipeTimer = null, storageError = false;
 let patternMode = null;
 let pendingPattern = null;
 let bioAvailable = false;
-let fromWizard = false;
-let fromChangePinResult = false;
+let patternFromWizard = false;
+let bioFromWizard = false;
 let expectedPinLength = null;
 
 const $ = id => document.getElementById(id);
@@ -833,14 +860,18 @@ async function tryUnlockWithBiometric(meta){
   } catch(e){ return { error: 'Повреждены данные' }; }
 }
 
-const PATTERN = { canvas: null, ctx: null, size: 0, cells: [], active: false, sequence: [], pointerPos: null };
+const PATTERN = { canvas: null, ctx: null, size: 0, cells: [], active: false, sequence: [], pointerPos: null, bound: false };
+
 function initPatternCanvas(){
   PATTERN.canvas = $('patternCanvas');
+  if(!PATTERN.canvas) return false;
   PATTERN.ctx = PATTERN.canvas.getContext('2d');
+  const cssSize = PATTERN.canvas.clientWidth || Math.min(window.innerWidth * 0.8, 300);
+  if(!cssSize || cssSize < 50) return false;
   const dpr = window.devicePixelRatio || 1;
-  const cssSize = PATTERN.canvas.clientWidth;
   PATTERN.canvas.width = cssSize * dpr;
   PATTERN.canvas.height = cssSize * dpr;
+  PATTERN.ctx.setTransform(1, 0, 0, 1, 0, 0);
   PATTERN.ctx.scale(dpr, dpr);
   PATTERN.size = cssSize;
   PATTERN.cells = [];
@@ -852,9 +883,24 @@ function initPatternCanvas(){
     }
   }
   drawPattern();
-  bindPatternEvents();
+  if(!PATTERN.bound){
+    bindPatternEvents();
+    PATTERN.bound = true;
+  }
+  return true;
 }
+
+// Повторные попытки инициализации, если ширина ещё не готова
+function scheduleInitPatternCanvas(tries){
+  tries = tries || 6;
+  const ok = initPatternCanvas();
+  if(!ok && tries > 0){
+    setTimeout(() => scheduleInitPatternCanvas(tries - 1), 80);
+  }
+}
+
 function drawPattern(){
+  if(!PATTERN.ctx) return;
   const ctx = PATTERN.ctx, size = PATTERN.size;
   ctx.clearRect(0, 0, size, size);
   if(PATTERN.sequence.length){
@@ -961,8 +1007,11 @@ function openPatternScreen(mode){
     $('patternDesc').textContent = 'Нарисуйте графический ключ.';
   }
   show('patternScreen');
-  setTimeout(() => { initPatternCanvas(); }, 50);
+  // Инициализация после того, как экран отобразится
+  PATTERN.bound = false; // пересоздадим обработчики на текущем canvas
+  requestAnimationFrame(() => scheduleInitPatternCanvas(8));
 }
+
 async function handlePatternComplete(seq){
   if(seq.split('-').length < 4){
     setPatternStatus('Слишком короткий — минимум 4 точки', true);
@@ -988,20 +1037,17 @@ async function handlePatternComplete(seq){
       await storeSet(META_BACKUP, JSON.stringify(currentMeta));
       pendingPattern = null;
       toast('Графический ключ сохранён');
-      if(fromWizard){
-        fromWizard = false;
-        proceedWizardAfterPattern();
-      } else if(fromChangePinResult){
-        fromChangePinResult = false;
-        showChangePinResultRefresh();
+      if(patternFromWizard){
+        patternFromWizard = false;
+        refreshWizard();
       } else {
         openSettings();
       }
     } catch(e){
       toast('Не удалось сохранить');
-      if(fromWizard){
-        fromWizard = false;
-        proceedWizardAfterPattern();
+      if(patternFromWizard){
+        patternFromWizard = false;
+        refreshWizard();
       } else {
         openSettings();
       }
@@ -1024,22 +1070,56 @@ async function handlePatternComplete(seq){
   }
 }
 
-function startWizard(){
+// ============ Мастер первого запуска ============
+function openWizard(){
+  // Обновляем состояние кнопок
+  refreshWizard();
+  show('wizardScreen');
+}
+
+function refreshWizard(){
+  // Pattern
   const hasPat = currentMeta && currentMeta.hasPattern;
-  const hasBio = currentMeta && currentMeta.hasBiometric;
-  if(hasPat || hasBio || (currentMeta && currentMeta.wizardDone)){
-    openVault();
-    return;
-  }
-  show('wizardPatternScreen');
-}
-function proceedWizardAfterPattern(){
-  if(bioAvailable){
-    show('wizardBioScreen');
+  const patBtn = $('wizPatternBtn');
+  const patOpt = $('wizPatternOpt');
+  if(hasPat){
+    patBtn.textContent = 'Готово ✓';
+    patBtn.classList.add('done');
+    patOpt.classList.add('done');
+    $('wizPatternDesc').textContent = 'Настроен';
   } else {
-    finishWizard();
+    patBtn.textContent = 'Настроить';
+    patBtn.classList.remove('done');
+    patOpt.classList.remove('done');
+    $('wizPatternDesc').textContent = 'Соединяйте точки пальцем на экране';
+  }
+
+  // Биометрия
+  const bioBtn = $('wizBioBtn');
+  const bioOpt = $('wizBioOpt');
+  const hasBio = currentMeta && currentMeta.hasBiometric;
+  if(!bioAvailable){
+    bioBtn.textContent = 'Недоступно';
+    bioBtn.classList.add('off');
+    bioOpt.classList.add('disabled');
+    $('wizBioDesc').textContent = 'Не поддерживается на этом устройстве';
+  } else if(hasBio){
+    bioBtn.textContent = 'Готово ✓';
+    bioBtn.classList.add('done');
+    bioOpt.classList.add('done');
+    bioOpt.classList.remove('disabled');
+    bioBtn.classList.remove('off');
+    $('wizBioDesc').textContent = 'Настроен';
+  } else {
+    bioBtn.textContent = 'Настроить';
+    bioBtn.classList.remove('done');
+    bioOpt.classList.remove('done');
+    bioOpt.classList.remove('disabled');
+    bioBtn.classList.remove('off');
+    $('wizBioDesc').textContent = 'Вход одним касанием';
   }
 }
+
 async function finishWizard(){
   try {
     currentMeta.wizardDone = true;
@@ -1047,6 +1127,23 @@ async function finishWizard(){
     await storeSet(META_BACKUP, JSON.stringify(currentMeta));
   } catch(e){}
   openVault();
+}
+
+async function wizardBioSetup(){
+  if(!bioAvailable){ toast('Не поддерживается'); return; }
+  try {
+    toast('Приложите палец...');
+    const rec = await createBiometricRecord(cryptoKey);
+    Object.assign(currentMeta, rec);
+    await storeSet(META_KEY, JSON.stringify(currentMeta));
+    await storeSet(META_BACKUP, JSON.stringify(currentMeta));
+    toast('Отпечаток добавлен');
+    refreshWizard();
+  } catch(e){
+    if(e.message === 'PRF_UNSUPPORTED') toast('Устройство не поддерживает PRF');
+    else if(String(e.message).includes('cancel') || String(e.name).includes('Abort')) toast('Отменено');
+    else toast('Не удалось добавить');
+  }
 }
 
 const useCloud = tg.CloudStorage && typeof tg.CloudStorage.getItem === 'function';
@@ -1374,7 +1471,7 @@ async function tryPin(){
       try { await storeSet(META_KEY, found.value); await storeSet(META_BACKUP, found.value); } catch(e){}
     }
     if(!meta.hasRecovery && !meta.recoveryOffered){ startRecoveryOffer(); return; }
-    if(!meta.wizardDone){ startWizard(); return; }
+    if(!meta.wizardDone){ openWizard(); return; }
     openVault();
   }
   else if(pinMode==='create'){
@@ -1441,12 +1538,7 @@ async function recoveryContinue(){
     pendingRecoveryKey = null;
     $('recoveryKeyDisplay').textContent = '····';
     $('recoveryContinueBtn').textContent = 'Продолжить';
-    if(fromChangePinResult){
-      fromChangePinResult = false;
-      showChangePinResultRefresh();
-    } else {
-      startWizard();
-    }
+    openWizard();
   } catch(e){
     toast('Не удалось сохранить. Попробуйте ещё раз.');
     $('recoveryContinueBtn').disabled = false;
@@ -1465,12 +1557,7 @@ async function recoverySkip(){
   } catch(e){}
   pendingRecoveryKey = null;
   $('recoveryKeyDisplay').textContent = '····';
-  if(fromChangePinResult){
-    fromChangePinResult = false;
-    showChangePinResultRefresh();
-  } else {
-    startWizard();
-  }
+  openWizard();
 }
 async function openRecoveryInput(){
   $('recoveryInputField').value = '';
@@ -1693,6 +1780,7 @@ function closeWarning(result){
 
 async function onBioToggle(){
   const toggle = $('bioToggle');
+  if(!bioAvailable){ toggle.checked = false; toast('Не поддерживается'); return; }
   if(toggle.checked){
     toggle.checked = false;
     const ok = await showWarning('Включить биометрию',
@@ -1732,8 +1820,7 @@ async function onPatternToggle(){
     const ok = await showWarning('Включить графический ключ',
       'Графический ключ позволит входить без PIN. PIN при этом остаётся резервным способом.\n\n⚠️ ВАЖНО: PIN-код забывать нельзя! Если забудете PIN и графический ключ — данные будут утеряны.');
     if(!ok) return;
-    fromWizard = false;
-    fromChangePinResult = false;
+    patternFromWizard = false;
     pendingPattern = null;
     openPatternScreen('set');
   } else {
@@ -2189,12 +2276,19 @@ async function openSettings(){
   const hasPat = currentMeta && currentMeta.hasPattern;
   $('patternToggle').checked = !!hasPat;
   $('patternSub').textContent = hasPat ? 'Настроен' : 'Не настроен';
-  if(bioAvailable){
-    $('bioSwitchRow').style.display = '';
-    const hasBio = currentMeta && currentMeta.hasBiometric;
-    $('bioToggle').checked = !!hasBio;
+
+  const hasBio = currentMeta && currentMeta.hasBiometric;
+  const bioToggle = $('bioToggle');
+  if(!bioAvailable){
+    bioToggle.checked = false;
+    bioToggle.disabled = true;
+    $('bioSub').textContent = 'Не поддерживается на этом устройстве';
+  } else {
+    bioToggle.disabled = false;
+    bioToggle.checked = !!hasBio;
     $('bioSub').textContent = hasBio ? 'Настроен' : 'Не настроен';
   }
+
   show('settingsScreen');
   const has = currentMeta && currentMeta.hasRecovery;
   $('recoveryStatus').textContent = has ? '✅ Recovery Key установлен' : '⚠️ Recovery Key не установлен';
@@ -2405,45 +2499,28 @@ async function init(){
   }
 }
 
-$('wizardPatternSetupBtn').onclick = () => {
-  fromWizard = true;
-  fromChangePinResult = false;
+// ============ Обработчики мастера ============
+$('wizPatternBtn').onclick = () => {
+  patternFromWizard = true;
   pendingPattern = null;
   openPatternScreen('set');
 };
-$('wizardPatternSkipBtn').onclick = () => { proceedWizardAfterPattern(); };
-$('wizardBioSetupBtn').onclick = async () => {
-  try {
-    toast('Приложите палец...');
-    const rec = await createBiometricRecord(cryptoKey);
-    Object.assign(currentMeta, rec);
-    await storeSet(META_KEY, JSON.stringify(currentMeta));
-    await storeSet(META_BACKUP, JSON.stringify(currentMeta));
-    toast('Отпечаток добавлен');
-    finishWizard();
-  } catch(e){
-    if(e.message === 'PRF_UNSUPPORTED') toast('Устройство не поддерживает PRF');
-    else if(String(e.message).includes('cancel') || String(e.name).includes('Abort')) toast('Отменено');
-    else toast('Не удалось добавить');
-  }
-};
-$('wizardBioSkipBtn').onclick = () => { finishWizard(); };
+$('wizBioBtn').onclick = () => { wizardBioSetup(); };
+$('wizContinueBtn').onclick = () => { finishWizard(); };
 
 $('forgotPinLink').onclick = openRecoveryInput;
 $('pinSubmitBtn').onclick = tryPin;
 $('patternBack').onclick = () => {
   patternMode = null;
   pendingPattern = null;
-  if(fromWizard){ fromWizard = false; show('wizardPatternScreen'); }
-  else if(fromChangePinResult){ fromChangePinResult = false; show('changePinResultScreen'); }
+  if(patternFromWizard){ patternFromWizard = false; refreshWizard(); show('wizardScreen'); }
   else if(cryptoKey) openSettings();
   else show('lockScreen');
 };
 $('patternCancelBtn').onclick = () => {
   patternMode = null;
   pendingPattern = null;
-  if(fromWizard){ fromWizard = false; show('wizardPatternScreen'); }
-  else if(fromChangePinResult){ fromChangePinResult = false; show('changePinResultScreen'); }
+  if(patternFromWizard){ patternFromWizard = false; refreshWizard(); show('wizardScreen'); }
   else if(cryptoKey) openSettings();
   else show('lockScreen');
 };
@@ -2484,7 +2561,6 @@ $('recoveryManageBtn').onclick = ()=>{
 $('recoveryManageBack').onclick = ()=>show('settingsScreen');
 $('recoveryRegenBtn').onclick = ()=>{
   if(!confirm('Создать новый Recovery Key? Старый перестанет работать.')) return;
-  fromChangePinResult = false;
   startRecoveryOffer();
 };
 $('copyRecoveryBtn').onclick = async ()=>{
