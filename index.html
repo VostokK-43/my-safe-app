@@ -297,7 +297,6 @@
   .switch-group{background:var(--ios-bg-grouped);border-radius:var(--ios-radius-l);
     margin-bottom:16px;box-shadow:var(--ios-shadow-s);overflow:hidden}
 
-  /* Мастер первого запуска — единый экран с двумя опциями */
   .wizard-wrap{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;
     padding:24px 20px max(24px, env(safe-area-inset-bottom))}
   .wizard-header{text-align:center;margin:16px 0 24px}
@@ -345,7 +344,8 @@
     <canvas id="patternCanvas" width="600" height="600"></canvas>
     <p id="patternStatus"></p>
   </div>
-  <button id="patternCancelBtn" class="sec" style="margin-top:16px">Отмена</button>
+  <button id="patternCancelBtn" class="sec" style="margin-top:16px;display:none">Отмена</button>
+  <button id="patternSwitchToPinBtn" class="sec" style="margin-top:16px;display:none">Ввести PIN</button>
 </div>
 
 <div id="wizardScreen" class="screen">
@@ -666,8 +666,8 @@ let patternMode = null;
 let pendingPattern = null;
 let bioAvailable = false;
 let patternFromWizard = false;
-let bioFromWizard = false;
 let expectedPinLength = null;
+let patternFailCount = 0;
 
 const $ = id => document.getElementById(id);
 const show = s => document.querySelectorAll('.screen').forEach(x => x.classList.toggle('active', x.id === s));
@@ -889,8 +889,6 @@ function initPatternCanvas(){
   }
   return true;
 }
-
-// Повторные попытки инициализации, если ширина ещё не готова
 function scheduleInitPatternCanvas(tries){
   tries = tries || 6;
   const ok = initPatternCanvas();
@@ -999,16 +997,22 @@ function openPatternScreen(mode){
   if(mode === 'set'){
     $('patternTitle').textContent = 'Графический ключ';
     $('patternDesc').textContent = 'Соедините минимум 4 точки. Запомните последовательность.';
+    $('patternCancelBtn').style.display = 'block';
+    $('patternSwitchToPinBtn').style.display = 'none';
   } else if(mode === 'confirm'){
     $('patternTitle').textContent = 'Повторите';
     $('patternDesc').textContent = 'Нарисуйте тот же ключ ещё раз.';
+    $('patternCancelBtn').style.display = 'block';
+    $('patternSwitchToPinBtn').style.display = 'none';
   } else if(mode === 'verify'){
-    $('patternTitle').textContent = 'Вход';
-    $('patternDesc').textContent = 'Нарисуйте графический ключ.';
+    $('patternTitle').textContent = 'Графический ключ';
+    $('patternDesc').textContent = 'Нарисуйте свой ключ, чтобы войти.';
+    $('patternCancelBtn').style.display = 'none';
+    $('patternSwitchToPinBtn').style.display = 'block';
+    patternFailCount = 0;
   }
   show('patternScreen');
-  // Инициализация после того, как экран отобразится
-  PATTERN.bound = false; // пересоздадим обработчики на текущем canvas
+  PATTERN.bound = false;
   requestAnimationFrame(() => scheduleInitPatternCanvas(8));
 }
 
@@ -1040,6 +1044,7 @@ async function handlePatternComplete(seq){
       if(patternFromWizard){
         patternFromWizard = false;
         refreshWizard();
+        show('wizardScreen');
       } else {
         openSettings();
       }
@@ -1048,6 +1053,7 @@ async function handlePatternComplete(seq){
       if(patternFromWizard){
         patternFromWizard = false;
         refreshWizard();
+        show('wizardScreen');
       } else {
         openSettings();
       }
@@ -1058,10 +1064,16 @@ async function handlePatternComplete(seq){
     const meta = currentMeta || JSON.parse((await storeGet(META_KEY)) || '{}');
     const res = await tryUnlockWithPattern(seq, meta);
     if(res.error){
-      setPatternStatus(res.error, true);
-      setTimeout(resetPatternSequence, 700);
+      patternFailCount++;
+      if(patternFailCount >= 2){
+        setPatternStatus('Не получается? Нажмите «Ввести PIN» ниже.', true);
+      } else {
+        setPatternStatus(res.error, true);
+      }
+      setTimeout(resetPatternSequence, 900);
       return;
     }
+    patternFailCount = 0;
     cryptoKey = res.pinKey;
     currentMeta = meta;
     await loadVaultAfterUnlock();
@@ -1070,15 +1082,11 @@ async function handlePatternComplete(seq){
   }
 }
 
-// ============ Мастер первого запуска ============
 function openWizard(){
-  // Обновляем состояние кнопок
   refreshWizard();
   show('wizardScreen');
 }
-
 function refreshWizard(){
-  // Pattern
   const hasPat = currentMeta && currentMeta.hasPattern;
   const patBtn = $('wizPatternBtn');
   const patOpt = $('wizPatternOpt');
@@ -1094,7 +1102,6 @@ function refreshWizard(){
     $('wizPatternDesc').textContent = 'Соединяйте точки пальцем на экране';
   }
 
-  // Биометрия
   const bioBtn = $('wizBioBtn');
   const bioOpt = $('wizBioOpt');
   const hasBio = currentMeta && currentMeta.hasBiometric;
@@ -1119,7 +1126,6 @@ function refreshWizard(){
     $('wizBioDesc').textContent = 'Вход одним касанием';
   }
 }
-
 async function finishWizard(){
   try {
     currentMeta.wizardDone = true;
@@ -1128,7 +1134,6 @@ async function finishWizard(){
   } catch(e){}
   openVault();
 }
-
 async function wizardBioSetup(){
   if(!bioAvailable){ toast('Не поддерживается'); return; }
   try {
@@ -1712,15 +1717,6 @@ function showChangePinResult(flags){
     info.style.background = 'transparent';
     info.style.padding = '0';
   }
-  show('changePinResultScreen');
-}
-function showChangePinResultRefresh(){
-  const info = $('changePinOldAuthInfo');
-  info.innerHTML = 'Способы входа настроены заново.';
-  info.style.color = 'var(--ios-green)';
-  info.style.background = 'rgba(52,199,89,.1)';
-  info.style.padding = '12px';
-  info.style.borderRadius = '12px';
   show('changePinResultScreen');
 }
 
@@ -2398,10 +2394,11 @@ async function lockNow(){
   $('lockHint').textContent='Введите PIN';
   $('pinError').textContent='';
   $('pinSubmitBtn').textContent = '✓ Открыть';
+  let meta = null;
   try {
     const found = await detectMeta();
     if(found){
-      const meta = JSON.parse(found.value);
+      meta = JSON.parse(found.value);
       if(meta.pinLength){
         expectedPinLength = meta.pinLength;
         $('pinSubmitBtn').style.display = 'none';
@@ -2413,7 +2410,11 @@ async function lockNow(){
   } catch(e){}
   renderPinDots();
   refreshAltAuthRow();
-  show('lockScreen');
+  if(meta && meta.hasPattern){
+    openPatternScreen('verify');
+  } else {
+    show('lockScreen');
+  }
 }
 
 async function refreshAltAuthRow(){
@@ -2477,8 +2478,9 @@ async function init(){
     pinMode='unlock';
     $('lockHint').textContent='Введите PIN';
     $('pinSubmitBtn').textContent = '✓ Открыть';
+    let meta = null;
     try {
-      const meta = JSON.parse(found.value);
+      meta = JSON.parse(found.value);
       if(meta.pinLength){
         expectedPinLength = meta.pinLength;
         $('pinSubmitBtn').style.display = 'none';
@@ -2486,11 +2488,13 @@ async function init(){
         expectedPinLength = null;
         $('pinSubmitBtn').style.display = '';
       }
-      if(meta.hasBiometric && bioAvailable){
-        setTimeout(() => { onBioLogin(); }, 400);
-      }
     } catch(e){}
     await refreshAltAuthRow();
+    if(meta && meta.hasPattern){
+      openPatternScreen('verify');
+    } else if(meta && meta.hasBiometric && bioAvailable){
+      setTimeout(() => { onBioLogin(); }, 400);
+    }
   } else {
     pinMode='create';
     $('pinError').textContent='Придумайте PIN (мин. 4 цифры)';
@@ -2499,7 +2503,6 @@ async function init(){
   }
 }
 
-// ============ Обработчики мастера ============
 $('wizPatternBtn').onclick = () => {
   patternFromWizard = true;
   pendingPattern = null;
@@ -2523,6 +2526,12 @@ $('patternCancelBtn').onclick = () => {
   if(patternFromWizard){ patternFromWizard = false; refreshWizard(); show('wizardScreen'); }
   else if(cryptoKey) openSettings();
   else show('lockScreen');
+};
+$('patternSwitchToPinBtn').onclick = () => {
+  patternMode = null;
+  patternFailCount = 0;
+  pendingPattern = null;
+  show('lockScreen');
 };
 $('lockBtn').onclick = lockNow;
 $('foldersBtn').onclick = openFolders;
