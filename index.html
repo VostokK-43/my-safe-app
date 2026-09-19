@@ -2009,10 +2009,13 @@ function renderCards(){
 
 function bindManualSort(){
   const items = [...$('cardsList').querySelectorAll('.card-item[data-card-id]')];
+  if(Object.keys(manualOrder).length === 0){
+    items.forEach((it, i) => { manualOrder[it.dataset.cardId] = i + 1; });
+  }
   items.forEach(item => {
     let pressTimer = null;
     let dragging = false;
-    let startY = 0, startIdx = 0;
+    let startY = 0;
 
     const startPress = (e) => {
       if(e.target.closest('.card-chevron')) return;
@@ -2024,7 +2027,6 @@ function bindManualSort(){
         toast('Ведите палец вверх/вниз, чтобы переместить');
         const touch = e.touches ? e.touches[0] : e;
         startY = touch.clientY;
-        startIdx = items.indexOf(item);
         document.addEventListener('touchmove', onMove, {passive:false});
         document.addEventListener('mousemove', onMove);
         document.addEventListener('touchend', onEnd);
@@ -2038,13 +2040,19 @@ function bindManualSort(){
       if(!dragging) return;
       e.preventDefault();
       const touch = e.touches ? e.touches[0] : e;
-      const delta = touch.clientY - startY;
-      const step = item.offsetHeight;
-      const shift = Math.round(delta / step);
-      const newIdx = Math.max(0, Math.min(items.length - 1, startIdx + shift));
-      if(newIdx !== startIdx){
-        const target = items[newIdx];
-        if(shift > 0) target.after(item); else target.before(item);
+      const y = touch.clientY;
+      const all = [...$('cardsList').querySelectorAll('.card-item[data-card-id]')];
+      let target = null;
+      for(const el of all){
+        if(el === item) continue;
+        const r = el.getBoundingClientRect();
+        if(y >= r.top && y <= r.bottom){ target = el; break; }
+      }
+      if(target){
+        const r = target.getBoundingClientRect();
+        const mid = r.top + r.height / 2;
+        if(y < mid) target.before(item);
+        else target.after(item);
       }
     };
 
@@ -2072,8 +2080,17 @@ function bindManualSort(){
 
 function saveManualOrder(){
   const items = [...$('cardsList').querySelectorAll('.card-item[data-card-id]')];
-  const visible = items.map(i => i.dataset.cardId);
-  visible.forEach((id, idx) => { manualOrder[id] = idx; });
+  const visibleIds = items.map(i => i.dataset.cardId);
+  const newOrder = {};
+  let counter = 1;
+  visibleIds.forEach(id => { newOrder[id] = counter++; });
+  Object.keys(manualOrder).forEach(id => {
+    if(!newOrder[id]) newOrder[id] = counter++;
+  });
+  vault.cards.forEach(c => {
+    if(!newOrder[c.id]) newOrder[c.id] = counter++;
+  });
+  manualOrder = newOrder;
   vault.settings.manualOrder = manualOrder;
   saveConf();
   toast('Порядок сохранён');
@@ -2089,6 +2106,12 @@ function cycleSortMode(){
   };
   const i = modes.indexOf(sortMode);
   sortMode = modes[(i+1) % modes.length];
+  if(sortMode === 'manual'){
+    const cards = vault.cards.slice().sort((a,b) => (a.title||'').localeCompare(b.title||'', 'ru'));
+    cards.forEach((c, idx) => { manualOrder[c.id] = idx + 1; });
+    vault.settings.manualOrder = manualOrder;
+    saveConf();
+  }
   $('sortBtn').textContent = labels[sortMode];
   toast(tips[sortMode]);
   renderCards();
