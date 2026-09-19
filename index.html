@@ -3,23 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#F2F2F7">
+<meta name="theme-color" content="#E8EAED">
 <title>Сейф+</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root{
-    --ios-bg: #F2F2F7; --ios-bg-elevated: #FFFFFF; --ios-bg-grouped: #FFFFFF;
-    --ios-separator: rgba(60,60,67,0.13); --ios-label: #000000;
-    --ios-label-secondary: rgba(60,60,67,0.6); --ios-label-tertiary: rgba(60,60,67,0.3);
-    --ios-blue: #007AFF; --ios-green: #34C759; --ios-red: #FF3B30;
-    --ios-orange: #FF9500; --ios-yellow: #FFCC00; --ios-purple: #AF52DE;
-    --ios-fill: rgba(120,120,128,0.12); --ios-fill-secondary: rgba(120,120,128,0.16);
+    /* Серо-стальная палитра "сейф" */
+    --ios-bg: #E8EAED;
+    --ios-bg-elevated: #F5F6F8;
+    --ios-bg-grouped: #F5F6F8;
+    --ios-separator: rgba(60,60,67,0.15);
+    --ios-label: #1C1C1E;
+    --ios-label-secondary: rgba(60,60,67,0.6);
+    --ios-label-tertiary: rgba(60,60,67,0.3);
+    --ios-blue: #5A5F66;         /* графит вместо синего */
+    --ios-green: #34C759;
+    --ios-red: #FF3B30;
+    --ios-orange: #FF9500;
+    --ios-yellow: #FFCC00;
+    --ios-purple: #AF52DE;
+    --ios-fill: rgba(120,120,128,0.15);
+    --ios-fill-secondary: rgba(120,120,128,0.22);
     --ios-fill-tertiary: rgba(118,118,128,0.08);
     --ios-radius-s: 8px; --ios-radius-m: 12px; --ios-radius-l: 16px;
     --ios-radius-xl: 22px; --ios-radius-2xl: 28px;
-    --ios-shadow-s: 0 1px 2px rgba(0,0,0,0.04), 0 0 1px rgba(0,0,0,0.06);
-    --ios-shadow-m: 0 4px 16px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-    --ios-shadow-l: 0 12px 32px rgba(0,0,0,0.16);
+    --ios-shadow-s: 0 1px 2px rgba(0,0,0,0.05), 0 0 1px rgba(0,0,0,0.08);
+    --ios-shadow-m: 0 4px 16px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.05);
+    --ios-shadow-l: 0 12px 32px rgba(0,0,0,0.2);
     --ios-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
     --bg: var(--tg-theme-bg-color, var(--ios-bg));
     --text: var(--tg-theme-text-color, var(--ios-label));
@@ -30,11 +40,12 @@
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --ios-bg: #000000; --ios-bg-elevated: #1C1C1E; --ios-bg-grouped: #1C1C1E;
+      --ios-bg: #0F0F11; --ios-bg-elevated: #1C1C1E; --ios-bg-grouped: #1C1C1E;
       --ios-separator: rgba(84,84,88,0.65); --ios-label: #FFFFFF;
       --ios-label-secondary: rgba(235,235,245,0.6); --ios-label-tertiary: rgba(235,235,245,0.3);
       --ios-fill: rgba(120,120,128,0.36); --ios-fill-secondary: rgba(120,120,128,0.32);
       --ios-fill-tertiary: rgba(118,118,128,0.24);
+      --ios-blue: #A0A6AD;
     }
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -48,19 +59,51 @@
   .screen.active{display:block}
   @keyframes screenIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
+  /* ============ Экран блокировки (в стиле сейфа) ============ */
   #lockScreen{display:none;flex-direction:column;justify-content:center;align-items:stretch;
     min-height:100vh;min-height:100dvh;
-    padding:clamp(12px, 2vh, 24px) 20px max(12px, env(safe-area-inset-bottom));overflow:hidden}
+    padding:clamp(12px, 2vh, 24px) 20px max(12px, env(safe-area-inset-bottom));overflow:hidden;
+    background:radial-gradient(circle at 50% 20%, #F5F6F8 0%, #E8EAED 45%, #D6D9DD 100%)}
   #lockScreen.active{display:flex}
-  .lock-title{font-size:clamp(26px, 7vw, 34px);font-weight:700;letter-spacing:-1.2px;
-    text-align:center;margin:0 0 clamp(4px, 1vh, 8px);line-height:1.1}
-  .lock-subtitle{text-align:center;color:var(--hint);font-size:clamp(12px, 3vw, 14px);
-    margin:0 0 clamp(6px, 1.5vh, 12px);letter-spacing:-0.2px}
+
+  /* Металлический логотип-циферблат */
+  .lock-emblem{
+    width:clamp(80px,22vw,110px);height:clamp(80px,22vw,110px);
+    margin:0 auto clamp(10px,2vh,18px);
+    border-radius:24px;
+    background:linear-gradient(180deg,#E4E7EB 0%,#C9CDD3 100%);
+    box-shadow:
+      0 12px 28px rgba(0,0,0,0.18),
+      0 3px 6px rgba(0,0,0,0.08),
+      inset 0 1px 0 rgba(255,255,255,0.9),
+      inset 0 -2px 4px rgba(0,0,0,0.08);
+    display:flex;align-items:center;justify-content:center;position:relative;
+  }
+  .lock-emblem::before{
+    content:"";position:absolute;inset:12%;border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%, #4A4E54 0%, #2E3238 55%, #1F2226 100%);
+    box-shadow:inset 0 2px 4px rgba(0,0,0,0.6), inset 0 -1px 2px rgba(255,255,255,0.15);
+  }
+  .lock-emblem::after{
+    content:"";position:absolute;width:34%;height:34%;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #F0F2F4 0%, #B7BCC2 55%, #7C8289 100%);
+    box-shadow:0 2px 6px rgba(0,0,0,0.35), inset 0 1px 2px rgba(255,255,255,0.85);
+  }
+
+  .lock-title{font-size:clamp(24px, 6.5vw, 30px);font-weight:700;letter-spacing:-1.2px;
+    text-align:center;margin:0 0 clamp(4px, 1vh, 8px);line-height:1.1;
+    color:#1C1C1E;text-shadow:0 1px 0 rgba(255,255,255,0.6)}
+  .lock-subtitle{text-align:center;color:rgba(60,60,67,0.6);font-size:clamp(12px, 3vw, 14px);
+    margin:0 0 clamp(6px, 1.5vh, 14px);letter-spacing:-0.2px}
   .alt-auth-row{display:flex;justify-content:center;gap:10px;margin:0 0 clamp(6px, 1.5vh, 12px);flex-wrap:wrap}
   .alt-auth-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:22px;
-    background:var(--ios-fill);color:var(--ios-blue);font-size:14px;font-weight:600;letter-spacing:-0.2px;
-    border:none;cursor:pointer;width:auto;margin:0;transition:transform .12s, background .15s}
-  .alt-auth-btn:active{transform:scale(.95);background:var(--ios-fill-secondary)}
+    background:linear-gradient(180deg,#FFFFFF 0%,#E4E7EB 100%);
+    color:#1C1C1E;font-size:14px;font-weight:600;letter-spacing:-0.2px;
+    border:1px solid rgba(0,0,0,0.06);cursor:pointer;width:auto;margin:0;
+    box-shadow:0 2px 4px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+    transition:transform .12s, box-shadow .15s}
+  .alt-auth-btn:active{transform:scale(.95);box-shadow:0 1px 2px rgba(0,0,0,0.1)}
   .alt-auth-btn svg{width:18px;height:18px;fill:currentColor}
 
   h1{font-size:clamp(26px, 7vw, 34px);font-weight:700;letter-spacing:-1.2px;line-height:1.15;
@@ -78,12 +121,14 @@
 
   button{width:100%;padding:14px 20px;margin:0 0 10px;border:none;border-radius:var(--ios-radius-m);
     font-size:17px;font-weight:600;font-family:var(--ios-font);letter-spacing:-0.4px;
-    background:var(--btn);color:var(--btntext);cursor:pointer;
-    transition:transform .12s cubic-bezier(.32,.72,0,1), opacity .12s, background .15s;
+    background:linear-gradient(180deg,#6B7077 0%,#4A4E54 100%);
+    color:#FFFFFF;cursor:pointer;
+    box-shadow:0 4px 10px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.15);
+    transition:transform .12s cubic-bezier(.32,.72,0,1), opacity .12s, box-shadow .15s;
     -webkit-user-select:none;user-select:none}
-  button:active{transform:scale(.98);opacity:.85}
+  button:active{transform:scale(.98);opacity:.9;box-shadow:0 2px 4px rgba(0,0,0,0.2)}
   button:disabled{opacity:.35;cursor:not-allowed}
-  button.sec{background:var(--ios-fill);color:var(--ios-blue)}
+  button.sec{background:var(--ios-fill);color:#1C1C1E;box-shadow:none}
   button.sec:active{background:var(--ios-fill-secondary)}
   button.danger{background:var(--ios-red);color:#fff}
   .row{display:flex;gap:10px}
@@ -93,48 +138,75 @@
     font-size:17px;font-family:var(--ios-font);letter-spacing:-0.4px;border:none;
     background:var(--ios-fill-tertiary);color:var(--text);transition:background .15s, box-shadow .15s;
     -webkit-appearance:none;appearance:none}
-  input:not([type="checkbox"]):not([type="radio"]):focus,textarea:focus,select:focus{outline:none;background:var(--ios-fill);box-shadow:0 0 0 3px rgba(0,122,255,.15)}
+  input:not([type="checkbox"]):not([type="radio"]):focus,textarea:focus,select:focus{outline:none;background:var(--ios-fill);box-shadow:0 0 0 3px rgba(90,95,102,.25)}
   textarea{min-height:120px;resize:vertical;font-family:ui-monospace, 'SF Mono', Menlo, monospace;font-size:14px;line-height:1.5}
   select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238E8E93' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
     background-repeat:no-repeat;background-position:right 16px center;padding-right:40px}
   label{font-size:13px;font-weight:500;color:var(--hint);display:block;margin:16px 4px 8px;
     text-transform:uppercase;letter-spacing:0.4px}
 
+  /* ============ Точки PIN ============ */
   #pinDots{display:flex;gap:clamp(10px, 3vw, 16px);justify-content:center;
     margin:clamp(8px, 2vh, 20px) 0 clamp(10px, 2.5vh, 22px)}
   .dot{width:clamp(11px, 3vw, 14px);height:clamp(11px, 3vw, 14px);border-radius:50%;
-    background:var(--ios-fill);transition:background .2s cubic-bezier(.32,.72,0,1), transform .2s}
-  .dot.filled{background:var(--text);transform:scale(1.1)}
+    background:rgba(120,120,128,0.25);
+    box-shadow:inset 0 2px 3px rgba(0,0,0,0.15), inset 0 -1px 1px rgba(255,255,255,0.5);
+    transition:background .2s cubic-bezier(.32,.72,0,1), transform .2s, box-shadow .2s}
+  .dot.filled{
+    background:radial-gradient(circle at 35% 30%, #6B7077 0%, #3A3E43 100%);
+    box-shadow:0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+    transform:scale(1.1)}
+
+  /* ============ Цифровая клавиатура (металлические кнопки) ============ */
   #pinPad{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(6px, 1.5vh, 12px);
-    max-width:min(260px, 75vw, 45vh);width:100%;margin:0 auto}
-  #pinPad button{aspect-ratio:1;padding:0;font-size:clamp(22px, 6.5vw, 28px);border-radius:50%;
-    background:var(--ios-fill);color:var(--text);letter-spacing:0;font-weight:500;margin:0}
-  #pinPad button:active{background:var(--ios-fill-secondary);transform:scale(.94)}
+    max-width:min(280px, 78vw, 48vh);width:100%;margin:0 auto}
+  #pinPad button{aspect-ratio:1;padding:0;
+    font-size:clamp(22px, 6.5vw, 28px);border-radius:50%;
+    background:linear-gradient(180deg,#FDFEFE 0%,#DCDFE3 100%);
+    color:#1C1C1E;letter-spacing:0;font-weight:500;margin:0;
+    box-shadow:
+      0 4px 8px rgba(0,0,0,0.12),
+      0 1px 2px rgba(0,0,0,0.08),
+      inset 0 1px 0 rgba(255,255,255,0.95),
+      inset 0 -2px 3px rgba(0,0,0,0.06);
+    border:1px solid rgba(0,0,0,0.05);
+    transition:transform .08s, box-shadow .08s}
+  #pinPad button:active{
+    background:linear-gradient(180deg,#C9CDD3 0%,#B0B5BB 100%);
+    transform:scale(.94);
+    box-shadow:0 1px 2px rgba(0,0,0,0.15), inset 0 2px 4px rgba(0,0,0,0.15)}
   #pinPad button.placeholder{visibility:hidden;pointer-events:none}
-  #pinSubmitBtn{max-width:min(260px, 75vw, 45vh);width:100%;margin:clamp(10px, 2vh, 18px) auto 0;
-    display:block;padding:clamp(12px, 1.8vh, 16px);font-size:clamp(15px, 4.5vw, 17px);
-    font-weight:600;background:var(--ios-blue);color:#fff;border-radius:var(--ios-radius-l);
-    letter-spacing:-0.4px;box-shadow:0 6px 20px rgba(0,122,255,.32)}
-  #pinSubmitBtn:active{transform:scale(.98);box-shadow:0 3px 10px rgba(0,122,255,.3)}
+
+  #pinSubmitBtn{max-width:min(280px, 78vw, 48vh);width:100%;margin:clamp(10px, 2vh, 18px) auto 0;
+    display:block;padding:clamp(12px, 1.8vh, 16px);
+    font-size:clamp(15px, 4.5vw, 17px);font-weight:600;
+    background:linear-gradient(180deg,#6B7077 0%,#3A3E43 100%);
+    color:#fff;border-radius:var(--ios-radius-l);letter-spacing:-0.4px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.15)}
+  #pinSubmitBtn:active{transform:scale(.98);box-shadow:0 3px 8px rgba(0,0,0,0.3)}
+
   #pinError{text-align:center;color:var(--ios-red);margin-top:6px;
     font-size:clamp(12px, 3.5vw, 14px);min-height:16px;font-weight:500}
-  .forgot-link{display:block;text-align:center;color:var(--ios-blue);
+  .forgot-link{display:block;text-align:center;color:#4A4E54;
     font-size:clamp(12px, 3.5vw, 14px);font-weight:500;
     margin-top:clamp(4px, 1vh, 12px);cursor:pointer;padding:6px;
     -webkit-user-select:none;user-select:none}
   .forgot-link:active{opacity:.6}
   @media (max-height: 700px){
-    #pinPad{max-width:min(230px, 68vw, 42vh)} #pinSubmitBtn{max-width:min(230px, 68vw, 42vh)}
+    #pinPad{max-width:min(240px, 70vw, 44vh)}
+    #pinSubmitBtn{max-width:min(240px, 70vw, 44vh)}
   }
   @media (max-height: 620px){
+    .lock-emblem{display:none}
     .lock-title{font-size:22px;margin-bottom:2px}
     .lock-subtitle{font-size:11px;margin-bottom:4px}
-    #pinPad{max-width:min(200px, 60vw, 40vh);gap:5px}
+    #pinPad{max-width:min(210px, 62vw, 42vh);gap:5px}
     #pinPad button{font-size:20px}
     #pinDots{margin:6px 0 8px}
-    #pinSubmitBtn{max-width:min(200px, 60vw, 40vh);padding:10px}
+    #pinSubmitBtn{max-width:min(210px, 62vw, 42vh);padding:10px}
   }
 
+  /* ============ Графический ключ ============ */
   #patternWrap{display:flex;flex-direction:column;align-items:center;justify-content:center;
     padding:20px 0;user-select:none;-webkit-user-select:none}
   #patternCanvas{width:min(300px, 80vw);height:min(300px, 80vw);touch-action:none;cursor:pointer;
@@ -142,6 +214,115 @@
   #patternStatus{text-align:center;font-size:15px;color:var(--hint);margin:16px 0 0;min-height:20px}
   #patternStatus.error{color:var(--ios-red);font-weight:500}
 
+  /* ============ Главный экран - верхняя панель ============ */
+  #vaultScreen{padding:0}
+  .top-nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 16px;
+    background:var(--ios-bg-grouped);
+    border-bottom:1px solid var(--ios-separator);
+    position:sticky;top:0;z-index:50;
+    box-shadow:var(--ios-shadow-s);
+  }
+  .nav-left,.nav-right{display:flex;align-items:center;gap:14px}
+  .nav-title{
+    font-size:19px;font-weight:700;color:var(--text);
+    position:absolute;left:50%;transform:translateX(-50%);
+    letter-spacing:-0.6px;
+  }
+  .nav-icon{
+    font-size:20px;cursor:pointer;
+    width:36px;height:36px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50%;
+    transition:background .15s, transform .1s;
+    user-select:none;color:var(--text);
+  }
+  .nav-icon:active{background:var(--ios-fill);transform:scale(.9)}
+  .nav-icon.left{font-size:26px;font-weight:400}
+
+  /* ============ Список (папки + карточки) ============ */
+  #mainList{padding:12px 16px 100px}
+  .list-group{
+    background:var(--ios-bg-grouped);
+    border-radius:var(--ios-radius-l);
+    overflow:hidden;
+    box-shadow:var(--ios-shadow-s);
+    margin-bottom:16px;
+  }
+  .list-item{
+    display:flex;align-items:center;padding:14px 16px;
+    background:var(--ios-bg-grouped);
+    border-bottom:0.5px solid var(--ios-separator);
+    cursor:pointer;transition:background .15s;gap:14px;
+    -webkit-user-select:none;user-select:none;
+  }
+  .list-item:last-child{border-bottom:none}
+  .list-item:active{background:var(--ios-fill-tertiary)}
+  .list-icon{
+    width:42px;height:42px;border-radius:11px;
+    background:var(--ios-fill);
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;flex-shrink:0;overflow:hidden;
+  }
+  .list-icon img{width:100%;height:100%;object-fit:cover}
+  .list-body{flex:1;min-width:0}
+  .list-title{
+    font-size:16px;font-weight:500;color:var(--text);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    letter-spacing:-0.3px;
+  }
+  .list-sub{font-size:13px;color:var(--hint);margin-top:3px;letter-spacing:-0.1px}
+  .list-chevron{color:var(--ios-label-tertiary);font-size:20px;font-weight:600;flex-shrink:0}
+  .list-fav{color:var(--ios-yellow);font-size:14px;margin-left:4px}
+
+  .empty{text-align:center;color:var(--hint);padding:60px 20px;font-size:15px;letter-spacing:-0.3px}
+
+  /* ============ Верхнее меню "плюс" и "три полоски" ============ */
+  #addMenu,#mainMenu{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,0.35);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    z-index:9998;display:none;animation:fadeIn .2s;
+  }
+  #addMenu{align-items:flex-end;justify-content:center}
+  #mainMenu{align-items:flex-start;justify-content:flex-end;padding:20px}
+  .sheet{
+    background:var(--ios-bg-elevated);color:var(--text);
+    border-radius:20px 20px 0 0;
+    padding:14px 0 max(14px, env(safe-area-inset-bottom));
+    width:100%;max-width:520px;
+    box-shadow:0 -12px 32px rgba(0,0,0,0.2);
+    animation:sheetUp .28s cubic-bezier(.32,.72,0,1);
+  }
+  @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .sheet-handle{width:38px;height:5px;border-radius:3px;background:var(--ios-fill-secondary);
+    margin:0 auto 8px}
+  .sheet-item{
+    display:flex;align-items:center;gap:14px;
+    padding:16px 22px;
+    font-size:16px;font-weight:500;color:var(--text);
+    cursor:pointer;transition:background .15s;letter-spacing:-0.3px;
+  }
+  .sheet-item:active{background:var(--ios-fill)}
+  .sheet-item .ico{font-size:22px;width:28px;text-align:center;flex-shrink:0}
+  .dropdown{
+    background:var(--ios-bg-elevated);
+    border-radius:14px;padding:8px;
+    box-shadow:var(--ios-shadow-l);
+    min-width:200px;
+    animation:fadeIn .18s;
+  }
+  .dropdown-item{
+    padding:12px 16px;border-radius:8px;
+    font-size:15px;font-weight:500;color:var(--text);
+    cursor:pointer;transition:background .15s;letter-spacing:-0.3px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .dropdown-item:active{background:var(--ios-fill)}
+  .dropdown-item.danger{color:var(--ios-red)}
+
+  /* ============ Старые элементы (сохраняем) ============ */
   .cat-row{display:flex;gap:8px;overflow-x:auto;padding:0 0 4px;
     margin:0 -20px 20px;padding-left:20px;padding-right:20px;scrollbar-width:none}
   .cat-row::-webkit-scrollbar{display:none}
@@ -153,24 +334,6 @@
   .cat.active{background:var(--ios-blue);color:#fff}
   .cat .cnt{font-size:12px;font-weight:600;opacity:.65;min-width:16px;text-align:center}
   .cat.active .cnt{opacity:.85}
-
-  .cards-group{background:var(--ios-bg-grouped);border-radius:var(--ios-radius-l);
-    overflow:hidden;margin-bottom:24px;box-shadow:var(--ios-shadow-s)}
-  .card-item{padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;
-    border-bottom:0.5px solid var(--ios-separator);transition:background .15s;
-    -webkit-user-select:none;user-select:none;position:relative}
-  .card-item:last-child{border-bottom:none}
-  .card-item:active{background:var(--ios-fill-tertiary)}
-  .card-icon{width:44px;height:44px;border-radius:11px;background:var(--ios-fill);
-    display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;overflow:hidden}
-  .card-icon img{width:100%;height:100%;object-fit:cover}
-  .card-body{flex:1;min-width:0}
-  .card-title{font-size:17px;font-weight:500;letter-spacing:-0.4px;overflow:hidden;
-    text-overflow:ellipsis;white-space:nowrap}
-  .card-sub{font-size:13px;color:var(--hint);margin-top:2px;display:flex;gap:10px;letter-spacing:-0.1px}
-  .card-fav{color:var(--ios-yellow);font-size:15px}
-  .card-chevron{color:var(--ios-label-tertiary);font-size:18px;font-weight:600;flex-shrink:0;line-height:1}
-  .empty{text-align:center;color:var(--hint);padding:60px 20px;font-size:15px;letter-spacing:-0.3px}
 
   .folder-item{padding:16px;background:var(--ios-bg-grouped);display:flex;align-items:center;gap:14px;
     cursor:pointer;border-bottom:0.5px solid var(--ios-separator);transition:background .15s}
@@ -201,7 +364,7 @@
     transition:transform .12s, background .15s, border-color .15s;
     -webkit-user-select:none;user-select:none}
   .icon-pick:active{transform:scale(.9)}
-  .icon-pick.sel{border-color:var(--ios-blue);background:rgba(0,122,255,.12)}
+  .icon-pick.sel{border-color:var(--ios-blue);background:rgba(90,95,102,.15)}
 
   #viewFields{background:var(--ios-bg-grouped);border-radius:var(--ios-radius-l);
     overflow:hidden;margin-bottom:20px;box-shadow:var(--ios-shadow-s)}
@@ -214,7 +377,7 @@
   .view-field-value.mono{font-family:ui-monospace, 'SF Mono', Menlo, monospace;font-size:14px}
   .view-field-actions{display:flex;gap:6px;flex-shrink:0}
   .view-field-actions button{width:32px;height:32px;padding:0;font-size:14px;margin:0;border-radius:50%;
-    background:var(--ios-fill);color:var(--ios-blue);font-weight:600}
+    background:var(--ios-fill);color:var(--ios-blue);font-weight:600;box-shadow:none}
   .view-field-actions button:active{transform:scale(.88);background:var(--ios-fill-secondary)}
 
   .field-wrap{background:var(--ios-bg-grouped);border-radius:var(--ios-radius-m);padding:12px;
@@ -224,7 +387,7 @@
   .field-row input.fName{flex:1;font-weight:600;background:var(--ios-fill-tertiary)}
   .field-row input.fValue{flex:1.6;background:var(--ios-fill-tertiary)}
   .field-row button{width:36px;height:36px;padding:0;font-size:15px;margin:0;flex-shrink:0;
-    border-radius:50%;background:var(--ios-fill)}
+    border-radius:50%;background:var(--ios-fill);box-shadow:none}
   .field-row .delBtn{color:var(--ios-red);font-size:18px}
   .field-row .genBtn{color:var(--ios-blue);font-size:18px}
   .pwd-bar{height:3px;background:var(--ios-fill);border-radius:2px;margin-top:8px;overflow:hidden}
@@ -313,30 +476,34 @@
   .wizard-opt .opt-body{flex:1;min-width:0}
   .wizard-opt .opt-title{font-size:16px;font-weight:600;letter-spacing:-0.4px;display:flex;align-items:center;gap:8px}
   .wizard-opt .opt-desc{font-size:12px;color:var(--hint);margin-top:3px;letter-spacing:-0.1px;line-height:1.35}
-  .wizard-opt .opt-action{padding:8px 14px;border-radius:20px;background:var(--ios-blue);color:#fff;
-    font-size:14px;font-weight:600;border:none;width:auto;margin:0;letter-spacing:-0.2px;
-    transition:transform .12s, background .15s;cursor:pointer}
+  .wizard-opt .opt-action{padding:8px 14px;border-radius:20px;
+    background:linear-gradient(180deg,#6B7077 0%,#4A4E54 100%);
+    color:#fff;font-size:14px;font-weight:600;border:none;width:auto;margin:0;letter-spacing:-0.2px;
+    transition:transform .12s;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,0.15)}
   .wizard-opt .opt-action:active{transform:scale(.94)}
   .wizard-opt .opt-action.done{background:var(--ios-green)}
-  .wizard-opt .opt-action.off{background:var(--ios-fill);color:var(--hint)}
+  .wizard-opt .opt-action.off{background:var(--ios-fill);color:var(--hint);box-shadow:none}
   .wizard-bottom{margin-top:auto;display:flex;flex-direction:column;gap:10px}
   .wizard-note{text-align:center;font-size:12px;color:var(--hint);margin:16px 4px 0;line-height:1.5}
 </style>
 </head>
 <body>
 
+<!-- ЭКРАН ВВОДА PIN -->
 <div id="lockScreen" class="screen active">
-  <h1 class="lock-title">🔐 Сейф+</h1>
+  <div class="lock-emblem"></div>
+  <h1 class="lock-title">Сейф+</h1>
   <p class="lock-subtitle">Ваш менеджер паролей</p>
   <div id="pinDots"></div>
   <div id="pinPad"></div>
-  <button id="pinSubmitBtn">✓ Открыть</button>
+  <button id="pinSubmitBtn">Открыть</button>
   <div id="pinError"></div>
   <div class="alt-auth-row" id="altAuthRow"></div>
   <p style="text-align:center;color:var(--hint);font-size:12px;margin:4px 0 0" id="lockHint"></p>
   <a class="forgot-link" id="forgotPinLink">Не помню PIN</a>
 </div>
 
+<!-- ГРАФИЧЕСКИЙ КЛЮЧ -->
 <div id="patternScreen" class="screen">
   <h1><span class="back" id="patternBack">‹</span> <span id="patternTitle">Графический ключ</span></h1>
   <p class="info" id="patternDesc">Соедините минимум 4 точки.</p>
@@ -348,6 +515,7 @@
   <button id="patternSwitchToPinBtn" class="sec" style="margin-top:16px;display:none">Ввести PIN</button>
 </div>
 
+<!-- МАСТЕР -->
 <div id="wizardScreen" class="screen">
   <div class="wizard-wrap">
     <div class="wizard-header">
@@ -355,7 +523,6 @@
       <h2 class="wizard-title">Дополнительные способы входа</h2>
       <p class="wizard-text">Можно выбрать оба, один или пропустить — настроите позже в Настройках.</p>
     </div>
-
     <div class="wizard-opts">
       <div class="wizard-opt" id="wizPatternOpt">
         <div class="opt-icon">🔷</div>
@@ -365,7 +532,6 @@
         </div>
         <button class="opt-action" id="wizPatternBtn">Настроить</button>
       </div>
-
       <div class="wizard-opt" id="wizBioOpt">
         <div class="opt-icon">👆</div>
         <div class="opt-body">
@@ -375,30 +541,58 @@
         <button class="opt-action" id="wizBioBtn">Настроить</button>
       </div>
     </div>
-
     <p class="wizard-note">⚠️ PIN-код забывать нельзя — он базовый способ доступа.</p>
-
     <div class="wizard-bottom">
       <button id="wizContinueBtn">Продолжить</button>
     </div>
   </div>
 </div>
 
+<!-- ГЛАВНЫЙ ЭКРАН (ХРАНИЛИЩЕ) -->
 <div id="vaultScreen" class="screen">
-  <h1 class="large">🔐 Хранилище
-    <span class="act" id="lockBtn" title="Заблокировать">🔒</span>
-    <span class="act" id="foldersBtn" title="Папки">📂</span>
-    <span class="act" id="settingsBtn" title="Настройки">⚙️</span>
-  </h1>
-  <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center">
-    <input id="searchInput" placeholder="Поиск" style="margin:0;background:var(--ios-fill-tertiary);padding-left:16px;flex:1">
-    <button id="sortBtn" class="sec" style="width:auto;margin:0;padding:14px 16px;font-size:15px;flex-shrink:0" title="Сортировка">🔤 А→Я</button>
+  <div class="top-nav">
+    <div class="nav-left">
+      <span class="nav-icon left" id="navBackBtn" title="Выход">‹</span>
+    </div>
+    <div class="nav-title">Сейф+</div>
+    <div class="nav-right">
+      <span class="nav-icon" id="navFavBtn" title="Избранное">♡</span>
+      <span class="nav-icon" id="navAddBtn" title="Добавить">+</span>
+      <span class="nav-icon" id="navSearchBtn" title="Поиск">🔍</span>
+      <span class="nav-icon" id="navMenuBtn" title="Меню">☰</span>
+    </div>
   </div>
-  <div id="catRow" class="cat-row"></div>
-  <div id="cardsList"></div>
-  <button id="addCardBtn" style="margin-top:8px">+ Новая карточка</button>
+
+  <div id="searchBar" style="display:none;padding:10px 20px;background:var(--ios-bg-grouped);border-bottom:1px solid var(--ios-separator)">
+    <input id="searchInput" placeholder="Поиск в сейфе" style="margin:0;background:var(--ios-fill-tertiary)">
+  </div>
+
+  <div id="mainList"></div>
 </div>
 
+<!-- МЕНЮ "ПЛЮС" -->
+<div id="addMenu" class="modal-overlay" style="display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-item" id="menuCreateFolder"><span class="ico">📁</span>Создать папку</div>
+    <div class="sheet-item" id="menuCreateCard"><span class="ico">📝</span>Создать карточку</div>
+    <div class="sheet-item" id="menuImportFile"><span class="ico">📎</span>Вставить файл(ы)</div>
+    <div class="sheet-item" id="menuImportFolder"><span class="ico">📂</span>Вставить папку</div>
+    <div class="sheet-item" id="menuCamera"><span class="ico">📷</span>Снимок с камеры</div>
+    <div class="sheet-item" id="addMenuCancel" style="justify-content:center;color:var(--ios-blue);font-weight:600">Отмена</div>
+  </div>
+</div>
+
+<!-- МЕНЮ "ТРИ ПОЛОСКИ" -->
+<div id="mainMenu" class="modal-overlay" style="display:none;align-items:flex-start;justify-content:flex-end;padding:20px;background:rgba(0,0,0,0.25)">
+  <div class="dropdown">
+    <div class="dropdown-item" id="menuSettings"><span>⚙️</span>Настройки</div>
+    <div class="dropdown-item" id="menuLock"><span>🔒</span>Заблокировать</div>
+    <div class="dropdown-item danger" id="menuExit"><span>🚪</span>Выйти</div>
+  </div>
+</div>
+
+<!-- ПАПКИ (старый экран — оставлен для редактора) -->
 <div id="foldersScreen" class="screen">
   <h1><span class="back" id="foldersBack">‹</span> Мои папки</h1>
   <div id="foldersList"></div>
@@ -417,12 +611,14 @@
   <button id="deleteFolderBtn" class="danger" style="margin-top:8px">Удалить папку</button>
 </div>
 
+<!-- ШАБЛОНЫ -->
 <div id="tplScreen" class="screen">
   <h1><span class="back" id="tplBack">‹</span> Шаблон</h1>
   <p class="info" style="margin-bottom:20px">Выберите готовый шаблон или начните с пустой карточки.</p>
   <div class="tpl-grid" id="tplGrid"></div>
 </div>
 
+<!-- ПРОСМОТР КАРТОЧКИ -->
 <div id="viewScreen" class="screen">
   <h1>
     <span class="back" id="viewBack">‹</span>
@@ -438,6 +634,7 @@
   </div>
 </div>
 
+<!-- РЕДАКТОР КАРТОЧКИ -->
 <div id="editScreen" class="screen">
   <h1><span class="back" id="editBack">‹</span> <span id="editTitle">Карточка</span></h1>
   <div style="display:flex;gap:14px;align-items:center;margin-bottom:20px">
@@ -456,6 +653,7 @@
   <button id="deleteCardBtn" class="danger" style="margin-top:8px">Удалить</button>
 </div>
 
+<!-- ИКОНКИ -->
 <div id="iconScreen" class="screen">
   <h1><span class="back" id="iconBack">‹</span> Иконка</h1>
   <button id="uploadPhotoBtn" class="sec" style="margin-bottom:10px">📷 Загрузить фото</button>
@@ -465,6 +663,7 @@
   <div class="icon-grid" id="cardIconGrid"></div>
 </div>
 
+<!-- НАСТРОЙКИ -->
 <div id="settingsScreen" class="screen">
   <h1><span class="back" id="settingsBack">‹</span> Настройки</h1>
 
@@ -520,6 +719,7 @@
   <button id="resetBtn" class="danger">⚠️ Сбросить всё</button>
 </div>
 
+<!-- ВОССТАНОВЛЕНИЕ ИЗ КОПИИ -->
 <div id="restoreScreen" class="screen">
   <h1><span class="back" id="restoreBack">‹</span> Восстановление</h1>
   <p class="info">
@@ -534,6 +734,7 @@
   <p class="info" style="margin-top:16px">Восстановление заменит текущие данные.</p>
 </div>
 
+<!-- RECOVERY KEY ПОКАЗ -->
 <div id="recoveryShowScreen" class="screen">
   <h1 style="justify-content:center;margin-top:20px">🔑 Recovery Key</h1>
   <p class="info">
@@ -550,6 +751,7 @@
   <button id="recoverySkipBtn" class="sec" style="color:var(--ios-red);margin-top:8px">Пропустить</button>
 </div>
 
+<!-- RECOVERY KEY ВВОД -->
 <div id="recoveryInputScreen" class="screen">
   <h1><span class="back" id="recoveryInputBack">‹</span> Восстановление</h1>
   <p class="info">Введите Recovery Key, который вы сохранили при создании хранилища. Дефисы и регистр не важны.</p>
@@ -562,6 +764,7 @@
   <button id="recoveryWipeBtn" class="danger" style="margin-top:24px">⚠️ Стереть и создать заново</button>
 </div>
 
+<!-- RECOVERY KEY УПРАВЛЕНИЕ -->
 <div id="recoveryManageScreen" class="screen">
   <h1><span class="back" id="recoveryManageBack">‹</span> Recovery Key</h1>
   <p class="info" id="recoveryManageInfo"></p>
@@ -569,6 +772,7 @@
   <p class="status">Recovery Key хранится в мета-данных хранилища и защищён вашим PIN.</p>
 </div>
 
+<!-- СМЕНА PIN -->
 <div id="changePinScreen" class="screen">
   <h1><span class="back" id="changePinBack">‹</span> Сменить PIN</h1>
   <p class="info" style="background:rgba(255,149,0,.1);color:var(--ios-orange);padding:12px;border-radius:12px;font-weight:500;line-height:1.5">
@@ -597,6 +801,7 @@
   <button id="changePinDoneBtn" class="sec" style="margin-top:8px">Готово</button>
 </div>
 
+<!-- МОДАЛКИ -->
 <div id="warnModal" class="modal-overlay" style="display:none">
   <div class="modal-box">
     <h2 id="warnTitle">⚠️ Внимание</h2>
@@ -617,9 +822,7 @@
     <button id="wipeCancelBtn" class="sec">Отмена</button>
     <button id="wipeConfirmBtn" class="danger" disabled>Удалить навсегда</button>
   </div>
-</div>
-
-<script>
+</div><script>
 const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : {
   ready: () => {}, expand: () => {}, CloudStorage: null, themeParams: {},
   BiometricManager: null
@@ -660,7 +863,6 @@ const WEAK_PINS = ['0000','1111','2222','3333','4444','5555','6666','7777','8888
 let cryptoKey = null;
 let vault = { folders: [], cards: [], settings: { autoLock: 60, clipClear: true } };
 let storageMode = 'individual';
-let currentFolder = 'all';
 let sortMode = 'alpha';
 let manualOrder = {};
 let editingId = null, editingFolderId = null, selectedIcon = '📁', editingCardIcon = null;
@@ -676,7 +878,9 @@ let expectedPinLength = null;
 let patternFailCount = 0;
 let bioInited = false;
 let bioInitDone = false;
-let bioInitCallback = null;
+
+// НОВОЕ: путь текущей папки
+let currentFolderId = null;   // null = корень
 
 const $ = id => document.getElementById(id);
 const show = s => document.querySelectorAll('.screen').forEach(x => x.classList.toggle('active', x.id === s));
@@ -688,61 +892,31 @@ const PWD_FIELD_RE = /pass(?!port)|парол|pin(?!k|g|e)|пин(?!г|к)|cvv|s
 function isPasswordField(name){ return PWD_FIELD_RE.test(String(name||'')); }
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
 
-// ============ BiometricManager (нативный Telegram) ============
-function getBio(){
-  try { return tg.BiometricManager || null; } catch(e){ return null; }
-}
+// ============ BiometricManager ============
+function getBio(){ try { return tg.BiometricManager || null; } catch(e){ return null; } }
 function initBiometric(){
   if(bioInited) return Promise.resolve(bioInitDone);
   bioInited = true;
   return new Promise((resolve) => {
     const bm = getBio();
-    if(!bm){
-      bioInitDone = false;
-      resolve(false);
-      return;
-    }
+    if(!bm){ bioInitDone = false; resolve(false); return; }
     let resolved = false;
-    const finish = (ok) => {
-      if(resolved) return;
-      resolved = true;
-      bioInitDone = !!ok;
-      resolve(!!ok);
-    };
+    const finish = (ok) => { if(resolved) return; resolved = true; bioInitDone = !!ok; resolve(!!ok); };
     setTimeout(() => {
       if(!resolved){
         const ok = !!(bm.isBiometricAvailable && bm.isAccessGranted !== undefined);
         finish(ok);
       }
     }, 1500);
-    try {
-      bm.init(() => {
-        const ok = !!bm.isBiometricAvailable;
-        finish(ok);
-      });
-    } catch(e){
-      finish(false);
-    }
+    try { bm.init(() => { const ok = !!bm.isBiometricAvailable; finish(ok); }); }
+    catch(e){ finish(false); }
   });
 }
-function isBioAvailable(){
-  const bm = getBio();
-  if(!bm) return false;
-  return !!bm.isBiometricAvailable;
-}
-function isBioAccessGranted(){
-  const bm = getBio();
-  if(!bm) return false;
-  return !!bm.isAccessGranted;
-}
-function getBioDeviceId(){
-  const bm = getBio();
-  if(!bm) return null;
-  return bm.deviceId || null;
-}
+function isBioAvailable(){ const bm = getBio(); if(!bm) return false; return !!bm.isBiometricAvailable; }
+function isBioAccessGranted(){ const bm = getBio(); if(!bm) return false; return !!bm.isAccessGranted; }
+function getBioDeviceId(){ const bm = getBio(); if(!bm) return null; return bm.deviceId || null; }
 function getBioType(){
-  const bm = getBio();
-  if(!bm) return 'unknown';
+  const bm = getBio(); if(!bm) return 'unknown';
   const t = bm.biometricType;
   if(Array.isArray(t)) return t[0] || 'unknown';
   return t || 'unknown';
@@ -753,33 +927,20 @@ function bioLabelText(){
   if(t === 'fingerprint') return 'Отпечаток';
   return 'Отпечаток / Face ID';
 }
-
 function requestBioAccess(){
   return new Promise((resolve) => {
     const bm = getBio();
     if(!bm){ resolve(false); return; }
-    try {
-      bm.requestAccess({ reason: 'Разрешить вход в Сейф+ по биометрии' }, (granted) => {
-        resolve(!!granted);
-      });
-    } catch(e){ resolve(false); }
+    try { bm.requestAccess({ reason: 'Разрешить вход в Сейф+ по биометрии' }, (granted) => resolve(!!granted)); }
+    catch(e){ resolve(false); }
   });
 }
-
 function openBioSettings(){
   const bm = getBio();
-  if(!bm || typeof bm.openSettings !== 'function'){
-    toast('Обновите Telegram до последней версии');
-    return;
-  }
-  try {
-    bm.openSettings();
-    toast('Откройте настройки биометрии в Telegram и разрешите доступ');
-  } catch(e){
-    toast('Не удалось открыть настройки');
-  }
+  if(!bm || typeof bm.openSettings !== 'function'){ toast('Обновите Telegram до последней версии'); return; }
+  try { bm.openSettings(); toast('Откройте настройки биометрии в Telegram и разрешите доступ'); }
+  catch(e){ toast('Не удалось открыть настройки'); }
 }
-
 function bioAuthenticate(reason){
   return new Promise((resolve, reject) => {
     const bm = getBio();
@@ -792,51 +953,34 @@ function bioAuthenticate(reason){
     } catch(e){ reject(e); }
   });
 }
-
 async function createBiometricRecord(pinKey){
   const bm = getBio();
   if(!bm) throw new Error('NOT_SUPPORTED');
   if(!bm.isBiometricAvailable) throw new Error('NOT_AVAILABLE');
   if(!bm.isAccessGranted){
     const granted = await requestBioAccess();
-    if(!granted){
-      toast('Доступ не выдан. Откройте настройки биометрии в Telegram');
-      throw new Error('ACCESS_DENIED');
-    }
+    if(!granted){ toast('Доступ не выдан. Откройте настройки биометрии в Telegram'); throw new Error('ACCESS_DENIED'); }
   }
   const token = await bioAuthenticate('Подтвердить добавление биометрии');
   const bioSalt = crypto.getRandomValues(new Uint8Array(16));
   const bioKey = await deriveKey(token, bioSalt);
   const pkRaw = await crypto.subtle.exportKey('raw', pinKey);
   const encPinKeyWithBio = await encryptJSON(bioKey, { pk: b64(pkRaw) });
-  return {
-    hasBiometric: true,
-    bioSalt: b64(bioSalt),
-    encPinKeyWithBio,
-    bioDeviceId: getBioDeviceId(),
-    bioType: getBioType()
-  };
+  return { hasBiometric: true, bioSalt: b64(bioSalt), encPinKeyWithBio, bioDeviceId: getBioDeviceId(), bioType: getBioType() };
 }
-
 async function tryUnlockWithBiometric(meta){
-  if(!meta.hasBiometric || !meta.bioSalt || !meta.encPinKeyWithBio)
-    return { error: 'Биометрия не установлена' };
+  if(!meta.hasBiometric || !meta.bioSalt || !meta.encPinKeyWithBio) return { error: 'Биометрия не установлена' };
   const bm = getBio();
-  if(!bm || !bm.isBiometricAvailable)
-    return { error: 'Биометрия недоступна' };
+  if(!bm || !bm.isBiometricAvailable) return { error: 'Биометрия недоступна' };
   if(meta.bioDeviceId && getBioDeviceId() && meta.bioDeviceId !== getBioDeviceId())
     return { error: 'Биометрия настроена на другом устройстве' };
-  if(!bm.isAccessGranted)
-    return { error: 'Доступ к биометрии не выдан. Откройте настройки биометрии в Telegram' };
+  if(!bm.isAccessGranted) return { error: 'Доступ к биометрии не выдан. Откройте настройки биометрии в Telegram' };
   let token;
-  try { token = await bioAuthenticate('Вход в Сейф+'); }
-  catch(e){ return { error: 'Отменено' }; }
+  try { token = await bioAuthenticate('Вход в Сейф+'); } catch(e){ return { error: 'Отменено' }; }
   let bioKey;
-  try { bioKey = await deriveKey(token, unb64(meta.bioSalt)); }
-  catch(e){ return { error: 'Ошибка хранилища' }; }
+  try { bioKey = await deriveKey(token, unb64(meta.bioSalt)); } catch(e){ return { error: 'Ошибка хранилища' }; }
   let obj;
-  try { obj = await decryptJSON(bioKey, meta.encPinKeyWithBio); }
-  catch { return { error: 'Токен не совпал' }; }
+  try { obj = await decryptJSON(bioKey, meta.encPinKeyWithBio); } catch { return { error: 'Токен не совпал' }; }
   if(!obj || !obj.pk) return { error: 'Повреждены данные' };
   try {
     const pinKey = await importPinKey(obj.pk);
@@ -932,7 +1076,6 @@ async function tryUnlockWithRecoveryKey(recoveryKey, meta){
     return { pinKey };
   } catch(e){ return { error: 'Повреждены данные' }; }
 }
-
 async function createPatternRecord(pinKey, patternKey){
   const patSalt = crypto.getRandomValues(new Uint8Array(16));
   const patKey = await deriveKey(patternKey, patSalt);
@@ -979,28 +1122,22 @@ function initPatternCanvas(){
     }
   }
   drawPattern();
-  if(!PATTERN.bound){
-    bindPatternEvents();
-    PATTERN.bound = true;
-  }
+  if(!PATTERN.bound){ bindPatternEvents(); PATTERN.bound = true; }
   return true;
 }
 function scheduleInitPatternCanvas(tries){
   tries = tries || 6;
   const ok = initPatternCanvas();
-  if(!ok && tries > 0){
-    setTimeout(() => scheduleInitPatternCanvas(tries - 1), 80);
-  }
+  if(!ok && tries > 0) setTimeout(() => scheduleInitPatternCanvas(tries - 1), 80);
 }
 function drawPattern(){
   if(!PATTERN.ctx) return;
   const ctx = PATTERN.ctx, size = PATTERN.size;
   ctx.clearRect(0, 0, size, size);
   if(PATTERN.sequence.length){
-    ctx.strokeStyle = 'rgba(0,122,255,0.85)';
+    ctx.strokeStyle = 'rgba(90,95,102,0.9)';
     ctx.lineWidth = size * 0.018;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     ctx.beginPath();
     PATTERN.sequence.forEach((cell, i) => {
       if(i === 0) ctx.moveTo(cell.cx, cell.cy);
@@ -1016,11 +1153,11 @@ function drawPattern(){
     const r = size * 0.055;
     ctx.beginPath();
     ctx.arc(c.cx, c.cy, r + size*0.025, 0, Math.PI*2);
-    ctx.fillStyle = selected ? 'rgba(0,122,255,0.15)' : 'transparent';
+    ctx.fillStyle = selected ? 'rgba(90,95,102,0.18)' : 'transparent';
     if(selected) ctx.fill();
     ctx.beginPath();
     ctx.arc(c.cx, c.cy, r, 0, Math.PI*2);
-    ctx.fillStyle = selected ? '#007AFF' : 'rgba(120,120,128,0.35)';
+    ctx.fillStyle = selected ? '#5A5F66' : 'rgba(120,120,128,0.35)';
     ctx.fill();
   });
 }
@@ -1045,9 +1182,7 @@ function bindPatternEvents(){
     const pos = getPos(e);
     const cell = hitCell(pos.x, pos.y);
     if(!cell) return;
-    PATTERN.sequence = [cell];
-    PATTERN.active = true;
-    PATTERN.pointerPos = pos;
+    PATTERN.sequence = [cell]; PATTERN.active = true; PATTERN.pointerPos = pos;
     drawPattern();
     if(navigator.vibrate) navigator.vibrate(10);
   };
@@ -1136,22 +1271,12 @@ async function handlePatternComplete(seq){
       pendingPattern = null;
       resetPatternSequence();
       toast('Графический ключ сохранён');
-      if(patternFromWizard){
-        patternFromWizard = false;
-        refreshWizard();
-        show('wizardScreen');
-      } else {
-        openSettings();
-      }
+      if(patternFromWizard){ patternFromWizard = false; refreshWizard(); show('wizardScreen'); }
+      else { openSettings(); }
     } catch(e){
       toast('Не удалось сохранить');
-      if(patternFromWizard){
-        patternFromWizard = false;
-        refreshWizard();
-        show('wizardScreen');
-      } else {
-        openSettings();
-      }
+      if(patternFromWizard){ patternFromWizard = false; refreshWizard(); show('wizardScreen'); }
+      else { openSettings(); }
     }
     return;
   }
@@ -1160,11 +1285,8 @@ async function handlePatternComplete(seq){
     const res = await tryUnlockWithPattern(seq, meta);
     if(res.error){
       patternFailCount++;
-      if(patternFailCount >= 2){
-        setPatternStatus('Не получается? Нажмите «Ввести PIN» ниже.', true);
-      } else {
-        setPatternStatus(res.error, true);
-      }
+      if(patternFailCount >= 2) setPatternStatus('Не получается? Нажмите «Ввести PIN» ниже.', true);
+      else setPatternStatus(res.error, true);
       setTimeout(resetPatternSequence, 900);
       return;
     }
@@ -1185,38 +1307,25 @@ function refreshWizard(){
   const patBtn = $('wizPatternBtn');
   const patOpt = $('wizPatternOpt');
   if(hasPat){
-    patBtn.textContent = 'Готово ✓';
-    patBtn.classList.add('done');
-    patOpt.classList.add('done');
+    patBtn.textContent = 'Готово ✓'; patBtn.classList.add('done'); patOpt.classList.add('done');
     $('wizPatternDesc').textContent = 'Настроен';
   } else {
-    patBtn.textContent = 'Настроить';
-    patBtn.classList.remove('done');
-    patOpt.classList.remove('done');
+    patBtn.textContent = 'Настроить'; patBtn.classList.remove('done'); patOpt.classList.remove('done');
     $('wizPatternDesc').textContent = 'Соединяйте точки пальцем на экране';
   }
-
   const bioBtn = $('wizBioBtn');
   const bioOpt = $('wizBioOpt');
   const hasBio = currentMeta && currentMeta.hasBiometric;
   if(!bioAvailable){
-    bioBtn.textContent = 'Недоступно';
-    bioBtn.classList.add('off');
-    bioOpt.classList.add('disabled');
+    bioBtn.textContent = 'Недоступно'; bioBtn.classList.add('off'); bioOpt.classList.add('disabled');
     $('wizBioDesc').textContent = 'Не поддерживается на этом устройстве';
   } else if(hasBio){
-    bioBtn.textContent = 'Готово ✓';
-    bioBtn.classList.add('done');
-    bioOpt.classList.add('done');
-    bioOpt.classList.remove('disabled');
-    bioBtn.classList.remove('off');
+    bioBtn.textContent = 'Готово ✓'; bioBtn.classList.add('done'); bioOpt.classList.add('done');
+    bioOpt.classList.remove('disabled'); bioBtn.classList.remove('off');
     $('wizBioDesc').textContent = 'Настроен';
   } else {
-    bioBtn.textContent = 'Настроить';
-    bioBtn.classList.remove('done');
-    bioOpt.classList.remove('done');
-    bioOpt.classList.remove('disabled');
-    bioBtn.classList.remove('off');
+    bioBtn.textContent = 'Настроить'; bioBtn.classList.remove('done'); bioOpt.classList.remove('done');
+    bioOpt.classList.remove('disabled'); bioBtn.classList.remove('off');
     $('wizBioDesc').textContent = 'Вход одним касанием';
   }
 }
@@ -1537,7 +1646,7 @@ async function tryPin(){
     if(!found){
       pinMode='create';
       $('pinError').textContent='Придумайте PIN (мин. 4 цифры)';
-      $('pinSubmitBtn').textContent = '✓ Далее';
+      $('pinSubmitBtn').textContent = 'Далее';
       $('pinSubmitBtn').style.display = '';
       pinBuffer=''; renderPinDots(); return;
     }
@@ -1550,15 +1659,10 @@ async function tryPin(){
     try { await decryptJSON(key, meta.verify); }
     catch { $('pinError').textContent='Неверный PIN'; pinBuffer=''; renderPinDots(); return; }
 
-    if(meta.pinLength){
-      expectedPinLength = meta.pinLength;
-      $('pinSubmitBtn').style.display = 'none';
-    } else {
+    if(meta.pinLength){ expectedPinLength = meta.pinLength; $('pinSubmitBtn').style.display = 'none'; }
+    else {
       meta.pinLength = pinBuffer.length;
-      try {
-        await storeSet(META_KEY, JSON.stringify(meta));
-        await storeSet(META_BACKUP, JSON.stringify(meta));
-      } catch(e){}
+      try { await storeSet(META_KEY, JSON.stringify(meta)); await storeSet(META_BACKUP, JSON.stringify(meta)); } catch(e){}
       expectedPinLength = pinBuffer.length;
       $('pinSubmitBtn').style.display = 'none';
     }
@@ -1580,21 +1684,21 @@ async function tryPin(){
   else if(pinMode==='create'){
     tempPin = pinBuffer; pinBuffer=''; pinMode='confirm';
     $('pinError').textContent='Повторите PIN';
-    $('pinSubmitBtn').textContent = '✓ Создать';
+    $('pinSubmitBtn').textContent = 'Создать';
     renderPinDots(); return;
   }
   else if(pinMode==='confirm'){
     if(pinBuffer !== tempPin){
       $('pinError').textContent='PIN не совпал';
       pinBuffer=''; pinMode='create'; tempPin='';
-      $('pinSubmitBtn').textContent = '✓ Далее';
+      $('pinSubmitBtn').textContent = 'Далее';
       renderPinDots(); return;
     }
     if(pinBuffer.length <= 4 && WEAK_PINS.includes(pinBuffer)){
       if(!confirm('PIN «' + pinBuffer + '» слишком простой и легко угадывается. Всё равно использовать?')){
         pinBuffer=''; pinMode='create'; tempPin='';
         $('pinError').textContent = 'Придумайте другой PIN';
-        $('pinSubmitBtn').textContent = '✓ Далее';
+        $('pinSubmitBtn').textContent = 'Далее';
         renderPinDots(); return;
       }
     }
@@ -1698,9 +1802,7 @@ async function submitRecovery(){
 
 // ============ Смена PIN ============
 function openChangePin(){
-  $('changePinOld').value = '';
-  $('changePinNew').value = '';
-  $('changePinNew2').value = '';
+  $('changePinOld').value = ''; $('changePinNew').value = ''; $('changePinNew2').value = '';
   $('changePinError').textContent = '';
   $('changePinSubmitBtn').disabled = false;
   $('changePinSubmitBtn').textContent = 'Сменить PIN';
@@ -1708,8 +1810,7 @@ function openChangePin(){
 }
 async function changePinSubmit(){
   if(!currentMeta || !currentMeta.salt){
-    $('changePinError').textContent = 'Данные не загружены. Перезайдите в приложение.';
-    return;
+    $('changePinError').textContent = 'Данные не загружены. Перезайдите в приложение.'; return;
   }
   const oldPin = $('changePinOld').value.trim();
   const newPin = $('changePinNew').value.trim();
@@ -1725,13 +1826,8 @@ async function changePinSubmit(){
   try {
     oldKey = await deriveKey(oldPin, unb64(currentMeta.salt));
     await decryptJSON(oldKey, currentMeta.verify);
-  } catch(e){
-    errEl.textContent = 'Неверный текущий PIN';
-    return;
-  }
-  if(newPin === oldPin){
-    if(!confirm('Новый PIN совпадает с текущим. Сменить всё равно?')) return;
-  }
+  } catch(e){ errEl.textContent = 'Неверный текущий PIN'; return; }
+  if(newPin === oldPin){ if(!confirm('Новый PIN совпадает с текущим. Сменить всё равно?')) return; }
   if(newPin.length <= 4 && WEAK_PINS.includes(newPin)){
     if(!confirm('PIN «' + newPin + '» слишком простой. Всё равно использовать?')) return;
   }
@@ -1760,18 +1856,11 @@ async function changePinSubmit(){
     currentMeta.salt = b64(newSalt);
     currentMeta.verify = newVerify;
     currentMeta.pinLength = newPin.length;
-    currentMeta.hasRecovery = false;
-    currentMeta.recoveryOffered = false;
-    delete currentMeta.recSalt;
-    delete currentMeta.encPinKeyWithRec;
-    delete currentMeta.hasPattern;
-    delete currentMeta.patternSalt;
-    delete currentMeta.encPinKeyWithPattern;
-    delete currentMeta.hasBiometric;
-    delete currentMeta.bioSalt;
-    delete currentMeta.encPinKeyWithBio;
-    delete currentMeta.bioDeviceId;
-    delete currentMeta.bioType;
+    currentMeta.hasRecovery = false; currentMeta.recoveryOffered = false;
+    delete currentMeta.recSalt; delete currentMeta.encPinKeyWithRec;
+    delete currentMeta.hasPattern; delete currentMeta.patternSalt; delete currentMeta.encPinKeyWithPattern;
+    delete currentMeta.hasBiometric; delete currentMeta.bioSalt; delete currentMeta.encPinKeyWithBio;
+    delete currentMeta.bioDeviceId; delete currentMeta.bioType;
 
     await storeSet(META_KEY, JSON.stringify(currentMeta));
     await storeSet(META_BACKUP, JSON.stringify(currentMeta));
@@ -1779,12 +1868,9 @@ async function changePinSubmit(){
     expectedPinLength = newPin.length;
     $('pinSubmitBtn').style.display = 'none';
 
-    $('changePinOld').value = '';
-    $('changePinNew').value = '';
-    $('changePinNew2').value = '';
+    $('changePinOld').value = ''; $('changePinNew').value = ''; $('changePinNew2').value = '';
     $('changePinSubmitBtn').disabled = false;
     $('changePinSubmitBtn').textContent = 'Сменить PIN';
-
     showChangePinResult({ wasRecovery, wasPattern, wasBio });
   } catch(e){
     console.error(e);
@@ -1807,9 +1893,7 @@ function showChangePinResult(flags){
     info.style.padding = '12px';
     info.style.borderRadius = '12px';
   } else {
-    info.textContent = '';
-    info.style.background = 'transparent';
-    info.style.padding = '0';
+    info.textContent = ''; info.style.background = 'transparent'; info.style.padding = '0';
   }
   show('changePinResultScreen');
 }
@@ -1867,7 +1951,6 @@ function closeWarning(result){
   if(warnResolve) warnResolve(result);
   warnResolve = null;
 }
-
 async function onBioToggle(){
   const toggle = $('bioToggle');
   if(!bioAvailable){ toggle.checked = false; toast('Не поддерживается'); return; }
@@ -1887,10 +1970,7 @@ async function onBioToggle(){
       toast('Биометрия добавлена');
     } catch(e){
       $('bioSub').textContent = 'Не настроен';
-      if(e.message === 'ACCESS_DENIED'){
-        toast('Доступ не выдан. Откройте настройки биометрии в Telegram');
-        $('openBioSettingsBtn').style.display = 'block';
-      }
+      if(e.message === 'ACCESS_DENIED'){ toast('Доступ не выдан. Откройте настройки биометрии в Telegram'); $('openBioSettingsBtn').style.display = 'block'; }
       else if(e.message === 'NOT_AVAILABLE') toast('Биометрия недоступна');
       else toast('Не удалось добавить');
     }
@@ -1898,11 +1978,8 @@ async function onBioToggle(){
     const ok = await showWarning('Отключить ' + bioLabelText(),
       'Дополнительный способ входа будет удалён. Для входа останется PIN и графический ключ (если включён).');
     if(!ok){ toggle.checked = true; return; }
-    delete currentMeta.hasBiometric;
-    delete currentMeta.bioSalt;
-    delete currentMeta.encPinKeyWithBio;
-    delete currentMeta.bioDeviceId;
-    delete currentMeta.bioType;
+    delete currentMeta.hasBiometric; delete currentMeta.bioSalt; delete currentMeta.encPinKeyWithBio;
+    delete currentMeta.bioDeviceId; delete currentMeta.bioType;
     await storeSet(META_KEY, JSON.stringify(currentMeta));
     await storeSet(META_BACKUP, JSON.stringify(currentMeta));
     $('bioSub').textContent = 'Не настроен';
@@ -1916,16 +1993,13 @@ async function onPatternToggle(){
     const ok = await showWarning('Включить графический ключ',
       'Графический ключ позволит входить без PIN. PIN при этом остаётся резервным способом.\n\n⚠️ ВАЖНО: PIN-код забывать нельзя! Если забудете PIN и графический ключ — данные будут утеряны.');
     if(!ok) return;
-    patternFromWizard = false;
-    pendingPattern = null;
+    patternFromWizard = false; pendingPattern = null;
     openPatternScreen('set');
   } else {
     const ok = await showWarning('Отключить графический ключ',
       'Дополнительный способ входа будет удалён. Для входа останется PIN и биометрия (если включена).');
     if(!ok){ toggle.checked = true; return; }
-    delete currentMeta.hasPattern;
-    delete currentMeta.patternSalt;
-    delete currentMeta.encPinKeyWithPattern;
+    delete currentMeta.hasPattern; delete currentMeta.patternSalt; delete currentMeta.encPinKeyWithPattern;
     await storeSet(META_KEY, JSON.stringify(currentMeta));
     await storeSet(META_BACKUP, JSON.stringify(currentMeta));
     $('patternSub').textContent = 'Не настроен';
@@ -1933,82 +2007,111 @@ async function onPatternToggle(){
   }
 }
 
-function openVault(){ renderChips(); renderCards(); show('vaultScreen'); resetLockTimer(); }
-function countInFolder(fid){ return vault.cards.filter(c => c.folderId === fid).length; }
-function renderChips(){
-  const row = $('catRow'); row.innerHTML='';
-  const all = document.createElement('div');
-  all.className = 'cat' + (currentFolder==='all'?' active':'');
-  all.innerHTML = `Все <span class="cnt">${vault.cards.length}</span>`;
-  all.onclick = ()=>{ currentFolder='all'; renderChips(); renderCards(); };
-  row.appendChild(all);
-  const fav = document.createElement('div');
-  fav.className = 'cat' + (currentFolder==='fav'?' active':'');
-  fav.innerHTML = `⭐ Избранное <span class="cnt">${vault.cards.filter(c=>c.favorite).length}</span>`;
-  fav.onclick = ()=>{ currentFolder='fav'; renderChips(); renderCards(); };
-  row.appendChild(fav);
-  vault.folders.forEach(f=>{
-    const el = document.createElement('div');
-    el.className = 'cat' + (currentFolder===f.id?' active':'');
-    el.innerHTML = `${esc(f.icon)} ${esc(f.name)} <span class="cnt">${countInFolder(f.id)}</span>`;
-    el.onclick = ()=>{ currentFolder=f.id; renderChips(); renderCards(); };
-    row.appendChild(el);
-  });
+// ============ ГЛАВНЫЙ ЭКРАН (список папок + карточек) ============
+function openVault(){
+  currentFolderId = null;
+  renderMainList();
+  show('vaultScreen');
+  resetLockTimer();
 }
-function renderCards(){
-  const q = ($('searchInput').value||'').toLowerCase();
-  const list = $('cardsList'); list.innerHTML='';
-  let cards = vault.cards.slice();
-  if(currentFolder==='fav') cards = cards.filter(c=>c.favorite);
-  else if(currentFolder!=='all') cards = cards.filter(c=>c.folderId===currentFolder);
-  if(q){
-    cards = cards.filter(c => {
-      if((c.title||'').toLowerCase().includes(q)) return true;
-      for(const f of (c.fields||[])){
-        if((f.name||'').toLowerCase().includes(q)) return true;
-        if((f.value||'').toLowerCase().includes(q)) return true;
-      }
-      const fld = vault.folders.find(x => x.id === c.folderId);
-      if(fld && ((fld.name||'').toLowerCase().includes(q) || (fld.icon||'').includes(q))) return true;
-      return false;
-    });
-  }
-  if(!cards.length){ list.innerHTML='<div class="empty">Здесь пока ничего нет</div>'; return; }
 
+function renderMainList(){
+  const box = $('mainList');
+  box.innerHTML = '';
+
+  // Определяем, какие папки и карточки показывать
+  let foldersToShow = [];
+  let cardsToShow = [];
+
+  if(currentFolderId === null){
+    // Корень: папки верхнего уровня + карточки без папки (в «Разное» не попавшие)
+    foldersToShow = vault.folders.filter(f => !f.parentId);
+    cardsToShow = vault.cards.filter(c => !c.folderId);
+  } else {
+    foldersToShow = vault.folders.filter(f => f.parentId === currentFolderId);
+    cardsToShow = vault.cards.filter(c => c.folderId === currentFolderId);
+  }
+
+  // Сортировка папок — по алфавиту всегда
+  foldersToShow.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ru'));
+
+  // Сортировка карточек по выбранному режиму
   if(sortMode === 'alpha'){
-    cards.sort((a,b) => (a.title||'').localeCompare(b.title||'', 'ru'));
+    cardsToShow.sort((a, b) => (a.title || '').localeCompare(b.title || '', 'ru'));
   } else if(sortMode === 'date'){
-    cards.sort((a,b)=>(b.updated||0)-(a.updated||0));
+    cardsToShow.sort((a, b) => (b.updated || 0) - (a.updated || 0));
   } else if(sortMode === 'manual'){
-    cards.sort((a,b) => (manualOrder[a.id]||0) - (manualOrder[b.id]||0));
+    cardsToShow.sort((a, b) => (manualOrder[a.id] || 0) - (manualOrder[b.id] || 0));
   }
 
-  const group = document.createElement('div'); group.className = 'cards-group';
-  cards.forEach(c=>{
-    const f = vault.folders.find(x=>x.id===c.folderId);
-    const d = document.createElement('div'); d.className='card-item';
-    if(sortMode === 'manual'){ d.dataset.cardId = c.id; }
-    const iconHtml = c.customIcon ? `<img src="${c.customIcon}">` : esc(c.icon||'📄');
-    const favMark = c.favorite ? '<span class="card-fav">★</span>' : '';
-    const dragHandle = sortMode === 'manual' ? '<span style="color:var(--hint);font-size:20px;padding:0 4px;cursor:grab">≡</span>' : '';
-    d.innerHTML = `
-      ${dragHandle}
-      <div class="card-icon">${iconHtml}</div>
-      <div class="card-body">
-        <div class="card-title">${esc(c.title)} ${favMark}</div>
-        <div class="card-sub">${f ? esc(f.icon+' '+f.name) : ''}<span>${timeAgo(c.updated)}</span></div>
-      </div>
-      <div class="card-chevron">›</div>`;
-    d.onclick = ()=>viewCard(c.id);
-    group.appendChild(d);
-  });
-  list.appendChild(group);
+  // Если пусто
+  if(!foldersToShow.length && !cardsToShow.length){
+    box.innerHTML = '<div class="empty">' +
+      (currentFolderId ? 'В этой папке пока пусто' : 'Сейф пуст. Нажмите + чтобы добавить') +
+      '</div>';
+    return;
+  }
 
-  if(sortMode === 'manual'){ bindManualSort(); }
+  // Группа 1: папки
+  if(foldersToShow.length){
+    const group = document.createElement('div');
+    group.className = 'list-group';
+    foldersToShow.forEach(f => {
+      const directCards = vault.cards.filter(c => c.folderId === f.id).length;
+      const childFolders = vault.folders.filter(x => x.parentId === f.id).length;
+      const subParts = [];
+      if(directCards) subParts.push(directCards + ' карт.');
+      if(childFolders) subParts.push(childFolders + ' папок');
+      const subStr = subParts.length ? subParts.join(' · ') : 'пусто';
+
+      const d = document.createElement('div');
+      d.className = 'list-item';
+      d.innerHTML = `
+        <div class="list-icon">${esc(f.icon || '📁')}</div>
+        <div class="list-body">
+          <div class="list-title">${esc(f.name)}</div>
+          <div class="list-sub">${subStr}</div>
+        </div>
+        <div class="list-chevron">›</div>`;
+      d.onclick = () => { currentFolderId = f.id; renderMainList(); };
+      group.appendChild(d);
+    });
+    box.appendChild(group);
+  }
+
+  // Группа 2: карточки
+  if(cardsToShow.length){
+    const group = document.createElement('div');
+    group.className = 'list-group';
+    cardsToShow.forEach(c => {
+      const d = document.createElement('div');
+      d.className = 'list-item';
+      if(sortMode === 'manual') d.dataset.cardId = c.id;
+
+      const iconHtml = c.customIcon
+        ? `<img src="${c.customIcon}">`
+        : esc(c.icon || '📄');
+      const favMark = c.favorite ? '<span class="list-fav">★</span>' : '';
+
+      d.innerHTML = `
+        <div class="list-icon">${iconHtml}</div>
+        <div class="list-body">
+          <div class="list-title">${esc(c.title)}${favMark}</div>
+          <div class="list-sub">${timeAgo(c.updated)}</div>
+        </div>
+        <div class="list-chevron">›</div>`;
+      d.onclick = () => viewCard(c.id);
+      group.appendChild(d);
+    });
+    box.appendChild(group);
+
+    if(sortMode === 'manual') bindManualSort();
+  }
 }
 
 function bindManualSort(){
-  const items = [...$('cardsList').querySelectorAll('.card-item[data-card-id]')];
+  const items = [...$('mainList').querySelectorAll('.list-item[data-card-id]')];
+  if(!items.length) return;
   if(Object.keys(manualOrder).length === 0){
     items.forEach((it, i) => { manualOrder[it.dataset.cardId] = i + 1; });
   }
@@ -2018,13 +2121,12 @@ function bindManualSort(){
     let startY = 0;
 
     const startPress = (e) => {
-      if(e.target.closest('.card-chevron')) return;
       pressTimer = setTimeout(() => {
         dragging = true;
         item.style.opacity = '0.5';
         item.style.background = 'var(--ios-fill)';
         if(navigator.vibrate) navigator.vibrate(20);
-        toast('Ведите палец вверх/вниз, чтобы переместить');
+        toast('Ведите палец вверх/вниз');
         const touch = e.touches ? e.touches[0] : e;
         startY = touch.clientY;
         document.addEventListener('touchmove', onMove, {passive:false});
@@ -2033,15 +2135,13 @@ function bindManualSort(){
         document.addEventListener('mouseup', onEnd);
       }, 500);
     };
-
     const cancelPress = () => { clearTimeout(pressTimer); pressTimer = null; };
-
     const onMove = (e) => {
       if(!dragging) return;
       e.preventDefault();
       const touch = e.touches ? e.touches[0] : e;
       const y = touch.clientY;
-      const all = [...$('cardsList').querySelectorAll('.card-item[data-card-id]')];
+      const all = [...$('mainList').querySelectorAll('.list-item[data-card-id]')];
       let target = null;
       for(const el of all){
         if(el === item) continue;
@@ -2055,7 +2155,6 @@ function bindManualSort(){
         else target.after(item);
       }
     };
-
     const onEnd = () => {
       document.removeEventListener('touchmove', onMove);
       document.removeEventListener('mousemove', onMove);
@@ -2068,7 +2167,6 @@ function bindManualSort(){
         saveManualOrder();
       }
     };
-
     item.addEventListener('touchstart', startPress, {passive:true});
     item.addEventListener('mousedown', startPress);
     item.addEventListener('touchend', cancelPress);
@@ -2079,17 +2177,13 @@ function bindManualSort(){
 }
 
 function saveManualOrder(){
-  const items = [...$('cardsList').querySelectorAll('.card-item[data-card-id]')];
+  const items = [...$('mainList').querySelectorAll('.list-item[data-card-id]')];
   const visibleIds = items.map(i => i.dataset.cardId);
   const newOrder = {};
   let counter = 1;
   visibleIds.forEach(id => { newOrder[id] = counter++; });
-  Object.keys(manualOrder).forEach(id => {
-    if(!newOrder[id]) newOrder[id] = counter++;
-  });
-  vault.cards.forEach(c => {
-    if(!newOrder[c.id]) newOrder[c.id] = counter++;
-  });
+  Object.keys(manualOrder).forEach(id => { if(!newOrder[id]) newOrder[id] = counter++; });
+  vault.cards.forEach(c => { if(!newOrder[c.id]) newOrder[c.id] = counter++; });
   manualOrder = newOrder;
   vault.settings.manualOrder = manualOrder;
   saveConf();
@@ -2098,12 +2192,7 @@ function saveManualOrder(){
 
 function cycleSortMode(){
   const modes = ['alpha','date','manual'];
-  const labels = { alpha:'🔤 А→Я', date:'🕐 Новые', manual:'✋ Ручная' };
-  const tips = {
-    alpha:'Сортировка по алфавиту',
-    date:'Сначала недавно изменённые',
-    manual:'Долгое нажатие на карточку — и перетаскивайте'
-  };
+  const labels = { alpha:'🔤', date:'🕐', manual:'✋' };
   const i = modes.indexOf(sortMode);
   sortMode = modes[(i+1) % modes.length];
   if(sortMode === 'manual'){
@@ -2112,11 +2201,11 @@ function cycleSortMode(){
     vault.settings.manualOrder = manualOrder;
     saveConf();
   }
-  $('sortBtn').textContent = labels[sortMode];
-  toast(tips[sortMode]);
-  renderCards();
+  toast('Сортировка: ' + labels[sortMode]);
+  renderMainList();
 }
 
+// ============ Папки (старый экран — оставлен для редактора) ============
 function openFolders(){ renderFoldersList(); show('foldersScreen'); }
 function renderFoldersList(){
   const box = $('foldersList'); box.innerHTML='';
@@ -2125,9 +2214,9 @@ function renderFoldersList(){
       const d = document.createElement('div'); d.className='folder-item';
       d.style.paddingLeft = (16 + depth*20) + 'px';
       const childCount = vault.folders.filter(x=>x.parentId===f.id).length;
-      const cnt = countInFolder(f.id) + (childCount ? ' · 📁'+childCount : '');
+      const cnt = vault.cards.filter(c=>c.folderId===f.id).length + (childCount ? ' · 📁'+childCount : '');
       d.innerHTML = `<div class="folder-name"><span class="ico">${esc(f.icon)}</span>${esc(f.name)}</div>
-        <div class="folder-cnt">${cnt}</div><div class="card-chevron">›</div>`;
+        <div class="folder-cnt">${cnt}</div><div class="list-chevron">›</div>`;
       d.onclick = ()=>openFolderEditor(f.id);
       box.appendChild(d);
       renderLevel(f.id, depth+1);
@@ -2192,8 +2281,12 @@ async function saveFolder(){
   }
   const ok = await saveConf();
   if(!ok){ toast('Не удалось сохранить папку'); return; }
-  renderFoldersList(); renderChips(); renderCards();
-  show('foldersScreen');
+  toast('Папка сохранена');
+  // Возвращаемся на главный экран, если мы в корне — обновляем
+  if(currentFolderId === null || vault.folders.some(f => f.id === currentFolderId)){
+    renderMainList();
+  }
+  show('vaultScreen');
 }
 async function deleteFolder(){
   if(!editingFolderId) return;
@@ -2227,15 +2320,14 @@ async function deleteFolder(){
   if(vault.folders.length === 0){
     vault.folders.push({ id: 'f_other', name: 'Разное', icon: '📁', parentId: null });
   }
-  if(toDelete.has(currentFolder)) currentFolder = 'all';
-  if(currentFolder !== 'all' && currentFolder !== 'fav'
-     && !vault.folders.some(f => f.id === currentFolder)){ currentFolder = 'all'; }
+  if(toDelete.has(currentFolderId)) currentFolderId = null;
   await saveConf();
-  renderFoldersList(); renderChips(); renderCards();
+  renderMainList();
   toast('Папка удалена');
-  show('foldersScreen');
+  show('vaultScreen');
 }
 
+// ============ Шаблоны ============
 const TEMPLATES = [
   { id:'login',   icon:'🌐', name:'Логин / Пароль', folder:'Пароли',   fields:['Логин','Пароль','Сайт','Заметка'] },
   { id:'email',   icon:'📧', name:'Email', folder:'Пароли',           fields:['Email','Пароль','Сервер (IMAP)','Порт','Заметка'] },
@@ -2263,6 +2355,7 @@ function renderTemplates(){
 }
 function pickTemplate(t){ pendingTemplate = t; openEditor(null); }
 
+// ============ Просмотр / редактор карточки ============
 function viewCard(id){
   const c = vault.cards.find(x=>x.id===id); if(!c) return;
   $('viewTitle').textContent = c.title;
@@ -2356,10 +2449,11 @@ function openEditor(id){
     o.textContent = `${f.icon} ${f.name}`;
     if(c && c.folderId===f.id) o.selected=true;
     else if(!c && pendingTemplate && f.name===pendingTemplate.folder) o.selected=true;
-    else if(!c && !pendingTemplate && currentFolder!=='all' && currentFolder!=='fav' && f.id===currentFolder) o.selected=true;
+    else if(!c && currentFolderId && f.id===currentFolderId) o.selected=true;
     sel.appendChild(o);
   });
-  if(!c && !pendingTemplate && (currentFolder==='all'||currentFolder==='fav')){
+  // Если в корне и нет шаблона — ставим «Разное»
+  if(!c && !pendingTemplate && !currentFolderId){
     const f = vault.folders.find(x=>x.id==='f_other') || vault.folders.find(x=>x.name==='Разное');
     if(f) sel.value = f.id;
   }
@@ -2437,14 +2531,18 @@ async function saveCard(){
   else { vault.cards.push(cardData); }
   pendingTemplate = null;
   await checkAndPackIfNeeded();
-  renderChips(); renderCards(); show('vaultScreen');
+  renderMainList();
+  show('vaultScreen');
+  toast('Сохранено');
 }
 async function deleteCard(){
   if(!editingId || !confirm('Удалить карточку?')) return;
   const card = vault.cards.find(x => x.id === editingId);
   if(card) await removeCardStorage(card);
   vault.cards = vault.cards.filter(x=>x.id!==editingId);
-  renderChips(); renderCards(); show('vaultScreen');
+  renderMainList();
+  show('vaultScreen');
+  toast('Удалено');
 }
 function openIconPicker(){
   $('removePhotoBtn').style.display = editingCardIcon.customIcon ? 'block' : 'none';
@@ -2490,6 +2588,7 @@ function setupPhotoUpload(){
   };
 }
 
+// ============ Настройки ============
 async function openSettings(){
   $('autoLockInput').value = vault.settings.autoLock || 60;
   $('clipClearChk').checked = vault.settings.clipClear !== false;
@@ -2502,8 +2601,7 @@ async function openSettings(){
   const bioSettingsBtn = $('openBioSettingsBtn');
   $('bioLabel').textContent = bioAvailable ? bioLabelText() : 'Отпечаток / Face ID';
   if(!bioAvailable){
-    bioToggle.checked = false;
-    bioToggle.disabled = true;
+    bioToggle.checked = false; bioToggle.disabled = true;
     $('bioSub').textContent = 'Не поддерживается на этом устройстве';
     if(bioSettingsBtn) bioSettingsBtn.style.display = 'none';
   } else {
@@ -2511,14 +2609,10 @@ async function openSettings(){
     bioToggle.checked = !!hasBio;
     $('bioSub').textContent = hasBio ? 'Настроен' : 'Не настроен';
     if(bioSettingsBtn){
-      if(!hasBio && !isBioAccessGranted()){
-        bioSettingsBtn.style.display = 'block';
-      } else {
-        bioSettingsBtn.style.display = 'none';
-      }
+      if(!hasBio && !isBioAccessGranted()) bioSettingsBtn.style.display = 'block';
+      else bioSettingsBtn.style.display = 'none';
     }
   }
-
   show('settingsScreen');
   const has = currentMeta && currentMeta.hasRecovery;
   $('recoveryStatus').textContent = has ? '✅ Recovery Key установлен' : '⚠️ Recovery Key не установлен';
@@ -2625,33 +2719,24 @@ function resetLockTimer(){
 ['click','touchstart','keydown'].forEach(e => document.addEventListener(e, () => resetLockTimer()));
 async function lockNow(){
   cryptoKey=null; pinBuffer=''; pinMode='unlock';
-  vault.cards = []; currentMeta = null;
+  vault.cards = []; currentMeta = null; currentFolderId = null;
   $('lockHint').textContent='Введите PIN';
   $('pinError').textContent='';
-  $('pinSubmitBtn').textContent = '✓ Открыть';
+  $('pinSubmitBtn').textContent = 'Открыть';
   let meta = null;
   try {
     const found = await detectMeta();
     if(found){
       meta = JSON.parse(found.value);
-      if(meta.pinLength){
-        expectedPinLength = meta.pinLength;
-        $('pinSubmitBtn').style.display = 'none';
-      } else {
-        expectedPinLength = null;
-        $('pinSubmitBtn').style.display = '';
-      }
+      if(meta.pinLength){ expectedPinLength = meta.pinLength; $('pinSubmitBtn').style.display = 'none'; }
+      else { expectedPinLength = null; $('pinSubmitBtn').style.display = ''; }
     }
   } catch(e){}
   renderPinDots();
   refreshAltAuthRow();
-  if(meta && meta.hasPattern){
-    openPatternScreen('verify');
-  } else {
-    show('lockScreen');
-  }
+  if(meta && meta.hasPattern){ openPatternScreen('verify'); }
+  else { show('lockScreen'); }
 }
-
 async function refreshAltAuthRow(){
   const row = $('altAuthRow');
   row.innerHTML = '';
@@ -2663,16 +2748,14 @@ async function refreshAltAuthRow(){
   if(!meta){ return; }
   if(meta.hasPattern){
     const btn = document.createElement('button');
-    btn.className = 'alt-auth-btn';
-    btn.type = 'button';
+    btn.className = 'alt-auth-btn'; btn.type = 'button';
     btn.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="5" cy="5" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="19" r="2"/></svg>Графический ключ`;
     btn.onclick = () => openPatternScreen('verify');
     row.appendChild(btn);
   }
   if(meta.hasBiometric && bioAvailable){
     const btn = document.createElement('button');
-    btn.className = 'alt-auth-btn';
-    btn.type = 'button';
+    btn.className = 'alt-auth-btn'; btn.type = 'button';
     btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 2c-3 0-5 2-5 5v1h2V7c0-2 1.5-3 3-3s3 1 3 3v3c0 5-2 8-4 9v2c3-1 6-5 6-11V7c0-3-2-5-5-5zM7 9v1c0 4 1 7 3 8v-2c-1-1-1-3-1-6V9H7zm10 0v1c0 4-1 6-2 7v2c2-1 4-4 4-9V9h-2z"/></svg>${bioLabelText()}`;
     btn.onclick = () => onBioLogin();
     row.appendChild(btn);
@@ -2696,6 +2779,7 @@ async function onBioLogin(){
   openVault();
 }
 
+// ============ ИНИЦИАЛИЗАЦИЯ ============
 async function init(){
   buildPinPad(); renderPinDots(); renderTemplates(); setupPhotoUpload();
   await initBiometric();
@@ -2713,72 +2797,150 @@ async function init(){
   if(found){
     pinMode='unlock';
     $('lockHint').textContent='Введите PIN';
-    $('pinSubmitBtn').textContent = '✓ Открыть';
+    $('pinSubmitBtn').textContent = 'Открыть';
     let meta = null;
     try {
       meta = JSON.parse(found.value);
-      if(meta.pinLength){
-        expectedPinLength = meta.pinLength;
-        $('pinSubmitBtn').style.display = 'none';
-      } else {
-        expectedPinLength = null;
-        $('pinSubmitBtn').style.display = '';
-      }
+      if(meta.pinLength){ expectedPinLength = meta.pinLength; $('pinSubmitBtn').style.display = 'none'; }
+      else { expectedPinLength = null; $('pinSubmitBtn').style.display = ''; }
     } catch(e){}
     await refreshAltAuthRow();
-    if(meta && meta.hasPattern){
-      openPatternScreen('verify');
-    } else if(meta && meta.hasBiometric && bioAvailable){
-      setTimeout(() => { onBioLogin(); }, 400);
-    }
+    if(meta && meta.hasPattern){ openPatternScreen('verify'); }
+    else if(meta && meta.hasBiometric && bioAvailable){ setTimeout(() => { onBioLogin(); }, 400); }
   } else {
     pinMode='create';
     $('pinError').textContent='Придумайте PIN (мин. 4 цифры)';
-    $('pinSubmitBtn').textContent = '✓ Далее';
+    $('pinSubmitBtn').textContent = 'Далее';
     $('pinSubmitBtn').style.display = '';
   }
 }
 
-$('wizPatternBtn').onclick = () => {
-  patternFromWizard = true;
-  pendingPattern = null;
-  openPatternScreen('set');
-};
+// ============ ОБРАБОТЧИКИ ============
+$('wizPatternBtn').onclick = () => { patternFromWizard = true; pendingPattern = null; openPatternScreen('set'); };
 $('wizBioBtn').onclick = () => { wizardBioSetup(); };
 $('wizContinueBtn').onclick = () => { finishWizard(); };
 
 $('forgotPinLink').onclick = openRecoveryInput;
 $('pinSubmitBtn').onclick = tryPin;
 $('patternBack').onclick = () => {
-  patternMode = null;
-  pendingPattern = null;
+  patternMode = null; pendingPattern = null;
   if(patternFromWizard){ patternFromWizard = false; refreshWizard(); show('wizardScreen'); }
   else if(cryptoKey) openSettings();
   else show('lockScreen');
 };
 $('patternCancelBtn').onclick = () => {
-  patternMode = null;
-  pendingPattern = null;
+  patternMode = null; pendingPattern = null;
   if(patternFromWizard){ patternFromWizard = false; refreshWizard(); show('wizardScreen'); }
   else if(cryptoKey) openSettings();
   else show('lockScreen');
 };
 $('patternSwitchToPinBtn').onclick = () => {
-  patternMode = null;
-  patternFailCount = 0;
-  pendingPattern = null;
-  resetPatternSequence();
-  show('lockScreen');
+  patternMode = null; patternFailCount = 0; pendingPattern = null;
+  resetPatternSequence(); show('lockScreen');
 };
-$('lockBtn').onclick = lockNow;
-$('foldersBtn').onclick = openFolders;
-$('foldersBack').onclick = ()=>{ renderChips(); renderCards(); show('vaultScreen'); };
+
+// Верхняя панель
+$('navBackBtn').onclick = () => {
+  if(currentFolderId !== null){ currentFolderId = null; renderMainList(); return; }
+  if(confirm('Вы уверены, что желаете закрыть сейф?')){
+    if(tg && typeof tg.close === 'function'){ try { tg.close(); } catch(e){ lockNow(); } }
+    else lockNow();
+  }
+};
+$('navFavBtn').onclick = () => {
+  // Быстрый фильтр: избранное
+  const favCards = vault.cards.filter(c => c.favorite);
+  const box = $('mainList'); box.innerHTML = '';
+  if(!favCards.length){
+    box.innerHTML = '<div class="empty">В избранном пока пусто</div>';
+  } else {
+    const group = document.createElement('div'); group.className = 'list-group';
+    favCards.sort((a,b)=>(a.title||'').localeCompare(b.title||'','ru'));
+    favCards.forEach(c=>{
+      const d = document.createElement('div'); d.className = 'list-item';
+      const iconHtml = c.customIcon ? `<img src="${c.customIcon}">` : esc(c.icon || '📄');
+      d.innerHTML = `
+        <div class="list-icon">${iconHtml}</div>
+        <div class="list-body">
+          <div class="list-title">${esc(c.title)}<span class="list-fav">★</span></div>
+          <div class="list-sub">${timeAgo(c.updated)}</div>
+        </div>
+        <div class="list-chevron">›</div>`;
+      d.onclick = () => viewCard(c.id);
+      group.appendChild(d);
+    });
+    box.appendChild(group);
+  }
+  show('vaultScreen');
+};
+$('navAddBtn').onclick = () => { $('addMenu').style.display = 'flex'; };
+$('navSearchBtn').onclick = () => {
+  const bar = $('searchBar');
+  if(bar.style.display === 'none'){ bar.style.display = 'block'; $('searchInput').focus(); }
+  else { bar.style.display = 'none'; $('searchInput').value = ''; renderMainList(); }
+};
+$('navMenuBtn').onclick = () => { $('mainMenu').style.display = 'flex'; };
+
+// Меню "плюс"
+$('addMenuCancel').onclick = () => { $('addMenu').style.display = 'none'; };
+$('menuCreateFolder').onclick = () => { $('addMenu').style.display = 'none'; openFolderEditor(null); };
+$('menuCreateCard').onclick = () => { $('addMenu').style.display = 'none'; pendingTemplate = null; renderTemplates(); show('tplScreen'); };
+$('menuImportFile').onclick = () => { $('addMenu').style.display = 'none'; toast('Функция «Вставить файл» в разработке'); };
+$('menuImportFolder').onclick = () => { $('addMenu').style.display = 'none'; toast('Функция «Вставить папку» в разработке'); };
+$('menuCamera').onclick = () => { $('addMenu').style.display = 'none'; toast('Функция «Снимок с камеры» в разработке'); };
+
+// Меню "три полоски"
+$('menuSettings').onclick = () => { $('mainMenu').style.display = 'none'; openSettings(); };
+$('menuLock').onclick = () => { $('mainMenu').style.display = 'none'; lockNow(); };
+$('menuExit').onclick = () => {
+  $('mainMenu').style.display = 'none';
+  if(confirm('Вы уверены, что желаете закрыть сейф?')){
+    if(tg && typeof tg.close === 'function'){ try { tg.close(); } catch(e){ lockNow(); } }
+    else lockNow();
+  }
+};
+// Закрытие меню по клику на фон
+$('addMenu').onclick = (e) => { if(e.target === $('addMenu')) $('addMenu').style.display = 'none'; };
+$('mainMenu').onclick = (e) => { if(e.target === $('mainMenu')) $('mainMenu').style.display = 'none'; };
+
+// Поиск
+$('searchInput').addEventListener('input', () => {
+  const q = $('searchInput').value.toLowerCase();
+  if(!q){ renderMainList(); return; }
+  const box = $('mainList'); box.innerHTML = '';
+  const results = vault.cards.filter(c => {
+    if((c.title || '').toLowerCase().includes(q)) return true;
+    for(const f of (c.fields || [])){
+      if((f.name || '').toLowerCase().includes(q)) return true;
+      if((f.value || '').toLowerCase().includes(q)) return true;
+    }
+    return false;
+  });
+  if(!results.length){ box.innerHTML = '<div class="empty">Ничего не найдено</div>'; return; }
+  const group = document.createElement('div'); group.className = 'list-group';
+  results.forEach(c => {
+    const d = document.createElement('div'); d.className = 'list-item';
+    const iconHtml = c.customIcon ? `<img src="${c.customIcon}">` : esc(c.icon || '📄');
+    d.innerHTML = `
+      <div class="list-icon">${iconHtml}</div>
+      <div class="list-body">
+        <div class="list-title">${esc(c.title)}</div>
+        <div class="list-sub">${timeAgo(c.updated)}</div>
+      </div>
+      <div class="list-chevron">›</div>`;
+    d.onclick = () => viewCard(c.id);
+    group.appendChild(d);
+  });
+  box.appendChild(group);
+});
+
+// Старое
+$('foldersBack').onclick = ()=>{ renderMainList(); show('vaultScreen'); };
 $('addFolderBtn').onclick = ()=>openFolderEditor(null);
-$('folderEditorBack').onclick = ()=>{ editingFolderId=null; show('foldersScreen'); };
+$('folderEditorBack').onclick = ()=>{ editingFolderId=null; show('vaultScreen'); };
 $('saveFolderBtn').onclick = saveFolder;
 $('deleteFolderBtn').onclick = deleteFolder;
-$('settingsBtn').onclick = openSettings;
-$('settingsBack').onclick = ()=>show('vaultScreen');
+$('settingsBack').onclick = ()=>{ renderMainList(); show('vaultScreen'); };
 $('saveSettingsBtn').onclick = saveSettings;
 $('backupBtn').onclick = makeBackup;
 $('restoreBtn').onclick = openRestore;
@@ -2790,10 +2952,7 @@ $('resetBtn').onclick = openWipeConfirm;
 $('changePinBtn').onclick = openChangePin;
 $('changePinBack').onclick = () => show('settingsScreen');
 $('changePinSubmitBtn').onclick = changePinSubmit;
-$('changePinNewBackupBtn').onclick = async () => {
-  await makeBackup();
-  show('changePinResultScreen');
-};
+$('changePinNewBackupBtn').onclick = async () => { await makeBackup(); show('changePinResultScreen'); };
 $('changePinDoneBtn').onclick = () => { openVault(); };
 $('recoveryManageBtn').onclick = ()=>{
   const has = currentMeta && currentMeta.hasRecovery;
@@ -2814,9 +2973,7 @@ $('copyRecoveryBtn').onclick = async ()=>{
   try { await navigator.clipboard.writeText(pendingRecoveryKey); toast('Скопировано'); }
   catch(e){ toast('Не удалось скопировать'); }
 };
-$('recoveryConfirmChk').onchange = () => {
-  $('recoveryContinueBtn').disabled = !$('recoveryConfirmChk').checked;
-};
+$('recoveryConfirmChk').onchange = () => { $('recoveryContinueBtn').disabled = !$('recoveryConfirmChk').checked; };
 $('recoveryContinueBtn').onclick = recoveryContinue;
 $('recoverySkipBtn').onclick = recoverySkip;
 $('recoveryInputBack').onclick = ()=>show('lockScreen');
@@ -2829,13 +2986,11 @@ $('warnConfirmBtn').onclick = () => closeWarning(true);
 $('patternToggle').onchange = onPatternToggle;
 $('bioToggle').onchange = onBioToggle;
 $('openBioSettingsBtn').onclick = openBioSettings;
-$('sortBtn').onclick = cycleSortMode;
-$('addCardBtn').onclick = ()=>{ pendingTemplate = null; renderTemplates(); show('tplScreen'); };
 $('tplBack').onclick = ()=>show('vaultScreen');
 $('saveCardBtn').onclick = saveCard;
 $('deleteCardBtn').onclick = deleteCard;
 $('editBack').onclick = ()=>{ pendingTemplate = null; show('vaultScreen'); };
-$('viewBack').onclick = ()=>{ renderCards(); show('vaultScreen'); };
+$('viewBack').onclick = ()=>{ renderMainList(); show('vaultScreen'); };
 $('addFieldBtn').onclick = ()=>addFieldRow();
 $('iconPickBtn').onclick = openIconPicker;
 $('iconBack').onclick = ()=>show('editScreen');
