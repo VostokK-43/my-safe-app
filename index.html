@@ -715,6 +715,30 @@
   <div class="icon-grid" id="cardIconGrid"></div>
 </div>
 
+<div id="importScreen" class="screen">
+  <h1><span class="back" id="importBack">‹</span> Импорт XML</h1>
+  <p class="info">
+    Импорт карточек и папок из выгрузки приложения <b>SafeBox Pro / Сейф+</b> (формат XML).
+  </p>
+
+  <label>Выбрать файл</label>
+  <input type="file" id="importFile" accept=".xml,text/xml,application/xml" style="display:none">
+  <button id="importPickFileBtn" class="sec">📎 Выбрать XML-файл</button>
+  <p class="status" id="importFileName">Файл не выбран</p>
+
+  <label style="margin-top:24px">Или вставить текст XML</label>
+  <textarea id="importXmlText" placeholder="Вставьте сюда содержимое XML-файла" style="min-height:160px"></textarea>
+
+  <div class="chk" style="margin-top:8px">
+    <input type="checkbox" id="importClearChk">
+    <label for="importClearChk" style="margin:0;font-size:15px;color:var(--text);text-transform:none;letter-spacing:-0.3px;line-height:1.35;font-weight:600">Сначала удалить все текущие карточки и папки</label>
+  </div>
+
+  <button id="importStartBtn" style="margin-top:16px">📥 Импортировать</button>
+  <p class="status" id="importPreview"></p>
+  <p class="status" id="importProgress" style="color:var(--ios-orange);font-weight:700"></p>
+</div>
+
 <div id="trashScreen" class="screen">
   <h1><span class="back" id="trashBack">‹</span> Корзина</h1>
   <p class="info" id="trashInfo">Удалённые карточки и папки хранятся здесь. Восстановите нужное или очистите корзину.</p>
@@ -771,6 +795,9 @@
 
   <label style="margin-top:32px">Безопасность PIN</label>
   <button id="changePinBtn" class="sec">🔐 Сменить PIN-код</button>
+
+  <label style="margin-top:32px">Импорт данных</label>
+  <button id="openImportBtn" class="sec">📥 Импорт из XML (SafeBox Pro)</button>
 
   <label style="margin-top:32px">Корзина</label>
   <button id="openTrashBtn" class="sec">🗑 Корзина <span id="trashCountBadge" style="color:var(--hint);font-weight:600"></span></button>
@@ -959,6 +986,9 @@ let bioInitDone = false;
 let currentFolderId = null;
 let isFavView = false;
 
+let importParsed = null;
+let importBusy = false;
+
 const $ = id => document.getElementById(id);
 const show = s => document.querySelectorAll('.screen').forEach(x => x.classList.toggle('active', x.id === s));
 const b64 = a => btoa(String.fromCharCode(...new Uint8Array(a)));
@@ -968,6 +998,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 const PWD_FIELD_RE = /pass(?!port)|парол|pin(?!k|g|e)|пин(?!г|к)|cvv|seed|ключ|приватн/i;
 function isPasswordField(name){ return PWD_FIELD_RE.test(String(name||'')); }
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
 // ============ Заголовок в шапке ============
 function updateNavTitle(text){
@@ -2937,241 +2968,214 @@ function renderTemplates(){
 }
 function pickTemplate(t){ pendingTemplate = t; openEditor(null); }
 
-// ============ Просмотр / редактор ============
-function viewCard(id){
-  const c = vault.cards.find(x=>x.id===id); if(!c) return;
-  $('viewTitle').textContent = c.title;
-  updateNavTitle('Карточка');
-  const iconEl = $('viewIcon');
-  if(c.customIcon){
-    iconEl.innerHTML = '';
-    const img = document.createElement('img');
-    img.src = c.customIcon;
-    img.style.cssText = 'width:28px;height:28px;border-radius:8px;vertical-align:middle';
-    iconEl.appendChild(img);
-  } else { iconEl.textContent = c.icon || '📄'; }
-  $('favBtn').textContent = c.favorite ? '⭐' : '☆';
-  $('viewUpdated').textContent = c.updated ? 'Обновлено ' + timeAgo(c.updated) : '';
-  const box = $('viewFields'); box.innerHTML='';
-  (c.fields||[]).forEach(f=>{
-    if(!f.value) return;
-    const isPass = isPasswordField(f.name);
-    const div = document.createElement('div'); div.className = 'view-field';
-    div.innerHTML = `
-      <div class="view-field-label">${esc(f.name)}</div>
-      <div class="view-field-value ${isPass?'mono':''}" id="val-${f.id}">
-        ${isPass?'••••••••':esc(f.value)}
-      </div>
-      <div class="view-field-actions">
-        ${isPass?`<button class="viewBtn" data-action="toggle" data-fid="${f.id}">👁</button>`:''}
-        <button class="viewBtn" data-action="copy" data-val="${esc(f.value)}">📋</button>
-      </div>`;
-    box.appendChild(div);
-  });
-  box.querySelectorAll('.viewBtn').forEach(btn=>{
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      const act = btn.dataset.action;
-      if(act === 'toggle'){
-        const el = $('val-' + btn.dataset.fid);
-        if(!el) return;
-        const f = (c.fields||[]).find(x => x.id === btn.dataset.fid);
-        if(!f) return;
-        el.textContent = el.textContent.includes('•') ? f.value : '••••••••';
-      } else if(act === 'copy'){ copyToClipboard(btn.dataset.val); }
-    };
-  });
-  $('editBtn').onclick = ()=>openEditor(id);
-  $('shareBtn').onclick = ()=>{
-    const txt = `${c.title}\n` + (c.fields||[]).map(f=>`${f.name}: ${f.value}`).join('\n');
-    try {
-      if(navigator.share){
-        const p = navigator.share({text:txt});
-        if(p && typeof p.catch === 'function') p.catch(()=>{});
-      } else {
-        navigator.clipboard.writeText(txt).then(()=>toast('Скопировано')).catch(()=>toast('Не удалось'));
+// ============ ИМПОРТ XML ============
+function guessIcon(name, isFolder){
+  const n = String(name || '').toLowerCase();
+  if(isFolder){
+    if(/банк|карт|card|сбер|visa|master/.test(n)) return '💳';
+    if(/авто|машин|транспорт|vin/.test(n)) return '🚗';
+    if(/комп|ноут|пк|pc|сервер/.test(n)) return '💻';
+    if(/мессенджер|сообщен|chat|messenger/.test(n)) return '💬';
+    if(/почт|email|mail/.test(n)) return '📧';
+    if(/соц|соцсет|vk|facebook|instagram/.test(n)) return '👥';
+    if(/игр|game|steam|playstation|xbox/.test(n)) return '🎮';
+    if(/интернет|сеть|wifi|wi-fi|роутер/.test(n)) return '📶';
+    if(/сайт|web|портал/.test(n)) return '🌐';
+    if(/паспорт|документ|удостовер/.test(n)) return '🪪';
+    if(/крипт|bitcoin|кошел|wallet|btc|eth/.test(n)) return '₿';
+    if(/лиценз|ключ|key/.test(n)) return '🔑';
+    if(/заметк|note|идеи/.test(n)) return '📝';
+    if(/дом|квартир|жильё|жилье/.test(n)) return '🏠';
+    if(/работ|офис|компан/.test(n)) return '💼';
+    if(/здоров|медиц|аптек/.test(n)) return '🏥';
+    if(/учёб|учеб|образован|школ|инстит/.test(n)) return '🎓';
+    if(/книг|библиот/.test(n)) return '📚';
+    if(/музык|music/.test(n)) return '🎵';
+    if(/видео|movie|фильм/.test(n)) return '🎬';
+    if(/покупк|магазин|shop/.test(n)) return '🛒';
+    if(/путеш|travel|поездк/.test(n)) return '✈️';
+    return '📁';
+  }
+  if(/visa|master|maestro|мир\b|карт|card|банк|сбер|sber|vtb|альфа|тинькоф|tinkoff|газпром|открытие|райфф/.test(n)) return '💳';
+  if(/счёт|счет|account|бик|инн/.test(n)) return '🏦';
+  if(/паспорт|passport|снилс|инн\b|документ/.test(n)) return '🪪';
+  if(/wifi|wi-fi|роутер|router|сеть/.test(n)) return '📶';
+  if(/sim|мобил|оператор|mts|билайн|мегафон|теле2/.test(n)) return '📱';
+  if(/crypto|bitcoin|btc|eth|кошел|wallet|seed/.test(n)) return '₿';
+  if(/gmail|mail|email|почт|yandex|яндекс/.test(n)) return '📧';
+  if(/лиценз|license|продукт|key/.test(n)) return '🔑';
+  if(/заметк|note|записк/.test(n)) return '📝';
+  if(/сайт|web|login|логин|парол/.test(n)) return '🌐';
+  if(/игр|game|steam|playstation|xbox|epic/.test(n)) return '🎮';
+  if(/соц|vk|facebook|instagram|telegram|whatsapp|viber/.test(n)) return '💬';
+  if(/видео|youtube|movie|фильм/.test(n)) return '🎬';
+  if(/музык|music|spotify|apple music/.test(n)) return '🎵';
+  if(/авто|машин|vin|осаго/.test(n)) return '🚗';
+  if(/комп|ноут|pc|сервер|linux|windows/.test(n)) return '💻';
+  if(/wi-fi|wifi/.test(n)) return '📶';
+  return '📄';
+}
+
+function decodeXmlEntities(s){
+  if(s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&');
+}
+
+function parseSafeboxXml(xmlText){
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xmlText, 'application/xml');
+  const root = doc.documentElement;
+  if(!root || root.nodeName === 'parsererror'){
+    throw new Error('Не удалось разобрать XML. Проверьте, что файл не повреждён.');
+  }
+  if(root.nodeName !== 'safeboxplus'){
+    throw new Error('Это не файл SafeBox Pro. Корневой тег: ' + root.nodeName);
+  }
+
+  const folders = [];
+  const cards = [];
+
+  const walkFolders = (parentNode, parentId, depth) => {
+    const children = Array.from(parentNode.children || []);
+    for(const node of children){
+      if(node.nodeName === 'folder'){
+        const fname = node.getAttribute('title') || 'Без названия';
+        const fid = uid('f_');
+        folders.push({ id: fid, name: fname, icon: guessIcon(fname, true), parentId });
+        walkFolders(node, fid, depth + 1);
+      } else if(node.nodeName === 'card'){
+        cards.push(extractCard(node, parentId));
       }
-    } catch(e){
-      navigator.clipboard.writeText(txt).then(()=>toast('Скопировано')).catch(()=>toast('Не удалось'));
     }
   };
-  $('favBtn').onclick = async ()=>{
-    c.favorite = !c.favorite;
-    const ok = await saveCardStorage(c);
-    if(!ok){ c.favorite = !c.favorite; return; }
-    $('favBtn').textContent = c.favorite ? '⭐' : '☆';
-    toast(c.favorite ? 'В избранном' : 'Убрано из избранного');
-  };
-  show('viewScreen'); resetLockTimer();
+
+  walkFolders(root, null, 0);
+
+  return { folders, cards };
 }
-async function copyToClipboard(v){
-  try {
-    await navigator.clipboard.writeText(v);
-    if(vault.settings.clipClear){
-      toast('Скопировано · буфер очистится');
-      clearTimeout(clipboardTimer);
-      clipboardTimer = setTimeout(async ()=>{
-        try { await navigator.clipboard.writeText('[Сейф+: буфер очищен]'); } catch(e){}
-      }, 30000);
-    } else { toast('Скопировано'); }
-  } catch(e){ toast('Не удалось скопировать'); }
-}
-function openEditor(id){
-  editingId = id||null;
-  const c = id ? vault.cards.find(x=>x.id===id) : null;
-  $('editTitle').textContent = id ? 'Редактирование' : (pendingTemplate ? pendingTemplate.name : 'Новая карточка');
-  updateNavTitle(id ? 'Редактирование' : 'Новая карточка');
-  $('cardTitle').value = c ? c.title : '';
-  editingCardIcon = {
-    icon: c ? (c.icon || '📄') : (pendingTemplate ? pendingTemplate.icon : '📄'),
-    customIcon: c ? (c.customIcon || null) : null
-  };
-  updateIconPreview();
-  const sel = $('cardFolder'); sel.innerHTML='';
-  const rootOpt = document.createElement('option'); rootOpt.value = ''; rootOpt.textContent = '— Без папки —';
-  sel.appendChild(rootOpt);
-  vault.folders.forEach(f=>{
-    const o = document.createElement('option'); o.value=f.id;
-    o.textContent = `${f.icon} ${f.name}`;
-    if(c && c.folderId===f.id) o.selected=true;
-    else if(!c && currentFolderId && f.id===currentFolderId) o.selected=true;
-    sel.appendChild(o);
-  });
-  const box = $('fieldsContainer'); box.innerHTML='';
-  if(c && c.fields){ c.fields.forEach(f=>addFieldRow(f.name, f.value, f.id)); }
-  else if(pendingTemplate){ pendingTemplate.fields.forEach(name=>addFieldRow(name,'',uid())); }
-  else { addFieldRow('Логин','',uid()); addFieldRow('Пароль','',uid()); addFieldRow('Заметка','',uid()); }
-  $('deleteCardBtn').style.display = id ? 'block' : 'none';
-  show('editScreen');
-}
-function updateIconPreview(){
-  const el = $('iconPreview');
-  if(editingCardIcon.customIcon){
-    el.innerHTML = '';
-    const img = document.createElement('img');
-    img.src = editingCardIcon.customIcon;
-    el.appendChild(img);
-  } else { el.innerHTML = ''; el.textContent = editingCardIcon.icon || '📄'; }
-}
-function addFieldRow(name='', value='', id=uid()){
-  const box = $('fieldsContainer');
-  const wrap = document.createElement('div'); wrap.className = 'field-wrap'; wrap.dataset.id = id;
-  const row = document.createElement('div'); row.className = 'field-row';
-  row.innerHTML = `
-    <input placeholder="Название" value="${esc(name)}" class="fName">
-    <input placeholder="Значение" value="${esc(value)}" class="fValue">
-    <button type="button" class="genBtn" title="Сгенерировать" style="display:none">🎲</button>
-    <button type="button" class="delBtn">✕</button>`;
-  wrap.appendChild(row);
-  const bar = document.createElement('div'); bar.className = 'pwd-bar'; bar.style.display = 'none';
-  bar.innerHTML = `<div class="pwd-fill"></div>`;
-  wrap.appendChild(bar);
-  const nameInput = row.querySelector('.fName');
-  const valInput = row.querySelector('.fValue');
-  const genBtn = row.querySelector('.genBtn');
-  const fill = bar.querySelector('.pwd-fill');
-  const updateBar = () => {
-    const s = scorePassword(valInput.value);
-    fill.style.width = (s/6*100) + '%';
-    fill.style.background = s <= 2 ? 'var(--ios-red)' : s <= 4 ? 'var(--ios-orange)' : 'var(--ios-green)';
-  };
-  const checkFieldType = () => {
-    if(isPasswordField(nameInput.value)){ genBtn.style.display = ''; bar.style.display = ''; updateBar(); }
-    else { genBtn.style.display = 'none'; bar.style.display = 'none'; }
-  };
-  nameInput.addEventListener('input', checkFieldType);
-  valInput.addEventListener('input', () => { if(bar.style.display !== 'none') updateBar(); });
-  genBtn.onclick = () => { valInput.value = genPassword(16); updateBar(); };
-  row.querySelector('.delBtn').onclick = () => wrap.remove();
-  box.appendChild(wrap);
-  checkFieldType();
-}
-async function saveCard(){
-  const title = $('cardTitle').value.trim(); if(!title){ toast('Введите название'); return; }
-  const fields = [...$('fieldsContainer').querySelectorAll('.field-wrap')].map(w=>({
-    id: w.dataset.id,
-    name: w.querySelector('.fName').value,
-    value: w.querySelector('.fValue').value
-  })).filter(f=>f.name||f.value);
-  const existing = editingId ? vault.cards.find(x=>x.id===editingId) : null;
-  const folderId = $('cardFolder').value || null;
-  const cardData = {
-    id: existing ? existing.id : uid('c_'),
+
+function extractCard(node, folderId){
+  const title = node.getAttribute('title') || 'Без названия';
+  const fields = [];
+  const children = Array.from(node.children || []);
+  for(const ch of children){
+    if(ch.nodeName === 'field'){
+      const fname = ch.getAttribute('title') || '';
+      const fval = decodeXmlEntities(ch.textContent || '').trim();
+      if(!fname) continue;
+      if(!fval) continue;
+      fields.push({ id: uid(), name: fname, value: fval });
+    }
+  }
+  return {
+    id: uid('c_'),
     title,
-    folderId,
-    icon: editingCardIcon.customIcon ? '📄' : (editingCardIcon.icon || '📄'),
-    customIcon: editingCardIcon.customIcon || null,
+    folderId: folderId,
+    icon: guessIcon(title, false),
+    customIcon: null,
     fields,
-    favorite: existing ? (existing.favorite || false) : false,
+    favorite: false,
     updated: Date.now()
   };
-  if(existing && existing._pid) cardData._pid = existing._pid;
-  const ok = await saveCardStorage(cardData);
-  if(!ok) return;
-  if(existing){ const i = vault.cards.findIndex(x=>x.id===editingId); vault.cards[i] = cardData; }
-  else { vault.cards.push(cardData); }
-  pendingTemplate = null;
-  await checkAndPackIfNeeded();
-  updateNavTitle('Сейф+');
-  renderMainList();
-  show('vaultScreen');
-  toast('Сохранено');
 }
-async function deleteCard(){
-  if(!editingId) return;
-  if(!(await checkTrashLimitBeforeAdd())) return;
-  if(!confirm('Переместить карточку в корзину? Восстановить можно из корзины.')) return;
-  const card = vault.cards.find(x => x.id === editingId);
-  if(!card) return;
-  const ok = await moveCardToTrash(card);
-  if(!ok) return;
-  updateNavTitle('Сейф+');
-  renderMainList();
-  show('vaultScreen');
-  toast('Перемещено в корзину');
-}
-function openIconPicker(){
-  $('removePhotoBtn').style.display = editingCardIcon.customIcon ? 'block' : 'none';
-  renderIconGrid('cardIconGrid', editingCardIcon.customIcon ? null : editingCardIcon.icon, (ic) => {
-    editingCardIcon.icon = ic;
-    editingCardIcon.customIcon = null;
-    updateIconPreview();
-    $('removePhotoBtn').style.display = 'none';
-  });
-  show('iconScreen');
-}
-function setupPhotoUpload(){
-  $('uploadPhotoBtn').onclick = () => $('photoInput').click();
-  $('photoInput').onchange = (e) => {
-    const file = e.target.files[0]; if(!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = new Image();
-      img.onload = () => {
-        const size = 48;
-        const canvas = document.createElement('canvas');
-        canvas.width = size; canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        const scale = Math.max(size/img.width, size/img.height);
-        const w = img.width*scale, h = img.height*scale;
-        ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
-        editingCardIcon.customIcon = dataUrl;
-        updateIconPreview();
-        toast('Фото добавлено');
-        $('removePhotoBtn').style.display = 'block';
-      };
-      img.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  };
-  $('removePhotoBtn').onclick = () => {
-    editingCardIcon.customIcon = null;
-    updateIconPreview();
-    $('removePhotoBtn').style.display = 'none';
-    toast('Фото удалено');
-  };
+
+async function startImport(){
+  if(importBusy) return;
+  if(!cryptoKey){ toast('Сначала разблокируйте сейф'); return; }
+
+  const text = ($('importXmlText').value || '').trim();
+  if(!text){ toast('Выберите файл или вставьте XML'); return; }
+
+  let parsed;
+  try {
+    parsed = parseSafeboxXml(text);
+  } catch(e){
+    $('importPreview').textContent = '❌ ' + e.message;
+    $('importPreview').style.color = 'var(--ios-red)';
+    return;
+  }
+
+  const totalFolders = parsed.folders.length;
+  const totalCards = parsed.cards.length;
+
+  if(totalFolders === 0 && totalCards === 0){
+    $('importPreview').textContent = '❌ В файле не найдено ни папок, ни карточек.';
+    $('importPreview').style.color = 'var(--ios-red)';
+    return;
+  }
+
+  $('importPreview').textContent = '📋 Найдено: папок ' + totalFolders + ', карточек ' + totalCards + '.';
+  $('importPreview').style.color = 'var(--hint)';
+
+  const willClear = $('importClearChk').checked;
+  const confirmMsg = willClear
+    ? 'Импортировать ' + totalCards + ' карточек и ' + totalFolders + ' папок?\n\n⚠️ ВСЕ текущие карточки и папки будут удалены безвозвратно.'
+    : 'Импортировать ' + totalCards + ' карточек и ' + totalFolders + ' папок?\n\nДанные добавятся к текущим.';
+  if(!confirm(confirmMsg)) return;
+
+  importBusy = true;
+  $('importStartBtn').disabled = true;
+
+  try {
+    if(willClear){
+      $('importProgress').textContent = 'Очистка текущих данных...';
+      const idx = await getIndex();
+      for(const k of idx.cards) await storeRemove(k);
+      for(const k of idx.packs) await storeRemove(k);
+      await setIndex({ cards: [], packs: [] });
+      vault.folders = [];
+      vault.cards = [];
+      vault.trash = [];
+      storageMode = 'individual';
+      await saveConf();
+    }
+
+    $('importProgress').textContent = 'Сохранение папок...';
+    for(const f of parsed.folders){
+      vault.folders.push(f);
+    }
+    await saveConf();
+
+    let saved = 0;
+    for(const c of parsed.cards){
+      const ok = await saveCardStorage(c);
+      if(ok){
+        vault.cards.push(c);
+        saved++;
+        if(saved % 5 === 0 || saved === totalCards){
+          $('importProgress').textContent = 'Импорт карточек: ' + saved + ' / ' + totalCards;
+          await sleep(0);
+        }
+      }
+    }
+
+    await checkAndPackIfNeeded();
+    await saveConf();
+    updateTrashBadge();
+
+    $('importProgress').textContent = '✅ Готово! Импортировано: ' + saved + ' карточек, ' + totalFolders + ' папок.';
+    toast('Импорт завершён: ' + saved + ' карточек');
+    importParsed = null;
+    $('importXmlText').value = '';
+    $('importFileName').textContent = 'Файл не выбран';
+    $('importClearChk').checked = false;
+
+    setTimeout(() => { show('vaultScreen'); openVault(); }, 1200);
+  } catch(e){
+    console.error(e);
+    $('importProgress').textContent = '❌ Ошибка импорта: ' + (e.message || 'неизвестная');
+    $('importProgress').style.color = 'var(--ios-red)';
+  } finally {
+    importBusy = false;
+    $('importStartBtn').disabled = false;
+  }
 }// ============ Настройки ============
 async function openSettings(){
   $('autoLockInput').value = vault.settings.autoLock || 60;
@@ -3223,6 +3227,18 @@ function openTrash(){
   renderTrash();
   updateNavTitle('Корзина');
   show('trashScreen');
+}
+
+function openImport(){
+  $('importXmlText').value = '';
+  $('importPreview').textContent = '';
+  $('importPreview').style.color = 'var(--hint)';
+  $('importProgress').textContent = '';
+  $('importProgress').style.color = 'var(--ios-orange)';
+  $('importFileName').textContent = 'Файл не выбран';
+  $('importClearChk').checked = false;
+  updateNavTitle('Импорт XML');
+  show('importScreen');
 }
 
 async function saveSettings(){
@@ -3727,6 +3743,35 @@ $('iconBack').onclick = ()=>show('editScreen');
 $('openTrashBtn').onclick = ()=>{ openTrash(); };
 $('trashBack').onclick = ()=>{ openSettings(); };
 $('trashClearBtn').onclick = ()=>{ clearTrash(); };
+
+// Кнопки импорта XML
+$('openImportBtn').onclick = ()=>{ openImport(); };
+$('importBack').onclick = ()=>{ updateNavTitle('Сейф+'); show('settingsScreen'); };
+$('importPickFileBtn').onclick = ()=>{ $('importFile').click(); };
+$('importFile').onchange = (e) => {
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  $('importFileName').textContent = 'Читаем: ' + file.name + '...';
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      $('importXmlText').value = reader.result;
+      $('importFileName').textContent = 'Файл: ' + file.name + ' (' + Math.round(file.size/1024) + ' КБ)';
+      $('importPreview').textContent = 'Файл загружен. Нажмите «Импортировать».';
+      $('importPreview').style.color = 'var(--hint)';
+    } catch(err){
+      $('importPreview').textContent = '❌ Не удалось прочитать файл: ' + err.message;
+      $('importPreview').style.color = 'var(--ios-red)';
+    }
+  };
+  reader.onerror = () => {
+    $('importPreview').textContent = '❌ Ошибка чтения файла';
+    $('importPreview').style.color = 'var(--ios-red)';
+  };
+  reader.readAsText(file, 'UTF-8');
+  e.target.value = '';
+};
+$('importStartBtn').onclick = startImport;
 
 init();
 </script>
