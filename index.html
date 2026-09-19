@@ -8,7 +8,6 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root{
-    /* Серо-стальная палитра "сейф" */
     --ios-bg: #E8EAED;
     --ios-bg-elevated: #F5F6F8;
     --ios-bg-grouped: #F5F6F8;
@@ -67,7 +66,6 @@
   .screen.active{display:block}
   @keyframes screenIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-  /* ============ Экран PIN (в стиле сейфа) ============ */
   #lockScreen{display:none;flex-direction:column;justify-content:center;align-items:stretch;
     min-height:100vh;min-height:100dvh;
     padding:clamp(12px, 2vh, 24px) 20px max(12px, env(safe-area-inset-bottom));overflow:hidden;
@@ -166,7 +164,6 @@
     text-transform:uppercase;letter-spacing:0.4px;
   }
 
-  /* ============ Точки PIN ============ */
   #pinDots{display:flex;gap:clamp(10px, 3vw, 16px);justify-content:center;
     margin:clamp(8px, 2vh, 20px) 0 clamp(10px, 2.5vh, 22px)}
   .dot{
@@ -181,7 +178,6 @@
     transform:scale(1.1);
   }
 
-  /* ============ Клавиатура PIN ============ */
   #pinPad{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(6px, 1.5vh, 12px);
     max-width:min(280px, 78vw, 48vh);width:100%;margin:0 auto}
   #pinPad button{
@@ -236,7 +232,6 @@
     #pinSubmitBtn{max-width:min(210px, 62vw, 42vh);padding:10px}
   }
 
-  /* ============ Графический ключ ============ */
   #patternWrap{display:flex;flex-direction:column;align-items:center;justify-content:center;
     padding:20px 0;user-select:none;-webkit-user-select:none}
   #patternCanvas{width:min(300px, 80vw);height:min(300px, 80vw);touch-action:none;cursor:pointer;
@@ -244,7 +239,6 @@
   #patternStatus{text-align:center;font-size:15px;color:var(--hint);margin:16px 0 0;min-height:20px}
   #patternStatus.error{color:var(--ios-red);font-weight:600}
 
-  /* ============ Главный экран — верхняя панель ============ */
   #vaultScreen{padding:0}
   .top-nav{
     display:flex;align-items:center;
@@ -264,6 +258,7 @@
     letter-spacing:-0.8px;
     line-height:1;
     user-select:none;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   }
   .nav-icon{
     font-size:24px;
@@ -279,7 +274,6 @@
   .nav-icon:active{background:var(--ios-fill);transform:scale(.9)}
   .nav-icon.left{font-size:38px;font-weight:600;margin-left:-4px}
 
-  /* ============ Список (папки + карточки) ============ */
   #mainList{padding:12px 16px 100px}
   .list-group{
     background:var(--ios-bg-grouped);
@@ -322,7 +316,6 @@
 
   .empty{text-align:center;color:var(--hint);padding:60px 20px;font-size:15px;letter-spacing:-0.3px;font-weight:600}
 
-  /* ============ Меню "плюс" и "три полоски" ============ */
   #addMenu,#mainMenu{
     position:fixed;inset:0;
     background:rgba(0,0,0,0.35);
@@ -338,6 +331,7 @@
     width:100%;max-width:520px;
     box-shadow:0 -12px 32px rgba(0,0,0,0.2);
     animation:sheetUp .28s cubic-bezier(.32,.72,0,1);
+    touch-action:pan-y;
   }
   @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
   .sheet-handle{width:38px;height:5px;border-radius:3px;background:var(--ios-fill-secondary);
@@ -354,7 +348,7 @@
     background:var(--ios-bg-elevated);
     border-radius:14px;padding:8px;
     box-shadow:var(--ios-shadow-l);
-    min-width:210px;
+    min-width:230px;
     animation:fadeIn .18s;
   }
   .dropdown-item{
@@ -366,7 +360,6 @@
   .dropdown-item:active{background:var(--ios-fill)}
   .dropdown-item.danger{color:var(--ios-red)}
 
-  /* ============ Старые элементы (сохраняем) ============ */
   .cat-row{display:flex;gap:8px;overflow-x:auto;padding:0 0 4px;
     margin:0 -20px 20px;padding-left:20px;padding-right:20px;scrollbar-width:none}
   .cat-row::-webkit-scrollbar{display:none}
@@ -533,7 +526,6 @@
 </head>
 <body>
 
-<!-- ЭКРАН ВВОДА PIN -->
 <div id="lockScreen" class="screen active">
   <h1 class="lock-title">Сейф+</h1>
   <p class="lock-subtitle">Ваш менеджер паролей</p>
@@ -546,7 +538,6 @@
   <a class="forgot-link" id="forgotPinLink">Не помню PIN</a>
 </div>
 
-<!-- ГРАФИЧЕСКИЙ КЛЮЧ -->
 <div id="patternScreen" class="screen">
   <h1><span class="back" id="patternBack">‹</span> <span id="patternTitle">Графический ключ</span></h1>
   <p class="info" id="patternDesc">Соедините минимум 4 точки.</p>
@@ -558,7 +549,6 @@
   <button id="patternSwitchToPinBtn" class="sec" style="margin-top:16px;display:none">Ввести PIN</button>
 </div>
 
-<!-- МАСТЕР -->
 <div id="wizardScreen" class="screen">
   <div class="wizard-wrap">
     <div class="wizard-header">
@@ -591,12 +581,11 @@
   </div>
 </div>
 
-<!-- ГЛАВНЫЙ ЭКРАН -->
 <div id="vaultScreen" class="screen">
   <div class="top-nav">
     <div class="nav-left">
-      <span class="nav-icon left" id="navBackBtn" title="Выход">‹</span>
-      <span class="nav-title">Сейф+</span>
+      <span class="nav-icon left" id="navBackBtn" title="Назад">‹</span>
+      <span class="nav-title" id="navTitle">Сейф+</span>
     </div>
     <div class="nav-right">
       <span class="nav-icon" id="navFavBtn" title="Избранное">♡</span>
@@ -613,9 +602,8 @@
   <div id="mainList"></div>
 </div>
 
-<!-- МЕНЮ "ПЛЮС" -->
 <div id="addMenu" class="modal-overlay" style="display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
-  <div class="sheet">
+  <div class="sheet" id="addSheet">
     <div class="sheet-handle"></div>
     <div class="sheet-item" id="menuCreateFolder"><span class="ico">📁</span>Создать папку</div>
     <div class="sheet-item" id="menuCreateCard"><span class="ico">📝</span>Создать карточку</div>
@@ -626,16 +614,15 @@
   </div>
 </div>
 
-<!-- МЕНЮ "ТРИ ПОЛОСКИ" -->
 <div id="mainMenu" class="modal-overlay" style="display:none;align-items:flex-start;justify-content:flex-end;padding:20px;background:rgba(0,0,0,0.25)">
   <div class="dropdown">
     <div class="dropdown-item" id="menuSettings"><span>⚙️</span>Настройки</div>
+    <div class="dropdown-item" id="menuSort"><span>↕️</span><span id="menuSortLabel">Сортировка: А→Я</span></div>
     <div class="dropdown-item" id="menuLock"><span>🔒</span>Заблокировать</div>
     <div class="dropdown-item danger" id="menuExit"><span>🚪</span>Выйти</div>
   </div>
 </div>
 
-<!-- ПАПКИ (редактор) -->
 <div id="foldersScreen" class="screen">
   <h1><span class="back" id="foldersBack">‹</span> Мои папки</h1>
   <div id="foldersList"></div>
@@ -654,14 +641,12 @@
   <button id="deleteFolderBtn" class="danger" style="margin-top:8px">Удалить папку</button>
 </div>
 
-<!-- ШАБЛОНЫ -->
 <div id="tplScreen" class="screen">
   <h1><span class="back" id="tplBack">‹</span> Шаблон</h1>
   <p class="info" style="margin-bottom:20px">Выберите готовый шаблон или начните с пустой карточки.</p>
   <div class="tpl-grid" id="tplGrid"></div>
 </div>
 
-<!-- ПРОСМОТР КАРТОЧКИ -->
 <div id="viewScreen" class="screen">
   <h1>
     <span class="back" id="viewBack">‹</span>
@@ -677,7 +662,6 @@
   </div>
 </div>
 
-<!-- РЕДАКТОР КАРТОЧКИ -->
 <div id="editScreen" class="screen">
   <h1><span class="back" id="editBack">‹</span> <span id="editTitle">Карточка</span></h1>
   <div style="display:flex;gap:14px;align-items:center;margin-bottom:20px">
@@ -696,7 +680,6 @@
   <button id="deleteCardBtn" class="danger" style="margin-top:8px">Удалить</button>
 </div>
 
-<!-- ИКОНКИ -->
 <div id="iconScreen" class="screen">
   <h1><span class="back" id="iconBack">‹</span> Иконка</h1>
   <button id="uploadPhotoBtn" class="sec" style="margin-bottom:10px">📷 Загрузить фото</button>
@@ -706,7 +689,6 @@
   <div class="icon-grid" id="cardIconGrid"></div>
 </div>
 
-<!-- НАСТРОЙКИ -->
 <div id="settingsScreen" class="screen">
   <h1><span class="back" id="settingsBack">‹</span> Настройки</h1>
 
@@ -762,7 +744,6 @@
   <button id="resetBtn" class="danger">⚠️ Сбросить всё</button>
 </div>
 
-<!-- ВОССТАНОВЛЕНИЕ ИЗ КОПИИ -->
 <div id="restoreScreen" class="screen">
   <h1><span class="back" id="restoreBack">‹</span> Восстановление</h1>
   <p class="info">
@@ -777,7 +758,6 @@
   <p class="info" style="margin-top:16px">Восстановление заменит текущие данные.</p>
 </div>
 
-<!-- RECOVERY KEY ПОКАЗ -->
 <div id="recoveryShowScreen" class="screen">
   <h1 style="justify-content:center;margin-top:20px">🔑 Recovery Key</h1>
   <p class="info">
@@ -794,7 +774,6 @@
   <button id="recoverySkipBtn" class="sec" style="color:var(--ios-red);margin-top:8px">Пропустить</button>
 </div>
 
-<!-- RECOVERY KEY ВВОД -->
 <div id="recoveryInputScreen" class="screen">
   <h1><span class="back" id="recoveryInputBack">‹</span> Восстановление</h1>
   <p class="info">Введите Recovery Key, который вы сохранили при создании хранилища. Дефисы и регистр не важны.</p>
@@ -807,7 +786,6 @@
   <button id="recoveryWipeBtn" class="danger" style="margin-top:24px">⚠️ Стереть и создать заново</button>
 </div>
 
-<!-- RECOVERY KEY УПРАВЛЕНИЕ -->
 <div id="recoveryManageScreen" class="screen">
   <h1><span class="back" id="recoveryManageBack">‹</span> Recovery Key</h1>
   <p class="info" id="recoveryManageInfo"></p>
@@ -815,7 +793,6 @@
   <p class="status">Recovery Key хранится в мета-данных хранилища и защищён вашим PIN.</p>
 </div>
 
-<!-- СМЕНА PIN -->
 <div id="changePinScreen" class="screen">
   <h1><span class="back" id="changePinBack">‹</span> Сменить PIN</h1>
   <p class="info" style="background:rgba(255,149,0,.1);color:var(--ios-orange);padding:12px;border-radius:12px;font-weight:600;line-height:1.5">
@@ -844,7 +821,6 @@
   <button id="changePinDoneBtn" class="sec" style="margin-top:8px">Готово</button>
 </div>
 
-<!-- МОДАЛКИ -->
 <div id="warnModal" class="modal-overlay" style="display:none">
   <div class="modal-box">
     <h2 id="warnTitle">⚠️ Внимание</h2>
@@ -888,14 +864,7 @@ const PACK_THRESHOLD = 800;
 const SERVICE_KEYS   = 6;
 const enc = new TextEncoder(), dec = new TextDecoder();
 
-const DEFAULT_FOLDERS = [
-  {id:'f_pass',  name:'Пароли',    icon:'🌐', parentId:null},
-  {id:'f_cards', name:'Карты',     icon:'💳', parentId:null},
-  {id:'f_bank',  name:'Банки',     icon:'🏦', parentId:null},
-  {id:'f_docs',  name:'Документы', icon:'🪪', parentId:null},
-  {id:'f_notes', name:'Заметки',   icon:'📝', parentId:null},
-  {id:'f_other', name:'Разное',    icon:'📁', parentId:null},
-];
+const DEFAULT_FOLDERS = [];
 const ICONS = ['📁','🌐','💳','🪪','📝','🏦','📧','📶','📱','🔑','₿','🎮','🎬','🎵',
                '🛒','💼','🏥','🚗','🏠','✈️','🎓','📚','⚙️','🔒','💰','🎁','☁️','🔧',
                '⭐','❤️','🎯','🏢','🛡️','🔐','🗝️','📊','🧾','📋','🎨'];
@@ -933,6 +902,12 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 const PWD_FIELD_RE = /pass(?!port)|парол|pin(?!k|g|e)|пин(?!г|к)|cvv|seed|ключ|приватн/i;
 function isPasswordField(name){ return PWD_FIELD_RE.test(String(name||'')); }
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
+
+// ============ Заголовок в шапке ============
+function updateNavTitle(text){
+  const el = $('navTitle');
+  if(el) el.textContent = text || 'Сейф+';
+}
 
 // ============ BiometricManager ============
 function getBio(){ try { return tg.BiometricManager || null; } catch(e){ return null; } }
@@ -1595,11 +1570,13 @@ async function checkAndPackIfNeeded(){
 }
 async function fixOrphanCards(){
   const folderIds = new Set(vault.folders.map(f => f.id));
-  const other = vault.folders.find(f => f.id === 'f_other') || vault.folders[0];
-  if(!other) return 0;
   let fixed = 0;
   for(const c of vault.cards){
-    if(!c.folderId || !folderIds.has(c.folderId)){ c.folderId = other.id; fixed++; await saveCardStorage(c); }
+    if(c.folderId && !folderIds.has(c.folderId)){
+      c.folderId = null;
+      fixed++;
+      await saveCardStorage(c);
+    }
   }
   return fixed;
 }
@@ -1672,10 +1649,9 @@ async function loadVaultAfterUnlock(){
     storageMode = 'individual';
     await saveConf();
   }
-  if(!vault.folders.length) vault.folders = DEFAULT_FOLDERS.slice();
   vault.cards = await loadAllCards();
   const fixed = await fixOrphanCards();
-  if(fixed > 0) toast(`Перемещено в «Разное»: ${fixed}`);
+  if(fixed > 0) toast(`Карточек без папки: ${fixed}`);
   await checkAndPackIfNeeded();
 }
 async function tryPin(){
@@ -1749,7 +1725,7 @@ async function tryPin(){
     const verify = await encryptJSON(cryptoKey, {ok:true});
     const meta = { salt: b64(salt), verify, hasRecovery: false, recoveryOffered: false, wizardDone: false, pinLength: pinBuffer.length };
     currentMeta = meta;
-    vault = { folders: DEFAULT_FOLDERS.slice(), cards: [], settings: { autoLock: 60, clipClear: true } };
+    vault = { folders: [], cards: [], settings: { autoLock: 60, clipClear: true } };
     storageMode = 'individual';
     try {
       await storeSet(META_KEY, JSON.stringify(meta));
@@ -2052,6 +2028,7 @@ async function onPatternToggle(){
 // ============ ГЛАВНЫЙ ЭКРАН ============
 function openVault(){
   currentFolderId = null;
+  updateNavTitle('Сейф+');
   renderMainList();
   show('vaultScreen');
   resetLockTimer();
@@ -2060,6 +2037,14 @@ function openVault(){
 function renderMainList(){
   const box = $('mainList');
   box.innerHTML = '';
+
+  // Обновляем заголовок в шапке
+  if(currentFolderId){
+    const f = vault.folders.find(x => x.id === currentFolderId);
+    updateNavTitle(f ? f.name : 'Сейф+');
+  } else {
+    updateNavTitle('Сейф+');
+  }
 
   let foldersToShow = [];
   let cardsToShow = [];
@@ -2225,19 +2210,10 @@ function saveManualOrder(){
   toast('Порядок сохранён');
 }
 
-function cycleSortMode(){
-  const modes = ['alpha','date','manual'];
-  const labels = { alpha:'🔤', date:'🕐', manual:'✋' };
-  const i = modes.indexOf(sortMode);
-  sortMode = modes[(i+1) % modes.length];
-  if(sortMode === 'manual'){
-    const cards = vault.cards.slice().sort((a,b) => (a.title||'').localeCompare(b.title||'', 'ru'));
-    cards.forEach((c, idx) => { manualOrder[c.id] = idx + 1; });
-    vault.settings.manualOrder = manualOrder;
-    saveConf();
-  }
-  toast('Сортировка: ' + labels[sortMode]);
-  renderMainList();
+function updateSortLabel(){
+  const labels = { alpha:'А→Я', date:'Новые', manual:'Ручная' };
+  const el = $('menuSortLabel');
+  if(el) el.textContent = 'Сортировка: ' + labels[sortMode];
 }
 
 // ============ Папки ============
@@ -2263,6 +2239,7 @@ function openFolderEditor(id){
   editingFolderId = id||null;
   const f = id ? vault.folders.find(x=>x.id===id) : null;
   $('folderEditorTitle').textContent = id ? 'Редактировать' : 'Новая папка';
+  updateNavTitle(id ? 'Папка' : 'Новая папка');
   $('folderName').value = f ? f.name : '';
   selectedIcon = f ? f.icon : '📁';
   const descendants = new Set();
@@ -2317,6 +2294,7 @@ async function saveFolder(){
   const ok = await saveConf();
   if(!ok){ toast('Не удалось сохранить папку'); return; }
   toast('Папка сохранена');
+  updateNavTitle('Сейф+');
   renderMainList();
   show('vaultScreen');
 }
@@ -2324,7 +2302,6 @@ async function deleteFolder(){
   if(!editingFolderId) return;
   const f = vault.folders.find(x=>x.id===editingFolderId);
   if(!f) return;
-  if(f.id === 'f_other'){ toast('Папку «Разное» удалить нельзя'); return; }
   const toDelete = new Set([f.id]);
   let added = true;
   while(added){
@@ -2335,25 +2312,20 @@ async function deleteFolder(){
   }
   const cardsToMove = vault.cards.filter(c => toDelete.has(c.folderId));
   const childrenCount = toDelete.size - 1;
-  let other = vault.folders.find(x=>x.id==='f_other' && !toDelete.has(x.id));
-  if(!other) other = vault.folders.find(x=>!toDelete.has(x.id));
-  let needRecreateOther = false;
-  if(cardsToMove.length && !other){
-    other = { id: 'f_other', name: 'Разное', icon: '📁', parentId: null };
-    needRecreateOther = true;
-  }
+  let other = vault.folders.find(x=>!toDelete.has(x.id));
   const msg = `Удалить папку «${f.name}»?` +
     (childrenCount ? `\nВложенных папок: ${childrenCount}` : '') +
-    (cardsToMove.length ? `\n${cardsToMove.length} карточек переместятся в «${other ? other.name : 'Разное'}».` : '');
+    (cardsToMove.length ? `\n${cardsToMove.length} карточек переместятся в «${other ? other.name : 'корень'}».` : '');
   if(!confirm(msg)) return;
-  if(other){ for(const c of cardsToMove){ c.folderId = other.id; await saveCardStorage(c); } }
-  vault.folders = vault.folders.filter(x => !toDelete.has(x.id));
-  if(needRecreateOther && other) vault.folders.push(other);
-  if(vault.folders.length === 0){
-    vault.folders.push({ id: 'f_other', name: 'Разное', icon: '📁', parentId: null });
+  if(other){
+    for(const c of cardsToMove){ c.folderId = other.id; await saveCardStorage(c); }
+  } else {
+    for(const c of cardsToMove){ c.folderId = null; await saveCardStorage(c); }
   }
+  vault.folders = vault.folders.filter(x => !toDelete.has(x.id));
   if(toDelete.has(currentFolderId)) currentFolderId = null;
   await saveConf();
+  updateNavTitle('Сейф+');
   renderMainList();
   toast('Папка удалена');
   show('vaultScreen');
@@ -2361,16 +2333,16 @@ async function deleteFolder(){
 
 // ============ Шаблоны ============
 const TEMPLATES = [
-  { id:'login',   icon:'🌐', name:'Логин / Пароль', folder:'Пароли',   fields:['Логин','Пароль','Сайт','Заметка'] },
-  { id:'email',   icon:'📧', name:'Email', folder:'Пароли',           fields:['Email','Пароль','Сервер (IMAP)','Порт','Заметка'] },
-  { id:'card',    icon:'💳', name:'Банковская карта', folder:'Карты', fields:['Номер карты','Срок действия','CVV','Пин-код','Банк','Владелец'] },
-  { id:'account', icon:'🏦', name:'Банковский счёт', folder:'Банки',  fields:['Банк','Номер счёта','БИК','ИНН','Корр. счёт'] },
-  { id:'wifi',    icon:'📶', name:'Wi-Fi', folder:'Разное',           fields:['Сеть (SSID)','Пароль','Тип шифрования','Роутер (IP)'] },
-  { id:'sim',     icon:'📱', name:'SIM / Мобильный', folder:'Разное', fields:['Оператор','Номер','PIN','PUK','Тариф'] },
-  { id:'passport',icon:'🪪', name:'Паспорт', folder:'Документы', fields:['Тип документа','Серия','Номер','Кем выдан','Дата выдачи','Код подразделения'] },
-  { id:'crypto',  icon:'₿',  name:'Криптокошелёк', folder:'Разное',   fields:['Кошелёк','Seed-фраза','Приватный ключ','Сеть','Заметка'] },
-  { id:'license', icon:'🔑', name:'Лицензия', folder:'Разное', fields:['Продукт','Ключ','Срок действия','Привязан к'] },
-  { id:'note',    icon:'📝', name:'Заметка', folder:'Заметки', fields:['Текст','Теги'] }
+  { id:'login',   icon:'🌐', name:'Логин / Пароль', folder:null,   fields:['Логин','Пароль','Сайт','Заметка'] },
+  { id:'email',   icon:'📧', name:'Email', folder:null,           fields:['Email','Пароль','Сервер (IMAP)','Порт','Заметка'] },
+  { id:'card',    icon:'💳', name:'Банковская карта', folder:null, fields:['Номер карты','Срок действия','CVV','Пин-код','Банк','Владелец'] },
+  { id:'account', icon:'🏦', name:'Банковский счёт', folder:null,  fields:['Банк','Номер счёта','БИК','ИНН','Корр. счёт'] },
+  { id:'wifi',    icon:'📶', name:'Wi-Fi', folder:null,           fields:['Сеть (SSID)','Пароль','Тип шифрования','Роутер (IP)'] },
+  { id:'sim',     icon:'📱', name:'SIM / Мобильный', folder:null, fields:['Оператор','Номер','PIN','PUK','Тариф'] },
+  { id:'passport',icon:'🪪', name:'Паспорт', folder:null, fields:['Тип документа','Серия','Номер','Кем выдан','Дата выдачи','Код подразделения'] },
+  { id:'crypto',  icon:'₿',  name:'Криптокошелёк', folder:null,   fields:['Кошелёк','Seed-фраза','Приватный ключ','Сеть','Заметка'] },
+  { id:'license', icon:'🔑', name:'Лицензия', folder:null, fields:['Продукт','Ключ','Срок действия','Привязан к'] },
+  { id:'note',    icon:'📝', name:'Заметка', folder:null, fields:['Текст','Теги'] }
 ];
 function renderTemplates(){
   const grid = $('tplGrid'); grid.innerHTML='';
@@ -2391,6 +2363,7 @@ function pickTemplate(t){ pendingTemplate = t; openEditor(null); }
 function viewCard(id){
   const c = vault.cards.find(x=>x.id===id); if(!c) return;
   $('viewTitle').textContent = c.title;
+  updateNavTitle('Карточка');
   const iconEl = $('viewIcon');
   if(c.customIcon){
     iconEl.innerHTML = '';
@@ -2469,6 +2442,7 @@ function openEditor(id){
   editingId = id||null;
   const c = id ? vault.cards.find(x=>x.id===id) : null;
   $('editTitle').textContent = id ? 'Редактирование' : (pendingTemplate ? pendingTemplate.name : 'Новая карточка');
+  updateNavTitle(id ? 'Редактирование' : 'Новая карточка');
   $('cardTitle').value = c ? c.title : '';
   editingCardIcon = {
     icon: c ? (c.icon || '📄') : (pendingTemplate ? pendingTemplate.icon : '📄'),
@@ -2476,18 +2450,16 @@ function openEditor(id){
   };
   updateIconPreview();
   const sel = $('cardFolder'); sel.innerHTML='';
+  const rootOpt = document.createElement('option'); rootOpt.value = ''; rootOpt.textContent = '— Без папки —';
+  sel.appendChild(rootOpt);
   vault.folders.forEach(f=>{
     const o = document.createElement('option'); o.value=f.id;
     o.textContent = `${f.icon} ${f.name}`;
     if(c && c.folderId===f.id) o.selected=true;
-    else if(!c && pendingTemplate && f.name===pendingTemplate.folder) o.selected=true;
+    else if(!c && pendingTemplate && pendingTemplate.folder && f.name===pendingTemplate.folder) o.selected=true;
     else if(!c && currentFolderId && f.id===currentFolderId) o.selected=true;
     sel.appendChild(o);
   });
-  if(!c && !pendingTemplate && !currentFolderId){
-    const f = vault.folders.find(x=>x.id==='f_other') || vault.folders.find(x=>x.name==='Разное');
-    if(f) sel.value = f.id;
-  }
   const box = $('fieldsContainer'); box.innerHTML='';
   if(c && c.fields){ c.fields.forEach(f=>addFieldRow(f.name, f.value, f.id)); }
   else if(pendingTemplate){ pendingTemplate.fields.forEach(name=>addFieldRow(name,'',uid())); }
@@ -2545,10 +2517,11 @@ async function saveCard(){
     value: w.querySelector('.fValue').value
   })).filter(f=>f.name||f.value);
   const existing = editingId ? vault.cards.find(x=>x.id===editingId) : null;
+  const folderId = $('cardFolder').value || null;
   const cardData = {
     id: existing ? existing.id : uid('c_'),
     title,
-    folderId: $('cardFolder').value,
+    folderId,
     icon: editingCardIcon.customIcon ? '📄' : (editingCardIcon.icon || '📄'),
     customIcon: editingCardIcon.customIcon || null,
     fields,
@@ -2562,6 +2535,7 @@ async function saveCard(){
   else { vault.cards.push(cardData); }
   pendingTemplate = null;
   await checkAndPackIfNeeded();
+  updateNavTitle('Сейф+');
   renderMainList();
   show('vaultScreen');
   toast('Сохранено');
@@ -2571,6 +2545,7 @@ async function deleteCard(){
   const card = vault.cards.find(x => x.id === editingId);
   if(card) await removeCardStorage(card);
   vault.cards = vault.cards.filter(x=>x.id!==editingId);
+  updateNavTitle('Сейф+');
   renderMainList();
   show('vaultScreen');
   toast('Удалено');
@@ -2644,6 +2619,7 @@ async function openSettings(){
       else bioSettingsBtn.style.display = 'none';
     }
   }
+  updateNavTitle('Настройки');
   show('settingsScreen');
   const has = currentMeta && currentMeta.hasRecovery;
   $('recoveryStatus').textContent = has ? '✅ Recovery Key установлен' : '⚠️ Recovery Key не установлен';
@@ -2726,7 +2702,6 @@ async function doRestore(){
   for(const encCard of (backup.cards||[])){
     try { const c = await decryptJSON(key, encCard); const nc = normalizeCard(c); if(nc) vault.cards.push(nc); } catch(e){}
   }
-  if(!vault.folders.length) vault.folders = DEFAULT_FOLDERS.slice();
   storageMode = 'individual';
   if(vault.cards.length >= PACK_THRESHOLD){ await packAllCards(); }
   else { for(const c of vault.cards) await saveCardStorage(c); await saveConf(); }
@@ -2813,6 +2788,7 @@ async function onBioLogin(){
 // ============ ИНИЦИАЛИЗАЦИЯ ============
 async function init(){
   buildPinPad(); renderPinDots(); renderTemplates(); setupPhotoUpload();
+  updateSortLabel();
   await initBiometric();
   bioAvailable = isBioAvailable();
   let found;
@@ -2880,6 +2856,7 @@ $('navBackBtn').onclick = () => {
 $('navFavBtn').onclick = () => {
   const favCards = vault.cards.filter(c => c.favorite);
   const box = $('mainList'); box.innerHTML = '';
+  updateNavTitle('Избранное');
   if(!favCards.length){
     box.innerHTML = '<div class="empty">В избранном пока пусто</div>';
   } else {
@@ -2908,16 +2885,35 @@ $('navSearchBtn').onclick = () => {
   if(bar.style.display === 'none'){ bar.style.display = 'block'; $('searchInput').focus(); }
   else { bar.style.display = 'none'; $('searchInput').value = ''; renderMainList(); }
 };
-$('navMenuBtn').onclick = () => { $('mainMenu').style.display = 'flex'; };
+$('navMenuBtn').onclick = () => {
+  updateSortLabel();
+  $('mainMenu').style.display = 'flex';
+};
 
 $('addMenuCancel').onclick = () => { $('addMenu').style.display = 'none'; };
 $('menuCreateFolder').onclick = () => { $('addMenu').style.display = 'none'; openFolderEditor(null); };
-$('menuCreateCard').onclick = () => { $('addMenu').style.display = 'none'; pendingTemplate = null; renderTemplates(); show('tplScreen'); };
+$('menuCreateCard').onclick = () => { $('addMenu').style.display = 'none'; pendingTemplate = null; renderTemplates(); updateNavTitle('Шаблон'); show('tplScreen'); };
 $('menuImportFile').onclick = () => { $('addMenu').style.display = 'none'; toast('Функция «Вставить файл» в разработке'); };
 $('menuImportFolder').onclick = () => { $('addMenu').style.display = 'none'; toast('Функция «Вставить папку» в разработке'); };
 $('menuCamera').onclick = () => { $('addMenu').style.display = 'none'; toast('Функция «Снимок с камеры» в разработке'); };
 
 $('menuSettings').onclick = () => { $('mainMenu').style.display = 'none'; openSettings(); };
+$('menuSort').onclick = () => {
+  $('mainMenu').style.display = 'none';
+  const modes = ['alpha','date','manual'];
+  const i = modes.indexOf(sortMode);
+  sortMode = modes[(i+1) % modes.length];
+  if(sortMode === 'manual'){
+    const cards = vault.cards.slice().sort((a,b) => (a.title||'').localeCompare(b.title||'', 'ru'));
+    cards.forEach((c, idx) => { manualOrder[c.id] = idx + 1; });
+    vault.settings.manualOrder = manualOrder;
+    saveConf();
+  }
+  updateSortLabel();
+  renderMainList();
+  const labels = { alpha:'по алфавиту', date:'сначала новые', manual:'ручная (долгое нажатие)' };
+  toast('Сортировка: ' + labels[sortMode]);
+};
 $('menuLock').onclick = () => { $('mainMenu').style.display = 'none'; lockNow(); };
 $('menuExit').onclick = () => {
   $('mainMenu').style.display = 'none';
@@ -2928,6 +2924,53 @@ $('menuExit').onclick = () => {
 };
 $('addMenu').onclick = (e) => { if(e.target === $('addMenu')) $('addMenu').style.display = 'none'; };
 $('mainMenu').onclick = (e) => { if(e.target === $('mainMenu')) $('mainMenu').style.display = 'none'; };
+
+// Свайп вниз по шторке «+»
+(function(){
+  const sheet = $('addSheet');
+  if(!sheet) return;
+  let startY = 0, currentY = 0, dragging = false;
+  const onStart = (e) => {
+    if(e.target.closest('.sheet-item')) return;
+    const t = e.touches ? e.touches[0] : e;
+    startY = t.clientY;
+    currentY = startY;
+    dragging = true;
+    sheet.style.transition = 'none';
+  };
+  const onMove = (e) => {
+    if(!dragging) return;
+    const t = e.touches ? e.touches[0] : e;
+    currentY = t.clientY;
+    const dy = currentY - startY;
+    if(dy > 0){
+      if(e.cancelable) e.preventDefault();
+      sheet.style.transform = 'translateY(' + dy + 'px)';
+    }
+  };
+  const onEnd = () => {
+    if(!dragging) return;
+    dragging = false;
+    const dy = currentY - startY;
+    sheet.style.transition = 'transform .22s cubic-bezier(.32,.72,0,1)';
+    if(dy > 80){
+      sheet.style.transform = 'translateY(100%)';
+      setTimeout(() => {
+        $('addMenu').style.display = 'none';
+        sheet.style.transform = '';
+        sheet.style.transition = '';
+      }, 200);
+    } else {
+      sheet.style.transform = '';
+    }
+  };
+  sheet.addEventListener('touchstart', onStart, {passive:true});
+  sheet.addEventListener('touchmove', onMove, {passive:false});
+  sheet.addEventListener('touchend', onEnd);
+  sheet.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+})();
 
 $('searchInput').addEventListener('input', () => {
   const q = $('searchInput').value.toLowerCase();
@@ -2961,10 +3004,10 @@ $('searchInput').addEventListener('input', () => {
 
 $('foldersBack').onclick = ()=>{ renderMainList(); show('vaultScreen'); };
 $('addFolderBtn').onclick = ()=>openFolderEditor(null);
-$('folderEditorBack').onclick = ()=>{ editingFolderId=null; show('vaultScreen'); };
+$('folderEditorBack').onclick = ()=>{ editingFolderId=null; updateNavTitle('Сейф+'); renderMainList(); show('vaultScreen'); };
 $('saveFolderBtn').onclick = saveFolder;
 $('deleteFolderBtn').onclick = deleteFolder;
-$('settingsBack').onclick = ()=>{ renderMainList(); show('vaultScreen'); };
+$('settingsBack').onclick = ()=>{ updateNavTitle('Сейф+'); renderMainList(); show('vaultScreen'); };
 $('saveSettingsBtn').onclick = saveSettings;
 $('backupBtn').onclick = makeBackup;
 $('restoreBtn').onclick = openRestore;
@@ -3010,10 +3053,10 @@ $('warnConfirmBtn').onclick = () => closeWarning(true);
 $('patternToggle').onchange = onPatternToggle;
 $('bioToggle').onchange = onBioToggle;
 $('openBioSettingsBtn').onclick = openBioSettings;
-$('tplBack').onclick = ()=>show('vaultScreen');
+$('tplBack').onclick = ()=>{ updateNavTitle('Сейф+'); show('vaultScreen'); };
 $('saveCardBtn').onclick = saveCard;
 $('deleteCardBtn').onclick = deleteCard;
-$('editBack').onclick = ()=>{ pendingTemplate = null; show('vaultScreen'); };
+$('editBack').onclick = ()=>{ pendingTemplate = null; updateNavTitle('Сейф+'); renderMainList(); show('vaultScreen'); };
 $('viewBack').onclick = ()=>{ renderMainList(); show('vaultScreen'); };
 $('addFieldBtn').onclick = ()=>addFieldRow();
 $('iconPickBtn').onclick = openIconPicker;
