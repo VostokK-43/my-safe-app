@@ -270,9 +270,22 @@
     transition:background .15s, transform .1s;
     user-select:none;color:var(--text);
     line-height:1;
+    position:relative;
   }
   .nav-icon:active{background:var(--ios-fill);transform:scale(.9)}
   .nav-icon.left{font-size:38px;font-weight:600;margin-left:-4px}
+
+  .nav-badge{
+    position:absolute;top:-2px;right:-2px;
+    min-width:18px;height:18px;padding:0 5px;
+    border-radius:9px;
+    background:var(--ios-blue);color:#fff;
+    font-size:11px;font-weight:800;line-height:18px;
+    text-align:center;letter-spacing:0;
+    box-shadow:0 0 0 2px var(--ios-bg-grouped);
+    pointer-events:none;
+  }
+  .nav-badge.danger{background:var(--ios-red)}
 
   #mainList{padding:12px 16px 100px}
   .list-group{
@@ -334,7 +347,7 @@
     touch-action:none;
   }
   @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-      .sheet-handle{width:38px;height:5px;border-radius:3px;background:var(--ios-fill-secondary);
+  .sheet-handle{width:38px;height:5px;border-radius:3px;background:var(--ios-fill-secondary);
     margin:0 auto 8px;touch-action:none;cursor:grab}
   .sheet-title{
     text-align:center;
@@ -531,6 +544,10 @@
   .wizard-opt .opt-action.off{background:var(--ios-fill);color:var(--hint);box-shadow:none}
   .wizard-bottom{margin-top:auto;display:flex;flex-direction:column;gap:10px}
   .wizard-note{text-align:center;font-size:12px;color:var(--hint);margin:16px 4px 0;line-height:1.5;font-weight:600}
+
+  .trash-restore-btn{width:auto;margin:0;padding:8px 14px;font-size:14px;border-radius:18px;
+    background:var(--ios-fill);color:var(--ios-blue);box-shadow:none;font-weight:700}
+  .trash-restore-btn:active{background:var(--ios-fill-secondary);transform:scale(.95)}
 </style>
 </head>
 <body>
@@ -698,6 +715,13 @@
   <div class="icon-grid" id="cardIconGrid"></div>
 </div>
 
+<div id="trashScreen" class="screen">
+  <h1><span class="back" id="trashBack">‹</span> Корзина</h1>
+  <p class="info" id="trashInfo">Удалённые карточки и папки хранятся здесь. Восстановите нужное или очистите корзину.</p>
+  <div id="trashList"></div>
+  <button id="trashClearBtn" class="danger" style="margin-top:20px">🗑 Очистить корзину</button>
+</div>
+
 <div id="settingsScreen" class="screen">
   <h1><span class="back" id="settingsBack">‹</span> Настройки</h1>
 
@@ -747,6 +771,10 @@
 
   <label style="margin-top:32px">Безопасность PIN</label>
   <button id="changePinBtn" class="sec">🔐 Сменить PIN-код</button>
+
+  <label style="margin-top:32px">Корзина</label>
+  <button id="openTrashBtn" class="sec">🗑 Корзина <span id="trashCountBadge" style="color:var(--hint);font-weight:600"></span></button>
+  <p class="status" id="trashHint">Удалённые карточки и папки можно восстановить.</p>
 
   <label style="margin-top:32px">Опасная зона</label>
   <button id="lockNowBtn" class="sec">🔒 Заблокировать</button>
@@ -897,6 +925,7 @@ const LEGACY_DATA  = ['safe_data_v3','safe_data_v2','safe_data_v1','safe_data_v3
 const PACK_SIZE      = 6;
 const PACK_THRESHOLD = 800;
 const SERVICE_KEYS   = 6;
+const TRASH_LIMIT    = 50;
 const enc = new TextEncoder(), dec = new TextDecoder();
 
 const DEFAULT_FOLDERS = [];
@@ -908,7 +937,7 @@ const WEAK_PINS = ['0000','1111','2222','3333','4444','5555','6666','7777','8888
                    '1234','4321','0123','3210','1212','2121','1122','2211'];
 
 let cryptoKey = null;
-let vault = { folders: [], cards: [], settings: { autoLock: 60, clipClear: true } };
+let vault = { folders: [], cards: [], trash: [], settings: { autoLock: 60, clipClear: true } };
 let storageMode = 'individual';
 let sortMode = 'alpha';
 let manualModeActive = false;
@@ -944,6 +973,20 @@ function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('sho
 function updateNavTitle(text){
   const el = $('navTitle');
   if(el) el.textContent = text || 'Сейф+';
+}
+
+// ============ Бейдж корзины на иконке меню ============
+function updateTrashBadge(){
+  const btn = $('navMenuBtn');
+  if(!btn) return;
+  const old = btn.querySelector('.nav-badge');
+  if(old) old.remove();
+  const cnt = (vault.trash || []).length;
+  if(cnt <= 0) return;
+  const b = document.createElement('span');
+  b.className = 'nav-badge' + (cnt >= TRASH_LIMIT ? ' danger' : '');
+  b.textContent = cnt >= 100 ? '99+' : String(cnt);
+  btn.appendChild(b);
 }
 
 // ============ BiometricManager ============
@@ -1459,7 +1502,7 @@ async function rebuildIndexFromCloud(){
 async function saveConf(){
   if(!cryptoKey) return false;
   try {
-    const conf = { folders: vault.folders, settings: vault.settings, storageMode, sortMode };
+    const conf = { folders: vault.folders, trash: vault.trash || [], settings: vault.settings, storageMode, sortMode };
     const payload = await encryptJSON(cryptoKey, conf);
     const str = JSON.stringify(payload);
     await storeSet(CONF_KEY, str);
@@ -1662,6 +1705,7 @@ async function loadVaultAfterUnlock(){
     try {
       const conf = await decryptJSON(cryptoKey, JSON.parse(confStr));
       vault.folders = conf.folders || [];
+      vault.trash = Array.isArray(conf.trash) ? conf.trash : [];
       vault.settings = conf.settings || { autoLock: 60, clipClear: true };
       if(vault.settings.manualOrder){ manualOrder = vault.settings.manualOrder; }
       if(vault.settings.sortMode){ sortMode = vault.settings.sortMode; }
@@ -1763,7 +1807,7 @@ async function tryPin(){
     const verify = await encryptJSON(cryptoKey, {ok:true});
     const meta = { salt: b64(salt), verify, hasRecovery: false, recoveryOffered: false, wizardDone: false, pinLength: pinBuffer.length };
     currentMeta = meta;
-    vault = { folders: [], cards: [], settings: { autoLock: 60, clipClear: true } };
+    vault = { folders: [], cards: [], trash: [], settings: { autoLock: 60, clipClear: true } };
     storageMode = 'individual';
     try {
       await storeSet(META_KEY, JSON.stringify(meta));
@@ -2069,6 +2113,7 @@ function openVault(){
   isFavView = false;
   updateNavTitle('Сейф+');
   renderMainList();
+  updateTrashBadge();
   show('vaultScreen');
   resetLockTimer();
 }
@@ -2095,6 +2140,7 @@ function renderMainList(){
       menuBtn.title = 'Меню';
     }
   }
+  updateTrashBadge();
 
   let foldersToShow = [];
   let cardsToShow = [];
@@ -2107,7 +2153,6 @@ function renderMainList(){
     cardsToShow = vault.cards.filter(c => c.folderId === currentFolderId);
   }
 
-  // === ПРАВКА A6: сортировка папок — ручная или по алфавиту ===
   if(sortMode === 'manual' && vault.settings.folderOrder){
     const fo = vault.settings.folderOrder;
     foldersToShow.sort((a, b) => (fo[a.id] || 9999) - (fo[b.id] || 9999));
@@ -2156,7 +2201,6 @@ function renderMainList(){
           <div class="list-sub">${subStr}</div>
         </div>
         <div class="list-chevron">›</div>`;
-      // === ПРАВКА A2: короткий тап по папке в ручном режиме ничего не делает ===
       d.onclick = () => {
         if(manualModeActive && sortMode === 'manual') return;
         currentFolderId = f.id;
@@ -2200,7 +2244,6 @@ function renderMainList(){
 
   bindFolderLongPress();
 
-  // === ПРАВКА A3+A4: в ручном режиме включаем таскание папок и показываем «Готово» ===
   if(sortMode === 'manual' && manualModeActive){
     bindFolderDrag();
     $('manualDoneBar').style.display = 'block';
@@ -2291,7 +2334,6 @@ async function saveManualOrder(){
   await saveConf();
 }
 
-// === ПРАВКА A4: таскание папок в ручном режиме ===
 function bindFolderDrag(){
   const items = [...$('mainList').querySelectorAll('.list-item[data-folder-id]')];
   if(!items.length) return;
@@ -2364,7 +2406,6 @@ function bindFolderDrag(){
   });
 }
 
-// === ПРАВКА A5: сохранение порядка папок ===
 async function saveFolderOrder(){
   const items = [...$('mainList').querySelectorAll('.list-item[data-folder-id]')];
   const visibleIds = items.map(i => i.dataset.folderId);
@@ -2379,6 +2420,209 @@ async function saveFolderOrder(){
   });
   vault.settings.folderOrder = newOrder;
   await saveConf();
+}
+
+// ============ КОРЗИНА ============
+function trashCount(){ return (vault.trash || []).length; }
+
+async function moveCardToTrash(card){
+  if(trashCount() >= TRASH_LIMIT) return false;
+  vault.trash.push({ type:'card', deletedAt: Date.now(), card: JSON.parse(JSON.stringify(card)) });
+  await removeCardStorage(card);
+  vault.cards = vault.cards.filter(c => c.id !== card.id);
+  await saveConf();
+  updateTrashBadge();
+  return true;
+}
+
+async function moveFolderToTrash(folderId){
+  if(trashCount() >= TRASH_LIMIT) return false;
+  const f = vault.folders.find(x => x.id === folderId);
+  if(!f) return false;
+
+  const folderIds = new Set([folderId]);
+  let added = true;
+  while(added){
+    added = false;
+    vault.folders.forEach(x => {
+      if(x.parentId && folderIds.has(x.parentId) && !folderIds.has(x.id)){ folderIds.add(x.id); added = true; }
+    });
+  }
+  const foldersInTree = vault.folders.filter(x => folderIds.has(x.id));
+  const cardsInTree = vault.cards.filter(c => folderIds.has(c.folderId));
+
+  const snapshot = {
+    type: 'folder',
+    deletedAt: Date.now(),
+    folder: JSON.parse(JSON.stringify(f)),
+    folders: JSON.parse(JSON.stringify(foldersInTree)),
+    cards: JSON.parse(JSON.stringify(cardsInTree))
+  };
+
+  for(const c of cardsInTree) await removeCardStorage(c);
+
+  const removedCardIds = new Set(cardsInTree.map(c => c.id));
+  vault.cards = vault.cards.filter(c => !removedCardIds.has(c.id));
+  vault.folders = vault.folders.filter(x => !folderIds.has(x.id));
+
+  vault.trash.push(snapshot);
+  await saveConf();
+  updateTrashBadge();
+  return true;
+}
+
+async function restoreTrashItem(index){
+  const item = vault.trash[index];
+  if(!item) return;
+
+  if(item.type === 'card'){
+    const c = JSON.parse(JSON.stringify(item.card));
+    if(c.folderId && !vault.folders.find(f => f.id === c.folderId)) c.folderId = null;
+    const ok = await saveCardStorage(c);
+    if(!ok){ toast('Не удалось восстановить'); return; }
+    vault.cards.push(c);
+    vault.trash.splice(index, 1);
+    await saveConf();
+    updateTrashBadge();
+    toast('Карточка восстановлена');
+    renderTrash();
+    return;
+  }
+
+  if(item.type === 'folder'){
+    const rootFolder = JSON.parse(JSON.stringify(item.folder));
+    if(rootFolder.parentId && !vault.folders.find(f => f.id === rootFolder.parentId)){
+      rootFolder.parentId = null;
+    }
+    for(const f of (item.folders || [])){
+      if(!vault.folders.find(x => x.id === f.id)){
+        vault.folders.push(JSON.parse(JSON.stringify(f)));
+      }
+    }
+    for(const c of (item.cards || [])){
+      const ok = await saveCardStorage(c);
+      if(ok) vault.cards.push(c);
+    }
+    vault.trash.splice(index, 1);
+    await saveConf();
+    updateTrashBadge();
+    toast('Папка восстановлена');
+    renderTrash();
+    return;
+  }
+}
+
+async function deleteTrashItemPermanently(index){
+  const item = vault.trash[index];
+  if(!item) return;
+  if(!confirm('Удалить этот элемент навсегда? Восстановить будет нельзя.')) return;
+  vault.trash.splice(index, 1);
+  await saveConf();
+  updateTrashBadge();
+  renderTrash();
+  toast('Удалено навсегда');
+}
+
+async function clearTrash(){
+  if(trashCount() === 0){ toast('Корзина пуста'); return; }
+  if(!confirm('Очистить корзину? Все элементы будут удалены навсегда.')) return;
+  vault.trash = [];
+  await saveConf();
+  updateTrashBadge();
+  renderTrash();
+  toast('Корзина очищена');
+}
+
+function renderTrash(){
+  const box = $('trashList');
+  if(!box) return;
+  const items = vault.trash || [];
+
+  if(!items.length){
+    box.innerHTML = '<div class="empty">Корзина пуста</div>';
+    $('trashClearBtn').style.display = 'none';
+    $('trashInfo').textContent = 'Удалённые карточки и папки хранятся здесь. Восстановите нужное или очистите корзину.';
+    return;
+  }
+
+  $('trashClearBtn').style.display = 'block';
+  $('trashInfo').textContent = 'Элементов: ' + items.length + ' из ' + TRASH_LIMIT +
+    '. Восстановите нужное или очистите корзину.';
+
+  box.innerHTML = '';
+  const group = document.createElement('div');
+  group.className = 'list-group';
+
+  items.forEach((item, idx) => {
+    const d = document.createElement('div');
+    d.className = 'list-item';
+
+    let icon = '📄', title = '', sub = '';
+    if(item.type === 'card'){
+      icon = item.card.icon || '📄';
+      title = item.card.title || '(без названия)';
+      sub = 'Карточка · удалено ' + timeAgo(item.deletedAt);
+    } else {
+      icon = item.folder.icon || '📁';
+      title = item.folder.name || '(без названия)';
+      const cntCards = (item.cards || []).length;
+      const cntFolders = (item.folders || []).length - 1;
+      const parts = [];
+      if(cntCards) parts.push(cntCards + ' карт.');
+      if(cntFolders > 0) parts.push(cntFolders + ' папок');
+      sub = 'Папка' + (parts.length ? ' · ' + parts.join(' · ') : '') + ' · удалено ' + timeAgo(item.deletedAt);
+    }
+
+    const iconHtml = (item.type === 'card' && item.card.customIcon)
+      ? `<img src="${item.card.customIcon}">`
+      : esc(icon);
+
+    d.innerHTML = `
+      <div class="list-icon">${iconHtml}</div>
+      <div class="list-body">
+        <div class="list-title">${esc(title)}</div>
+        <div class="list-sub">${sub}</div>
+      </div>
+      <button class="trash-restore-btn" data-idx="${idx}">↩ Восстановить</button>
+    `;
+
+    d.querySelector('.trash-restore-btn').onclick = (e) => {
+      e.stopPropagation();
+      restoreTrashItem(idx);
+    };
+
+    let pressTimer = null;
+    const startPress = () => {
+      pressTimer = setTimeout(() => {
+        if(navigator.vibrate) navigator.vibrate(20);
+        deleteTrashItemPermanently(idx);
+      }, 600);
+    };
+    const cancelPress = () => { clearTimeout(pressTimer); pressTimer = null; };
+    d.addEventListener('touchstart', startPress, {passive:true});
+    d.addEventListener('touchend', cancelPress);
+    d.addEventListener('touchmove', cancelPress);
+    d.addEventListener('mousedown', startPress);
+    d.addEventListener('mouseup', cancelPress);
+    d.addEventListener('mouseleave', cancelPress);
+
+    group.appendChild(d);
+  });
+
+  box.appendChild(group);
+}
+
+async function checkTrashLimitBeforeAdd(){
+  if(trashCount() >= TRASH_LIMIT){
+    const ok = confirm(
+      'Корзина заполнена (' + TRASH_LIMIT + ' из ' + TRASH_LIMIT + ').\n\n' +
+      'Чтобы удалить этот элемент, сначала очистите корзину.\n\n' +
+      'Открыть корзину сейчас?'
+    );
+    if(ok){ openTrash(); }
+    return false;
+  }
+  return true;
 }
 
 function updateSortLabel(){
@@ -2440,28 +2684,25 @@ async function deleteFolderById(folderId){
   const cardsToMove = vault.cards.filter(c => toDelete.has(c.folderId));
   const childrenCount = toDelete.size - 1;
 
+  if(!(await checkTrashLimitBeforeAdd())) return;
+
   const msg =
-    'Удалить папку «' + f.name + '»?\n\n' +
-    '⚠️ Всё содержимое будет удалено безвозвратно.' +
+    'Переместить папку «' + f.name + '» в корзину?\n\n' +
+    'Всё содержимое отправится в корзину, восстановить можно будет целиком.' +
     (childrenCount ? '\nВложенных папок: ' + childrenCount : '') +
-    (cardsToMove.length ? '\nКарточек внутри: ' + cardsToMove.length : '') +
-    '\n\nЕсли не хочешь потерять данные — сначала перенеси карточки в другую папку.';
+    (cardsToMove.length ? '\nКарточек внутри: ' + cardsToMove.length : '');
 
   if(!confirm(msg)) return;
 
-  for(const c of cardsToMove){
-    c.folderId = null;
-    await saveCardStorage(c);
-  }
-  vault.folders = vault.folders.filter(x => !toDelete.has(x.id));
+  const ok = await moveFolderToTrash(f.id);
+  if(!ok) return;
 
   if(currentFolderId !== null && toDelete.has(currentFolderId)) currentFolderId = null;
   if(editingFolderId !== null && toDelete.has(editingFolderId)) editingFolderId = null;
 
-  await saveConf();
   updateNavTitle(currentFolderId ? (vault.folders.find(x=>x.id===currentFolderId)?.name || 'Сейф+') : 'Сейф+');
   renderMainList();
-  toast('Папка удалена');
+  toast('Папка в корзине');
 }
 
 async function renameFolderById(folderId){
@@ -2477,7 +2718,6 @@ async function renameFolderById(folderId){
   toast('Переименовано');
 }
 
-// === ПРАВКА A1: в ручном режиме долгое нажатие на папку НЕ открывает меню ===
 function bindFolderLongPress(){
   if(manualModeActive && sortMode === 'manual') return;
   const items = [...$('mainList').querySelectorAll('.list-item[data-folder-id]')];
@@ -2525,7 +2765,6 @@ $('sortManual').onclick = async () => {
   const cards = vault.cards.slice().sort((a,b) => (a.title||'').localeCompare(b.title||'', 'ru'));
   cards.forEach((c, i) => { manualOrder[c.id] = i + 1; });
   vault.settings.manualOrder = manualOrder;
-  // Порядок папок: если ещё не было — задаём по текущему алфавитному
   if(!vault.settings.folderOrder){
     const fo = {};
     const sorted = vault.folders.slice().sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ru'));
@@ -2540,7 +2779,6 @@ $('sortManual').onclick = async () => {
   toast('Тащи карточки и папки пальцем. Жми «Готово»');
 };
 
-// === ПРАВКА A6: «Готово» сохраняет и порядок папок ===
 $('manualDoneBtn').onclick = async () => {
   $('manualDoneBar').style.display = 'none';
   manualModeActive = false;
@@ -2650,27 +2888,24 @@ async function deleteFolder(){
   const cardsToMove = vault.cards.filter(c => toDelete.has(c.folderId));
   const childrenCount = toDelete.size - 1;
 
+  if(!(await checkTrashLimitBeforeAdd())) return;
+
   const msg =
-    'Удалить папку «' + f.name + '»?\n\n' +
-    '⚠️ Всё содержимое будет удалено безвозвратно.' +
+    'Переместить папку «' + f.name + '» в корзину?\n\n' +
+    'Всё содержимое отправится в корзину, восстановить можно будет целиком.' +
     (childrenCount ? '\nВложенных папок: ' + childrenCount : '') +
-    (cardsToMove.length ? '\nКарточек внутри: ' + cardsToMove.length : '') +
-    '\n\nЕсли не хочешь потерять данные — сначала перенеси карточки в другую папку.';
+    (cardsToMove.length ? '\nКарточек внутри: ' + cardsToMove.length : '');
   if(!confirm(msg)) return;
 
-  for(const c of cardsToMove){
-    c.folderId = null;
-    await saveCardStorage(c);
-  }
-  vault.folders = vault.folders.filter(x => !toDelete.has(x.id));
+  const ok = await moveFolderToTrash(f.id);
+  if(!ok) return;
 
   if(currentFolderId !== null && toDelete.has(currentFolderId)) currentFolderId = null;
   editingFolderId = null;
 
-  await saveConf();
   updateNavTitle('Сейф+');
   renderMainList();
-  toast('Папка удалена');
+  toast('Папка в корзине');
   show('vaultScreen');
 }
 
@@ -2883,14 +3118,17 @@ async function saveCard(){
   toast('Сохранено');
 }
 async function deleteCard(){
-  if(!editingId || !confirm('Удалить карточку?')) return;
+  if(!editingId) return;
+  if(!(await checkTrashLimitBeforeAdd())) return;
+  if(!confirm('Переместить карточку в корзину? Восстановить можно из корзины.')) return;
   const card = vault.cards.find(x => x.id === editingId);
-  if(card) await removeCardStorage(card);
-  vault.cards = vault.cards.filter(x=>x.id!==editingId);
+  if(!card) return;
+  const ok = await moveCardToTrash(card);
+  if(!ok) return;
   updateNavTitle('Сейф+');
   renderMainList();
   show('vaultScreen');
-  toast('Удалено');
+  toast('Перемещено в корзину');
 }
 function openIconPicker(){
   $('removePhotoBtn').style.display = editingCardIcon.customIcon ? 'block' : 'none';
@@ -2969,7 +3207,24 @@ async function openSettings(){
     ? `📦 Упакованный (до ~5000 карточек)`
     : `📄 Обычный (до ${PACK_THRESHOLD} карточек)`;
   $('storageStatus').innerHTML = `Режим: <b>${modeStr}</b><br>Карточек: <b>${vault.cards.length}</b> · Ключей: <b>${usedKeys}</b> из 1024`;
+
+  const tc = trashCount();
+  const badge = $('trashCountBadge');
+  if(badge) badge.textContent = tc ? '(' + tc + ' из ' + TRASH_LIMIT + ')' : '(пусто)';
+  const hint = $('trashHint');
+  if(hint){
+    if(tc >= TRASH_LIMIT){ hint.textContent = '⚠️ Корзина заполнена. Удалите лишнее.'; hint.style.color = 'var(--ios-red)'; }
+    else if(tc > 0){ hint.textContent = 'Элементов в корзине: ' + tc + '. Восстановите нужное.'; hint.style.color = 'var(--hint)'; }
+    else { hint.textContent = 'Удалённые карточки и папки можно восстановить.'; hint.style.color = 'var(--hint)'; }
+  }
 }
+
+function openTrash(){
+  renderTrash();
+  updateNavTitle('Корзина');
+  show('trashScreen');
+}
+
 async function saveSettings(){
   vault.settings.autoLock = Math.max(15, parseInt($('autoLockInput').value)||60);
   vault.settings.clipClear = $('clipClearChk').checked;
@@ -2986,7 +3241,7 @@ async function makeBackup(){
   if(!metaStr){ toast('Нет мета-данных'); return; }
   let meta;
   try { meta = JSON.parse(metaStr); } catch { toast('Мета-данные повреждены'); return; }
-  const conf = await encryptJSON(cryptoKey, { folders: vault.folders, settings: vault.settings });
+  const conf = await encryptJSON(cryptoKey, { folders: vault.folders, trash: vault.trash || [], settings: vault.settings });
   const cards = [];
   for(const c of vault.cards){
     const copy = { ...c }; delete copy._pid;
@@ -3036,6 +3291,7 @@ async function doRestore(){
   await setIndex({ cards: [], packs: [] });
   cryptoKey = key;
   vault.folders = conf.folders || [];
+  vault.trash = Array.isArray(conf.trash) ? conf.trash : [];
   vault.settings = conf.settings || { autoLock: 60, clipClear: true };
   if(vault.settings.manualOrder){ manualOrder = vault.settings.manualOrder; }
   if(vault.settings.sortMode){ sortMode = vault.settings.sortMode; }
@@ -3066,7 +3322,8 @@ function resetLockTimer(){
 ['click','touchstart','keydown'].forEach(e => document.addEventListener(e, () => resetLockTimer()));
 async function lockNow(){
   cryptoKey=null; pinBuffer=''; pinMode='unlock';
-  vault.cards = []; currentMeta = null; currentFolderId = null; isFavView = false;
+  vault.cards = []; vault.trash = []; currentMeta = null; currentFolderId = null; isFavView = false;
+  updateTrashBadge();
   $('lockHint').textContent='Введите PIN';
   $('pinError').textContent='';
   $('pinSubmitBtn').textContent = 'Открыть';
@@ -3160,6 +3417,7 @@ function renderFavList(){
 async function init(){
   buildPinPad(); renderPinDots(); renderTemplates(); setupPhotoUpload();
   updateSortLabel();
+  updateTrashBadge();
   await initBiometric();
   bioAvailable = isBioAvailable();
   let found;
@@ -3464,6 +3722,11 @@ $('viewBack').onclick = ()=>{ renderMainList(); show('vaultScreen'); };
 $('addFieldBtn').onclick = ()=>addFieldRow();
 $('iconPickBtn').onclick = openIconPicker;
 $('iconBack').onclick = ()=>show('editScreen');
+
+// Кнопки корзины
+$('openTrashBtn').onclick = ()=>{ openTrash(); };
+$('trashBack').onclick = ()=>{ openSettings(); };
+$('trashClearBtn').onclick = ()=>{ clearTrash(); };
 
 init();
 </script>
