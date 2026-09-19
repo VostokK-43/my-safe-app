@@ -875,8 +875,9 @@
     <button id="wipeCancelBtn" class="sec">Отмена</button>
     <button id="wipeConfirmBtn" class="danger" disabled>Удалить навсегда</button>
   </div>
-</div><script>
-const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : {
+</div>
+
+<script>const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : {
   ready: () => {}, expand: () => {}, CloudStorage: null, themeParams: {},
   BiometricManager: null
 };
@@ -1615,7 +1616,9 @@ async function fixOrphanCards(){
     }
   }
   return fixed;
-}// ============ PIN ============
+}
+
+// ============ PIN ============
 function renderPinDots(){
   const n = pinBuffer.length;
   $('pinDots').innerHTML = Array.from({length: Math.max(n,4)}, (_,i)=>
@@ -2104,7 +2107,13 @@ function renderMainList(){
     cardsToShow = vault.cards.filter(c => c.folderId === currentFolderId);
   }
 
-  foldersToShow.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ru'));
+  // === ПРАВКА A6: сортировка папок — ручная или по алфавиту ===
+  if(sortMode === 'manual' && vault.settings.folderOrder){
+    const fo = vault.settings.folderOrder;
+    foldersToShow.sort((a, b) => (fo[a.id] || 9999) - (fo[b.id] || 9999));
+  } else {
+    foldersToShow.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ru'));
+  }
 
   if(sortMode === 'alpha'){
     cardsToShow.sort((a, b) => (a.title || '').localeCompare(b.title || '', 'ru'));
@@ -2118,6 +2127,11 @@ function renderMainList(){
     box.innerHTML = '<div class="empty">' +
       (currentFolderId ? 'В этой папке пока пусто' : 'Сейф пуст. Нажмите + чтобы добавить') +
       '</div>';
+    if(sortMode === 'manual' && manualModeActive){
+      $('manualDoneBar').style.display = 'block';
+    } else {
+      $('manualDoneBar').style.display = 'none';
+    }
     return;
   }
 
@@ -2142,7 +2156,12 @@ function renderMainList(){
           <div class="list-sub">${subStr}</div>
         </div>
         <div class="list-chevron">›</div>`;
-      d.onclick = () => { currentFolderId = f.id; renderMainList(); };
+      // === ПРАВКА A2: короткий тап по папке в ручном режиме ничего не делает ===
+      d.onclick = () => {
+        if(manualModeActive && sortMode === 'manual') return;
+        currentFolderId = f.id;
+        renderMainList();
+      };
       group.appendChild(d);
     });
     box.appendChild(group);
@@ -2168,7 +2187,10 @@ function renderMainList(){
           <div class="list-sub">${timeAgo(c.updated)}</div>
         </div>
         <div class="list-chevron">›</div>`;
-      d.onclick = () => viewCard(c.id);
+      d.onclick = () => {
+        if(manualModeActive && sortMode === 'manual') return;
+        viewCard(c.id);
+      };
       group.appendChild(d);
     });
     box.appendChild(group);
@@ -2178,8 +2200,12 @@ function renderMainList(){
 
   bindFolderLongPress();
 
+  // === ПРАВКА A3+A4: в ручном режиме включаем таскание папок и показываем «Готово» ===
   if(sortMode === 'manual' && manualModeActive){
+    bindFolderDrag();
     $('manualDoneBar').style.display = 'block';
+  } else {
+    $('manualDoneBar').style.display = 'none';
   }
 }
 
@@ -2262,6 +2288,96 @@ async function saveManualOrder(){
   vault.settings.manualOrder = manualOrder;
   vault.settings.sortMode = 'manual';
   sortMode = 'manual';
+  await saveConf();
+}
+
+// === ПРАВКА A4: таскание папок в ручном режиме ===
+function bindFolderDrag(){
+  const items = [...$('mainList').querySelectorAll('.list-item[data-folder-id]')];
+  if(!items.length) return;
+
+  items.forEach(item => {
+    let pressTimer = null;
+    let dragging = false;
+    let startY = 0;
+
+    const startPress = (e) => {
+      if(!(manualModeActive && sortMode === 'manual')) return;
+      pressTimer = setTimeout(() => {
+        dragging = true;
+        item.style.opacity = '0.5';
+        item.style.background = 'var(--ios-fill)';
+        if(navigator.vibrate) navigator.vibrate(20);
+        toast('Ведите палец вверх/вниз');
+        const touch = e.touches ? e.touches[0] : e;
+        startY = touch.clientY;
+        document.addEventListener('touchmove', onMove, {passive:false});
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('touchend', onEnd);
+        document.addEventListener('mouseup', onEnd);
+      }, 500);
+    };
+
+    const cancelPress = () => { clearTimeout(pressTimer); pressTimer = null; };
+
+    const onMove = (e) => {
+      if(!dragging) return;
+      e.preventDefault();
+      const touch = e.touches ? e.touches[0] : e;
+      const y = touch.clientY;
+      const all = [...$('mainList').querySelectorAll('.list-item[data-folder-id]')];
+      let target = null;
+      for(const el of all){
+        if(el === item) continue;
+        const r = el.getBoundingClientRect();
+        if(y >= r.top && y <= r.bottom){ target = el; break; }
+      }
+      if(target){
+        const r = target.getBoundingClientRect();
+        const mid = r.top + r.height / 2;
+        if(y < mid) target.before(item);
+        else target.after(item);
+      }
+    };
+
+    const onEnd = () => {
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('touchend', onEnd);
+      document.removeEventListener('mouseup', onEnd);
+      if(dragging){
+        item.style.opacity = '';
+        item.style.background = '';
+        dragging = false;
+        saveFolderOrder();
+      }
+    };
+
+    item.addEventListener('touchstart', startPress, {passive:true});
+    item.addEventListener('mousedown', startPress);
+    item.addEventListener('touchend', cancelPress);
+    item.addEventListener('mouseup', cancelPress);
+    item.addEventListener('mouseleave', cancelPress);
+    item.addEventListener('click', (e) => {
+      if(dragging){ e.preventDefault(); e.stopPropagation(); }
+    }, true);
+  });
+}
+
+// === ПРАВКА A5: сохранение порядка папок ===
+async function saveFolderOrder(){
+  const items = [...$('mainList').querySelectorAll('.list-item[data-folder-id]')];
+  const visibleIds = items.map(i => i.dataset.folderId);
+  const newOrder = {};
+  let counter = 1;
+  visibleIds.forEach(id => { newOrder[id] = counter++; });
+  Object.keys(vault.settings.folderOrder || {}).forEach(id => {
+    if(!newOrder[id]) newOrder[id] = counter++;
+  });
+  vault.folders.forEach(f => {
+    if(!newOrder[f.id]) newOrder[f.id] = counter++;
+  });
+  vault.settings.folderOrder = newOrder;
   await saveConf();
 }
 
@@ -2361,7 +2477,9 @@ async function renameFolderById(folderId){
   toast('Переименовано');
 }
 
+// === ПРАВКА A1: в ручном режиме долгое нажатие на папку НЕ открывает меню ===
 function bindFolderLongPress(){
+  if(manualModeActive && sortMode === 'manual') return;
   const items = [...$('mainList').querySelectorAll('.list-item[data-folder-id]')];
   items.forEach(item => {
     let timer = null;
@@ -2407,18 +2525,27 @@ $('sortManual').onclick = async () => {
   const cards = vault.cards.slice().sort((a,b) => (a.title||'').localeCompare(b.title||'', 'ru'));
   cards.forEach((c, i) => { manualOrder[c.id] = i + 1; });
   vault.settings.manualOrder = manualOrder;
+  // Порядок папок: если ещё не было — задаём по текущему алфавитному
+  if(!vault.settings.folderOrder){
+    const fo = {};
+    const sorted = vault.folders.slice().sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ru'));
+    sorted.forEach((f, i) => { fo[f.id] = i + 1; });
+    vault.settings.folderOrder = fo;
+  }
   vault.settings.sortMode = 'manual';
   await saveConf();
   closeSortSheet();
   renderMainList();
   $('manualDoneBar').style.display = 'block';
-  toast('Тащи карточки пальцем. Жми «Готово»');
+  toast('Тащи карточки и папки пальцем. Жми «Готово»');
 };
 
+// === ПРАВКА A6: «Готово» сохраняет и порядок папок ===
 $('manualDoneBtn').onclick = async () => {
   $('manualDoneBar').style.display = 'none';
   manualModeActive = false;
   await saveManualOrder();
+  await saveFolderOrder();
   renderMainList();
 };
 
@@ -2807,9 +2934,7 @@ function setupPhotoUpload(){
     $('removePhotoBtn').style.display = 'none';
     toast('Фото удалено');
   };
-}
-
-// ============ Настройки ============
+}// ============ Настройки ============
 async function openSettings(){
   $('autoLockInput').value = vault.settings.autoLock || 60;
   $('clipClearChk').checked = vault.settings.clipClear !== false;
@@ -3160,6 +3285,12 @@ $('menuSort').onclick = () => {
     const cards = vault.cards.slice().sort((a,b) => (a.title||'').localeCompare(b.title||'', 'ru'));
     cards.forEach((c, idx) => { manualOrder[c.id] = idx + 1; });
     vault.settings.manualOrder = manualOrder;
+    if(!vault.settings.folderOrder){
+      const fo = {};
+      const sorted = vault.folders.slice().sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ru'));
+      sorted.forEach((f, idx) => { fo[f.id] = idx + 1; });
+      vault.settings.folderOrder = fo;
+    }
   }
   vault.settings.sortMode = sortMode;
   saveConf();
