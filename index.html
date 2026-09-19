@@ -390,7 +390,10 @@
     <span class="act" id="foldersBtn" title="Папки">📂</span>
     <span class="act" id="settingsBtn" title="Настройки">⚙️</span>
   </h1>
-  <input id="searchInput" placeholder="Поиск" style="margin-bottom:16px;background:var(--ios-fill-tertiary);padding-left:16px">
+  <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center">
+    <input id="searchInput" placeholder="Поиск" style="margin:0;background:var(--ios-fill-tertiary);padding-left:16px;flex:1">
+    <button id="sortBtn" class="sec" style="width:auto;margin:0;padding:14px 16px;font-size:15px;flex-shrink:0" title="Сортировка">🔤 А→Я</button>
+  </div>
   <div id="catRow" class="cat-row"></div>
   <div id="cardsList"></div>
   <button id="addCardBtn" style="margin-top:8px">+ Новая карточка</button>
@@ -465,7 +468,7 @@
 <div id="settingsScreen" class="screen">
   <h1><span class="back" id="settingsBack">‹</span> Настройки</h1>
 
-  <label>Автоблокировка</label>
+  <label>Автоблокировка (сек)</label>
   <input id="autoLockInput" type="number" min="15" value="60">
   <div class="chk">
     <input type="checkbox" id="clipClearChk">
@@ -658,6 +661,8 @@ let cryptoKey = null;
 let vault = { folders: [], cards: [], settings: { autoLock: 60, clipClear: true } };
 let storageMode = 'individual';
 let currentFolder = 'all';
+let sortMode = 'alpha';
+let manualOrder = {};
 let editingId = null, editingFolderId = null, selectedIcon = '📁', editingCardIcon = null;
 let pinBuffer = '', pinMode = 'unlock', tempPin = '';
 let lockTimer = null, clipboardTimer = null;
@@ -795,7 +800,6 @@ async function createBiometricRecord(pinKey){
   if(!bm.isAccessGranted){
     const granted = await requestBioAccess();
     if(!granted){
-      // Показываем подсказку — как открыть настройки
       toast('Доступ не выдан. Откройте настройки биометрии в Telegram');
       throw new Error('ACCESS_DENIED');
     }
@@ -1130,6 +1134,7 @@ async function handlePatternComplete(seq){
       await storeSet(META_KEY, JSON.stringify(currentMeta));
       await storeSet(META_BACKUP, JSON.stringify(currentMeta));
       pendingPattern = null;
+      resetPatternSequence();
       toast('Графический ключ сохранён');
       if(patternFromWizard){
         patternFromWizard = false;
@@ -1166,6 +1171,7 @@ async function handlePatternComplete(seq){
     patternFailCount = 0;
     cryptoKey = res.pinKey;
     currentMeta = meta;
+    resetPatternSequence();
     await loadVaultAfterUnlock();
     if(navigator.vibrate) navigator.vibrate([20, 40, 20]);
     openVault();
@@ -1492,6 +1498,7 @@ async function loadVaultAfterUnlock(){
       const conf = await decryptJSON(cryptoKey, JSON.parse(confStr));
       vault.folders = conf.folders || [];
       vault.settings = conf.settings || { autoLock: 60, clipClear: true };
+      if(vault.settings.manualOrder){ manualOrder = vault.settings.manualOrder; }
     } catch(e){}
   } else {
     let migrated = false;
@@ -1634,7 +1641,7 @@ async function recoveryContinue(){
     pendingRecoveryKey = null;
     $('recoveryKeyDisplay').textContent = '····';
     $('recoveryContinueBtn').textContent = 'Продолжить';
-    openWizard();
+    if(patternFromWizard){ openWizard(); } else { openSettings(); }
   } catch(e){
     toast('Не удалось сохранить. Попробуйте ещё раз.');
     $('recoveryContinueBtn').disabled = false;
@@ -1653,7 +1660,7 @@ async function recoverySkip(){
   } catch(e){}
   pendingRecoveryKey = null;
   $('recoveryKeyDisplay').textContent = '····';
-  openWizard();
+  if(patternFromWizard){ openWizard(); } else { openSettings(); }
 }
 async function openRecoveryInput(){
   $('recoveryInputField').value = '';
@@ -1700,6 +1707,10 @@ function openChangePin(){
   show('changePinScreen');
 }
 async function changePinSubmit(){
+  if(!currentMeta || !currentMeta.salt){
+    $('changePinError').textContent = 'Данные не загружены. Перезайдите в приложение.';
+    return;
+  }
   const oldPin = $('changePinOld').value.trim();
   const newPin = $('changePinNew').value.trim();
   const newPin2 = $('changePinNew2').value.trim();
@@ -1875,6 +1886,7 @@ async function onBioToggle(){
       $('bioSub').textContent = 'Настроен';
       toast('Биометрия добавлена');
     } catch(e){
+      $('bioSub').textContent = 'Не настроен';
       if(e.message === 'ACCESS_DENIED'){
         toast('Доступ не выдан. Откройте настройки биометрии в Telegram');
         $('openBioSettingsBtn').style.display = 'block';
@@ -1962,14 +1974,25 @@ function renderCards(){
     });
   }
   if(!cards.length){ list.innerHTML='<div class="empty">Здесь пока ничего нет</div>'; return; }
-  cards.sort((a,b)=>(b.updated||0)-(a.updated||0));
+
+  if(sortMode === 'alpha'){
+    cards.sort((a,b) => (a.title||'').localeCompare(b.title||'', 'ru'));
+  } else if(sortMode === 'date'){
+    cards.sort((a,b)=>(b.updated||0)-(a.updated||0));
+  } else if(sortMode === 'manual'){
+    cards.sort((a,b) => (manualOrder[a.id]||0) - (manualOrder[b.id]||0));
+  }
+
   const group = document.createElement('div'); group.className = 'cards-group';
   cards.forEach(c=>{
     const f = vault.folders.find(x=>x.id===c.folderId);
     const d = document.createElement('div'); d.className='card-item';
+    if(sortMode === 'manual'){ d.dataset.cardId = c.id; }
     const iconHtml = c.customIcon ? `<img src="${c.customIcon}">` : esc(c.icon||'📄');
     const favMark = c.favorite ? '<span class="card-fav">★</span>' : '';
+    const dragHandle = sortMode === 'manual' ? '<span style="color:var(--hint);font-size:20px;padding:0 4px;cursor:grab">≡</span>' : '';
     d.innerHTML = `
+      ${dragHandle}
       <div class="card-icon">${iconHtml}</div>
       <div class="card-body">
         <div class="card-title">${esc(c.title)} ${favMark}</div>
@@ -1980,7 +2003,97 @@ function renderCards(){
     group.appendChild(d);
   });
   list.appendChild(group);
+
+  if(sortMode === 'manual'){ bindManualSort(); }
 }
+
+function bindManualSort(){
+  const items = [...$('cardsList').querySelectorAll('.card-item[data-card-id]')];
+  items.forEach(item => {
+    let pressTimer = null;
+    let dragging = false;
+    let startY = 0, startIdx = 0;
+
+    const startPress = (e) => {
+      if(e.target.closest('.card-chevron')) return;
+      pressTimer = setTimeout(() => {
+        dragging = true;
+        item.style.opacity = '0.5';
+        item.style.background = 'var(--ios-fill)';
+        if(navigator.vibrate) navigator.vibrate(20);
+        toast('Ведите палец вверх/вниз, чтобы переместить');
+        const touch = e.touches ? e.touches[0] : e;
+        startY = touch.clientY;
+        startIdx = items.indexOf(item);
+        document.addEventListener('touchmove', onMove, {passive:false});
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('touchend', onEnd);
+        document.addEventListener('mouseup', onEnd);
+      }, 500);
+    };
+
+    const cancelPress = () => { clearTimeout(pressTimer); pressTimer = null; };
+
+    const onMove = (e) => {
+      if(!dragging) return;
+      e.preventDefault();
+      const touch = e.touches ? e.touches[0] : e;
+      const delta = touch.clientY - startY;
+      const step = item.offsetHeight;
+      const shift = Math.round(delta / step);
+      const newIdx = Math.max(0, Math.min(items.length - 1, startIdx + shift));
+      if(newIdx !== startIdx){
+        const target = items[newIdx];
+        if(shift > 0) target.after(item); else target.before(item);
+      }
+    };
+
+    const onEnd = () => {
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('touchend', onEnd);
+      document.removeEventListener('mouseup', onEnd);
+      if(dragging){
+        item.style.opacity = '';
+        item.style.background = '';
+        dragging = false;
+        saveManualOrder();
+      }
+    };
+
+    item.addEventListener('touchstart', startPress, {passive:true});
+    item.addEventListener('mousedown', startPress);
+    item.addEventListener('touchend', cancelPress);
+    item.addEventListener('mouseup', cancelPress);
+    item.addEventListener('mouseleave', cancelPress);
+    item.addEventListener('click', (e) => { if(dragging){ e.preventDefault(); e.stopPropagation(); } }, true);
+  });
+}
+
+function saveManualOrder(){
+  const items = [...$('cardsList').querySelectorAll('.card-item[data-card-id]')];
+  const visible = items.map(i => i.dataset.cardId);
+  visible.forEach((id, idx) => { manualOrder[id] = idx; });
+  vault.settings.manualOrder = manualOrder;
+  saveConf();
+  toast('Порядок сохранён');
+}
+
+function cycleSortMode(){
+  const modes = ['alpha','date','manual'];
+  const labels = { alpha:'🔤 А→Я', date:'🕐 Новые', manual:'✋ Ручная' };
+  const tips = {
+    alpha:'Сортировка по алфавиту',
+    date:'Сначала недавно изменённые',
+    manual:'Долгое нажатие на карточку — и перетаскивайте'
+  };
+  const i = modes.indexOf(sortMode);
+  sortMode = modes[(i+1) % modes.length];
+  $('sortBtn').textContent = labels[sortMode];
+  toast(tips[sortMode]);
+  renderCards();
+}
+
 function openFolders(){ renderFoldersList(); show('foldersScreen'); }
 function renderFoldersList(){
   const box = $('foldersList'); box.innerHTML='';
@@ -2460,6 +2573,7 @@ async function doRestore(){
   cryptoKey = key;
   vault.folders = conf.folders || [];
   vault.settings = conf.settings || { autoLock: 60, clipClear: true };
+  if(vault.settings.manualOrder){ manualOrder = vault.settings.manualOrder; }
   vault.cards = [];
   for(const encCard of (backup.cards||[])){
     try { const c = await decryptJSON(key, encCard); const nc = normalizeCard(c); if(nc) vault.cards.push(nc); } catch(e){}
@@ -2630,6 +2744,7 @@ $('patternSwitchToPinBtn').onclick = () => {
   patternMode = null;
   patternFailCount = 0;
   pendingPattern = null;
+  resetPatternSequence();
   show('lockScreen');
 };
 $('lockBtn').onclick = lockNow;
@@ -2691,6 +2806,7 @@ $('warnConfirmBtn').onclick = () => closeWarning(true);
 $('patternToggle').onchange = onPatternToggle;
 $('bioToggle').onchange = onBioToggle;
 $('openBioSettingsBtn').onclick = openBioSettings;
+$('sortBtn').onclick = cycleSortMode;
 $('addCardBtn').onclick = ()=>{ pendingTemplate = null; renderTemplates(); show('tplScreen'); };
 $('tplBack').onclick = ()=>show('vaultScreen');
 $('saveCardBtn').onclick = saveCard;
