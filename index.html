@@ -557,7 +557,6 @@
   <p class="lock-subtitle">Ваш менеджер паролей</p>
   <div id="pinDots"></div>
   <div id="pinPad"></div>
-  <div id="pinPad"></div>
   <button id="pinSubmitBtn">Открыть</button>
   <div id="pinError"></div>
   <div class="alt-auth-row" id="altAuthRow"></div>
@@ -3177,7 +3176,246 @@ async function startImport(){
     importBusy = false;
     $('importStartBtn').disabled = false;
   }
-}// ============ Настройки ============
+}
+
+// ============ ПРОСМОТР / РЕДАКТОР ============
+function viewCard(id){
+  const c = vault.cards.find(x=>x.id===id); if(!c) return;
+  $('viewTitle').textContent = c.title;
+  updateNavTitle('Карточка');
+  const iconEl = $('viewIcon');
+  if(c.customIcon){
+    iconEl.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = c.customIcon;
+    img.style.cssText = 'width:28px;height:28px;border-radius:8px;vertical-align:middle';
+    iconEl.appendChild(img);
+  } else { iconEl.textContent = c.icon || '📄'; }
+  $('favBtn').textContent = c.favorite ? '⭐' : '☆';
+  $('viewUpdated').textContent = c.updated ? 'Обновлено ' + timeAgo(c.updated) : '';
+  const box = $('viewFields'); box.innerHTML='';
+  (c.fields||[]).forEach(f=>{
+    if(!f.value) return;
+    const isPass = isPasswordField(f.name);
+    const div = document.createElement('div'); div.className = 'view-field';
+    div.innerHTML = `
+      <div class="view-field-label">${esc(f.name)}</div>
+      <div class="view-field-value ${isPass?'mono':''}" id="val-${f.id}">
+        ${isPass?'••••••••':esc(f.value)}
+      </div>
+      <div class="view-field-actions">
+        ${isPass?`<button class="viewBtn" data-action="toggle" data-fid="${f.id}">👁</button>`:''}
+        <button class="viewBtn" data-action="copy" data-val="${esc(f.value)}">📋</button>
+      </div>`;
+    box.appendChild(div);
+  });
+  box.querySelectorAll('.viewBtn').forEach(btn=>{
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const act = btn.dataset.action;
+      if(act === 'toggle'){
+        const el = $('val-' + btn.dataset.fid);
+        if(!el) return;
+        const f = (c.fields||[]).find(x => x.id === btn.dataset.fid);
+        if(!f) return;
+        el.textContent = el.textContent.includes('•') ? f.value : '••••••••';
+      } else if(act === 'copy'){ copyToClipboard(btn.dataset.val); }
+    };
+  });
+  $('editBtn').onclick = ()=>openEditor(id);
+  $('shareBtn').onclick = ()=>{
+    const txt = `${c.title}\n` + (c.fields||[]).map(f=>`${f.name}: ${f.value}`).join('\n');
+    try {
+      if(navigator.share){
+        const p = navigator.share({text:txt});
+        if(p && typeof p.catch === 'function') p.catch(()=>{});
+      } else {
+        navigator.clipboard.writeText(txt).then(()=>toast('Скопировано')).catch(()=>toast('Не удалось'));
+      }
+    } catch(e){
+      navigator.clipboard.writeText(txt).then(()=>toast('Скопировано')).catch(()=>toast('Не удалось'));
+    }
+  };
+  $('favBtn').onclick = async ()=>{
+    c.favorite = !c.favorite;
+    const ok = await saveCardStorage(c);
+    if(!ok){ c.favorite = !c.favorite; return; }
+    $('favBtn').textContent = c.favorite ? '⭐' : '☆';
+    toast(c.favorite ? 'В избранном' : 'Убрано из избранного');
+  };
+  show('viewScreen'); resetLockTimer();
+}
+async function copyToClipboard(v){
+  try {
+    await navigator.clipboard.writeText(v);
+    if(vault.settings.clipClear){
+      toast('Скопировано · буфер очистится');
+      clearTimeout(clipboardTimer);
+      clipboardTimer = setTimeout(async ()=>{
+        try { await navigator.clipboard.writeText('[Сейф+: буфер очищен]'); } catch(e){}
+      }, 30000);
+    } else { toast('Скопировано'); }
+  } catch(e){ toast('Не удалось скопировать'); }
+}
+function openEditor(id){
+  editingId = id||null;
+  const c = id ? vault.cards.find(x=>x.id===id) : null;
+  $('editTitle').textContent = id ? 'Редактирование' : (pendingTemplate ? pendingTemplate.name : 'Новая карточка');
+  updateNavTitle(id ? 'Редактирование' : 'Новая карточка');
+  $('cardTitle').value = c ? c.title : '';
+  editingCardIcon = {
+    icon: c ? (c.icon || '📄') : (pendingTemplate ? pendingTemplate.icon : '📄'),
+    customIcon: c ? (c.customIcon || null) : null
+  };
+  updateIconPreview();
+  const sel = $('cardFolder'); sel.innerHTML='';
+  const rootOpt = document.createElement('option'); rootOpt.value = ''; rootOpt.textContent = '— Без папки —';
+  sel.appendChild(rootOpt);
+  vault.folders.forEach(f=>{
+    const o = document.createElement('option'); o.value=f.id;
+    o.textContent = `${f.icon} ${f.name}`;
+    if(c && c.folderId===f.id) o.selected=true;
+    else if(!c && currentFolderId && f.id===currentFolderId) o.selected=true;
+    sel.appendChild(o);
+  });
+  const box = $('fieldsContainer'); box.innerHTML='';
+  if(c && c.fields){ c.fields.forEach(f=>addFieldRow(f.name, f.value, f.id)); }
+  else if(pendingTemplate){ pendingTemplate.fields.forEach(name=>addFieldRow(name,'',uid())); }
+  else { addFieldRow('Логин','',uid()); addFieldRow('Пароль','',uid()); addFieldRow('Заметка','',uid()); }
+  $('deleteCardBtn').style.display = id ? 'block' : 'none';
+  show('editScreen');
+}
+function updateIconPreview(){
+  const el = $('iconPreview');
+  if(editingCardIcon.customIcon){
+    el.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = editingCardIcon.customIcon;
+    el.appendChild(img);
+  } else { el.innerHTML = ''; el.textContent = editingCardIcon.icon || '📄'; }
+}
+function addFieldRow(name='', value='', id=uid()){
+  const box = $('fieldsContainer');
+  const wrap = document.createElement('div'); wrap.className = 'field-wrap'; wrap.dataset.id = id;
+  const row = document.createElement('div'); row.className = 'field-row';
+  row.innerHTML = `
+    <input placeholder="Название" value="${esc(name)}" class="fName">
+    <input placeholder="Значение" value="${esc(value)}" class="fValue">
+    <button type="button" class="genBtn" title="Сгенерировать" style="display:none">🎲</button>
+    <button type="button" class="delBtn">✕</button>`;
+  wrap.appendChild(row);
+  const bar = document.createElement('div'); bar.className = 'pwd-bar'; bar.style.display = 'none';
+  bar.innerHTML = `<div class="pwd-fill"></div>`;
+  wrap.appendChild(bar);
+  const nameInput = row.querySelector('.fName');
+  const valInput = row.querySelector('.fValue');
+  const genBtn = row.querySelector('.genBtn');
+  const fill = bar.querySelector('.pwd-fill');
+  const updateBar = () => {
+    const s = scorePassword(valInput.value);
+    fill.style.width = (s/6*100) + '%';
+    fill.style.background = s <= 2 ? 'var(--ios-red)' : s <= 4 ? 'var(--ios-orange)' : 'var(--ios-green)';
+  };
+  const checkFieldType = () => {
+    if(isPasswordField(nameInput.value)){ genBtn.style.display = ''; bar.style.display = ''; updateBar(); }
+    else { genBtn.style.display = 'none'; bar.style.display = 'none'; }
+  };
+  nameInput.addEventListener('input', checkFieldType);
+  valInput.addEventListener('input', () => { if(bar.style.display !== 'none') updateBar(); });
+  genBtn.onclick = () => { valInput.value = genPassword(16); updateBar(); };
+  row.querySelector('.delBtn').onclick = () => wrap.remove();
+  box.appendChild(wrap);
+  checkFieldType();
+}
+async function saveCard(){
+  const title = $('cardTitle').value.trim(); if(!title){ toast('Введите название'); return; }
+  const fields = [...$('fieldsContainer').querySelectorAll('.field-wrap')].map(w=>({
+    id: w.dataset.id,
+    name: w.querySelector('.fName').value,
+    value: w.querySelector('.fValue').value
+  })).filter(f=>f.name||f.value);
+  const existing = editingId ? vault.cards.find(x=>x.id===editingId) : null;
+  const folderId = $('cardFolder').value || null;
+  const cardData = {
+    id: existing ? existing.id : uid('c_'),
+    title,
+    folderId,
+    icon: editingCardIcon.customIcon ? '📄' : (editingCardIcon.icon || '📄'),
+    customIcon: editingCardIcon.customIcon || null,
+    fields,
+    favorite: existing ? (existing.favorite || false) : false,
+    updated: Date.now()
+  };
+  if(existing && existing._pid) cardData._pid = existing._pid;
+  const ok = await saveCardStorage(cardData);
+  if(!ok) return;
+  if(existing){ const i = vault.cards.findIndex(x=>x.id===editingId); vault.cards[i] = cardData; }
+  else { vault.cards.push(cardData); }
+  pendingTemplate = null;
+  await checkAndPackIfNeeded();
+  updateNavTitle('Сейф+');
+  renderMainList();
+  show('vaultScreen');
+  toast('Сохранено');
+}
+async function deleteCard(){
+  if(!editingId) return;
+  if(!(await checkTrashLimitBeforeAdd())) return;
+  if(!confirm('Переместить карточку в корзину? Восстановить можно из корзины.')) return;
+  const card = vault.cards.find(x => x.id === editingId);
+  if(!card) return;
+  const ok = await moveCardToTrash(card);
+  if(!ok) return;
+  updateNavTitle('Сейф+');
+  renderMainList();
+  show('vaultScreen');
+  toast('Перемещено в корзину');
+}
+function openIconPicker(){
+  $('removePhotoBtn').style.display = editingCardIcon.customIcon ? 'block' : 'none';
+  renderIconGrid('cardIconGrid', editingCardIcon.customIcon ? null : editingCardIcon.icon, (ic) => {
+    editingCardIcon.icon = ic;
+    editingCardIcon.customIcon = null;
+    updateIconPreview();
+    $('removePhotoBtn').style.display = 'none';
+  });
+  show('iconScreen');
+}
+function setupPhotoUpload(){
+  $('uploadPhotoBtn').onclick = () => $('photoInput').click();
+  $('photoInput').onchange = (e) => {
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const size = 48;
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const scale = Math.max(size/img.width, size/img.height);
+        const w = img.width*scale, h = img.height*scale;
+        ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+        editingCardIcon.customIcon = dataUrl;
+        updateIconPreview();
+        toast('Фото добавлено');
+        $('removePhotoBtn').style.display = 'block';
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+  $('removePhotoBtn').onclick = () => {
+    editingCardIcon.customIcon = null;
+    updateIconPreview();
+    $('removePhotoBtn').style.display = 'none';
+    toast('Фото удалено');
+  };
+}
+
+// ============ Настройки ============
 async function openSettings(){
   $('autoLockInput').value = vault.settings.autoLock || 60;
   $('clipClearChk').checked = vault.settings.clipClear !== false;
