@@ -16,28 +16,29 @@
     --ios-label: #14141F;
     --ios-label-secondary: rgba(20,20,35,0.58);
     --ios-label-tertiary: rgba(20,20,35,0.32);
-    --ios-blue: #6656F5;
     --ios-green: #17C787;
     --ios-red: #FF4D5E;
     --ios-orange: #FF9F43;
     --ios-yellow: #FFC93C;
     --ios-purple: #A374FF;
-    --ios-fill: rgba(102,86,245,0.08);
-    --ios-fill-secondary: rgba(102,86,245,0.15);
-    --ios-fill-tertiary: rgba(102,86,245,0.055);
     --ios-radius-s: 10px; --ios-radius-m: 14px; --ios-radius-l: 20px;
     --ios-radius-xl: 26px; --ios-radius-2xl: 30px;
     --ios-shadow-s: 0 1px 3px rgba(20,16,50,0.06), 0 0 1px rgba(20,16,50,0.06);
     --ios-shadow-m: 0 10px 28px rgba(30,24,70,0.10), 0 2px 6px rgba(30,24,70,0.06);
     --ios-shadow-l: 0 24px 56px rgba(24,18,60,0.24);
     --ios-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', Roboto, system-ui, sans-serif;
-    --accent-grad-1: #6656F5;
-    --accent-grad-2: #8B6CF7;
-    --accent-shadow: rgba(102,86,245,0.35);
-    --lock-bg-1: #ECEAFE;
-    --lock-bg-2: #F3F4FC;
-    --lock-bg-3: #E1DEFB;
     --nav-bg-rgba: rgba(255,255,255,0.78);
+    /* ===== Акцентная тема (по умолчанию — «Серая», исходная спокойная палитра) ===== */
+    --ios-blue: #5A5F66;
+    --ios-fill: rgba(120,120,128,0.14);
+    --ios-fill-secondary: rgba(120,120,128,0.22);
+    --ios-fill-tertiary: rgba(118,118,128,0.07);
+    --accent-grad-1: #6B7077;
+    --accent-grad-2: #3A3E43;
+    --accent-shadow: rgba(58,62,67,0.3);
+    --lock-bg-1: #F5F6F8;
+    --lock-bg-2: #EFF0F2;
+    --lock-bg-3: #E1E3E6;
     --bg: var(--tg-theme-bg-color, var(--ios-bg));
     --text: var(--tg-theme-text-color, var(--ios-label));
     --hint: var(--tg-theme-hint-color, var(--ios-label-secondary));
@@ -45,24 +46,62 @@
     --btntext: var(--tg-theme-button-text-color, #FFFFFF);
     --danger: var(--ios-red);
   }
+  /* ===== Остальные цветовые темы («Оформление» в настройках) — светлый режим ===== */
+  :root[data-theme="purple"]{
+    --ios-blue: #6656F5; --ios-fill: rgba(102,86,245,0.08); --ios-fill-secondary: rgba(102,86,245,0.15);
+    --ios-fill-tertiary: rgba(102,86,245,0.055); --accent-grad-1: #6656F5; --accent-grad-2: #8B6CF7;
+    --accent-shadow: rgba(102,86,245,0.35); --lock-bg-1: #ECEAFE; --lock-bg-2: #F3F4FC; --lock-bg-3: #E1DEFB;
+  }
+  :root[data-theme="blue"]{
+    --ios-blue: #3D7FE0; --ios-fill: rgba(61,127,224,0.08); --ios-fill-secondary: rgba(61,127,224,0.15);
+    --ios-fill-tertiary: rgba(61,127,224,0.055); --accent-grad-1: #3D7FE0; --accent-grad-2: #5FA3F2;
+    --accent-shadow: rgba(61,127,224,0.32); --lock-bg-1: #E6F0FE; --lock-bg-2: #F1F6FD; --lock-bg-3: #D9E9FC;
+  }
+  :root[data-theme="green"]{
+    --ios-blue: #2FA88C; --ios-fill: rgba(47,168,140,0.08); --ios-fill-secondary: rgba(47,168,140,0.16);
+    --ios-fill-tertiary: rgba(47,168,140,0.055); --accent-grad-1: #2FA88C; --accent-grad-2: #4FC3A5;
+    --accent-shadow: rgba(47,168,140,0.3); --lock-bg-1: #E4F6F1; --lock-bg-2: #F0F9F6; --lock-bg-3: #D5F0E7;
+  }
+  :root[data-theme="peach"]{
+    --ios-blue: #E07A56; --ios-fill: rgba(224,122,86,0.09); --ios-fill-secondary: rgba(224,122,86,0.17);
+    --ios-fill-tertiary: rgba(224,122,86,0.06); --accent-grad-1: #E07A56; --accent-grad-2: #EF9C78;
+    --accent-shadow: rgba(224,122,86,0.32); --lock-bg-1: #FBEBE3; --lock-bg-2: #FCF3EE; --lock-bg-3: #F7DED0;
+  }
   @media (prefers-color-scheme: dark){
     :root{
       --ios-bg: #0A0A11; --ios-bg-elevated: #17171F; --ios-bg-grouped: #17171F;
       --ios-separator: rgba(255,255,255,0.09); --ios-label: #F6F6FC;
       --ios-label-secondary: rgba(246,246,252,0.62); --ios-label-tertiary: rgba(246,246,252,0.34);
-      --ios-fill: rgba(138,124,255,0.14); --ios-fill-secondary: rgba(138,124,255,0.24);
-      --ios-fill-tertiary: rgba(138,124,255,0.10);
-      --ios-blue: #8C7BFF;
       --ios-shadow-s: 0 1px 3px rgba(0,0,0,0.35);
       --ios-shadow-m: 0 10px 28px rgba(0,0,0,0.45);
       --ios-shadow-l: 0 24px 56px rgba(0,0,0,0.6);
-      --accent-grad-1: #7C6CFF;
-      --accent-grad-2: #A78BFA;
-      --accent-shadow: rgba(124,108,255,0.45);
-      --lock-bg-1: #171425;
-      --lock-bg-2: #0E0D16;
-      --lock-bg-3: #1E1A33;
       --nav-bg-rgba: rgba(23,23,31,0.78);
+      /* Серая (по умолчанию) — тёмный вариант */
+      --ios-blue: #A0A6AD;
+      --ios-fill: rgba(160,166,173,0.18); --ios-fill-secondary: rgba(160,166,173,0.28);
+      --ios-fill-tertiary: rgba(160,166,173,0.1);
+      --accent-grad-1: #8A8F97; --accent-grad-2: #5A5E64; --accent-shadow: rgba(160,166,173,0.3);
+      --lock-bg-1: #1C1C1E; --lock-bg-2: #131315; --lock-bg-3: #232326;
+    }
+    :root[data-theme="purple"]{
+      --ios-blue: #8C7BFF; --ios-fill: rgba(138,124,255,0.14); --ios-fill-secondary: rgba(138,124,255,0.24);
+      --ios-fill-tertiary: rgba(138,124,255,0.10); --accent-grad-1: #7C6CFF; --accent-grad-2: #A78BFA;
+      --accent-shadow: rgba(124,108,255,0.45); --lock-bg-1: #171425; --lock-bg-2: #0E0D16; --lock-bg-3: #1E1A33;
+    }
+    :root[data-theme="blue"]{
+      --ios-blue: #6FA8FF; --ios-fill: rgba(111,168,255,0.15); --ios-fill-secondary: rgba(111,168,255,0.25);
+      --ios-fill-tertiary: rgba(111,168,255,0.1); --accent-grad-1: #4A87E8; --accent-grad-2: #7CB0FF;
+      --accent-shadow: rgba(111,168,255,0.4); --lock-bg-1: #101B2C; --lock-bg-2: #0B131E; --lock-bg-3: #16263D;
+    }
+    :root[data-theme="green"]{
+      --ios-blue: #4FCBAE; --ios-fill: rgba(79,203,174,0.14); --ios-fill-secondary: rgba(79,203,174,0.24);
+      --ios-fill-tertiary: rgba(79,203,174,0.09); --accent-grad-1: #2FA88C; --accent-grad-2: #57D2B4;
+      --accent-shadow: rgba(79,203,174,0.38); --lock-bg-1: #0F2019; --lock-bg-2: #0A1512; --lock-bg-3: #16291F;
+    }
+    :root[data-theme="peach"]{
+      --ios-blue: #F0987C; --ios-fill: rgba(240,152,124,0.15); --ios-fill-secondary: rgba(240,152,124,0.25);
+      --ios-fill-tertiary: rgba(240,152,124,0.1); --accent-grad-1: #DE7C57; --accent-grad-2: #F2A585;
+      --accent-shadow: rgba(240,152,124,0.4); --lock-bg-1: #241611; --lock-bg-2: #180F0C; --lock-bg-3: #2E1C15;
     }
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -95,6 +134,7 @@
   #lockScreen.active{display:flex}
 
   .lock-title{
+    display:block;
     font-size:clamp(30px, 9vw, 42px);
     font-weight:800;
     letter-spacing:-1.6px;
@@ -326,6 +366,12 @@
   }
   .list-item:last-child{border-bottom:none}
   .list-item:active{background:var(--ios-fill-tertiary)}
+  .list-item.dragging{
+    background:var(--ios-bg-elevated);
+    box-shadow:0 16px 34px rgba(24,18,60,0.24);
+    border-radius:var(--ios-radius-m);
+    will-change:transform;
+  }
   .list-icon{
     width:42px;height:42px;border-radius:11px;
     background:var(--ios-fill);
@@ -596,6 +642,17 @@
   .btn-ico{display:inline-flex;vertical-align:-4px;margin-right:7px}
   .btn-ico svg{width:18px;height:18px}
   .act.fav-on{color:var(--ios-yellow)}
+
+  /* ===== Оформление: выбор цветовой темы ===== */
+  .theme-row{display:flex;gap:14px;padding:18px 16px;background:var(--ios-bg-grouped);
+    border-radius:var(--ios-radius-l);box-shadow:var(--ios-shadow-s);margin-bottom:8px;flex-wrap:wrap}
+  .theme-swatch{width:46px;height:46px;border-radius:50%;cursor:pointer;position:relative;flex-shrink:0;
+    box-shadow:0 3px 10px rgba(24,18,60,0.18), inset 0 1px 0 rgba(255,255,255,0.25);
+    border:2.5px solid transparent;transition:transform .15s cubic-bezier(.22,1,.36,1), border-color .15s;
+    display:flex;align-items:center;justify-content:center;color:#fff}
+  .theme-swatch:active{transform:scale(.88)}
+  .theme-swatch.active{border-color:var(--ios-label)}
+  .theme-swatch svg{width:18px;height:18px}
 </style>
 </head>
 <body>
@@ -805,6 +862,9 @@
   </div>
   <button id="saveSettingsBtn" class="sec" style="margin-top:16px">Сохранить</button>
 
+  <label style="margin-top:32px">Оформление</label>
+  <div class="theme-row" id="themeRow"></div>
+
   <label style="margin-top:32px">Способы входа</label>
   <div class="switch-group">
     <div class="switch-row">
@@ -988,6 +1048,7 @@ try { tg.ready(); } catch(e){}
 try { if (typeof tg.expand === 'function') tg.expand(); } catch(e){}
 
 const META_KEY        = 'safe_meta_v4';
+const THEME_KEY        = 'safe_theme_v1';
 const CONF_KEY        = 'safe_conf_v4';
 const INDEX_KEY       = 'safe_index_v4';
 const CARD_PREFIX     = 'safe_card_v4_';
@@ -1091,6 +1152,43 @@ const WEAK_PINS = ['0000','1111','2222','3333','4444','5555','6666','7777','8888
                    '1234','4321','0123','3210','1212','2121','1122','2211'];
 
 let cryptoKey = null;
+let currentTheme = 'gray';
+const THEMES = [
+  { id:'gray',   name:'Серая (исходная)', c1:'#6B7077', c2:'#3A3E43' },
+  { id:'purple', name:'Фиолетовая',        c1:'#6656F5', c2:'#8B6CF7' },
+  { id:'blue',   name:'Синяя',             c1:'#3D7FE0', c2:'#5FA3F2' },
+  { id:'green',  name:'Мятная',            c1:'#2FA88C', c2:'#4FC3A5' },
+  { id:'peach',  name:'Терракотовая',      c1:'#E07A56', c2:'#EF9C78' }
+];
+function applyTheme(id){
+  document.documentElement.setAttribute('data-theme', id || 'gray');
+}
+async function loadTheme(){
+  let id = 'gray';
+  try { const saved = await storeGet(THEME_KEY); if(saved) id = saved; } catch(e){}
+  applyTheme(id);
+  return id;
+}
+async function saveTheme(id){
+  currentTheme = id;
+  applyTheme(id);
+  renderThemeRow(id);
+  try { await storeSet(THEME_KEY, id); } catch(e){}
+}
+function renderThemeRow(activeId){
+  const box = $('themeRow');
+  if(!box) return;
+  box.innerHTML = '';
+  THEMES.forEach(t => {
+    const el = document.createElement('div');
+    el.className = 'theme-swatch' + (t.id === activeId ? ' active' : '');
+    el.style.background = 'linear-gradient(135deg,' + t.c1 + ' 0%,' + t.c2 + ' 100%)';
+    el.title = t.name;
+    if(t.id === activeId) el.innerHTML = svgWrap('<path d="M5 13l4 4L19 7"/>', 18, false);
+    el.onclick = () => saveTheme(t.id);
+    box.appendChild(el);
+  });
+}
 let vault = { folders: [], cards: [], trash: [], settings: { autoLock: 60, clipClear: true } };
 let storageMode = 'individual';
 let sortMode = 'alpha';
@@ -1754,25 +1852,34 @@ async function loadAllCards(){
   let corrupted = 0;
   if(index.packs.length > 0){
     storageMode = 'packed';
-    const cards = [];
-    for(const pk of index.packs){
-      const raw = await storeGet(pk);
-      if(!raw){ corrupted++; continue; }
+    // Раньше пакеты грузились строго по очереди (await в цикле) — каждый запрос
+    // к CloudStorage ждал предыдущий. Теперь запрашиваем все параллельно:
+    // общее время = время самого медленного запроса, а не сумма всех.
+    const results = await Promise.all(index.packs.map(async pk => {
       try {
+        const raw = await storeGet(pk);
+        if(!raw) return null;
         const arr = await decryptJSON(cryptoKey, JSON.parse(raw));
-        if(Array.isArray(arr)) arr.forEach(c => { c._pid = pk; cards.push(c); });
-      } catch(e){ corrupted++; }
-    }
+        return Array.isArray(arr) ? arr.map(c => { c._pid = pk; return c; }) : null;
+      } catch(e){ return null; }
+    }));
+    const cards = [];
+    results.forEach(r => { if(r) cards.push(...r); else corrupted++; });
     if(corrupted > 0) toast(`⚠️ Повреждено пакетов: ${corrupted}`);
     return normalizeCards(cards);
   }
   storageMode = 'individual';
+  // То же самое для обычного (непакованного) режима — раньше каждая карточка
+  // грузилась отдельным последовательным запросом, отсюда и долгая разблокировка.
+  const results = await Promise.all(index.cards.map(async ck => {
+    try {
+      const raw = await storeGet(ck);
+      if(!raw) return null;
+      return await decryptJSON(cryptoKey, JSON.parse(raw));
+    } catch(e){ return null; }
+  }));
   const cards = [];
-  for(const ck of index.cards){
-    const raw = await storeGet(ck);
-    if(!raw){ corrupted++; continue; }
-    try { cards.push(await decryptJSON(cryptoKey, JSON.parse(raw))); } catch(e){ corrupted++; }
-  }
+  results.forEach(r => { if(r) cards.push(r); else corrupted++; });
   if(corrupted > 0) toast(`⚠️ Повреждено карточек: ${corrupted}`);
   return normalizeCards(cards);
 }
@@ -2412,71 +2519,123 @@ function renderMainList(){
   }
 }
 
+// ============ Плавный Drag & Drop (общий движок для карточек и папок) ============
+// Вместо мгновенного "прыжка" DOM-узла: перетаскиваемый элемент плавно следует за пальцем
+// (transform: translateY), а соседи плавно "раздвигаются" transform-переходом. Реальный
+// порядок в DOM пересчитывается только один раз, в момент отпускания пальца — визуально
+// это происходит без единого скачка, т.к. финальные transform совпадают с новой раскладкой.
+function enableSmoothDrag(selector, onDrop){
+  const list = $('mainList');
+  const items = [...list.querySelectorAll(selector)];
+  if(!items.length) return;
+
+  items.forEach(item => {
+    let pressTimer = null;
+    let dragging = false;
+    let grabOffset = 0; // расстояние от пальца до верхнего края элемента (в координатах документа)
+
+    const startPress = (e) => {
+      const touch = e.touches ? e.touches[0] : e;
+      const y0 = touch.clientY;
+      pressTimer = setTimeout(() => startDrag(y0), 500);
+    };
+    const cancelPress = () => { clearTimeout(pressTimer); pressTimer = null; };
+
+    const startDrag = (clientY) => {
+      dragging = true;
+      grabOffset = (clientY + window.scrollY) - item.offsetTop;
+      if(navigator.vibrate) navigator.vibrate(20);
+      toast('Ведите палец вверх/вниз');
+      item.classList.add('dragging');
+      item.style.zIndex = '30';
+      item.style.transition = 'none';
+      document.addEventListener('touchmove', onMove, {passive:false});
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('touchend', onEnd);
+      document.addEventListener('mouseup', onEnd);
+    };
+
+    // Плавно "въезжает" соседний элемент на новую позицию (классический FLIP).
+    const flip = (el, oldTop) => {
+      const newTop = el.getBoundingClientRect().top;
+      const delta = oldTop - newTop;
+      if(!delta) return;
+      el.style.transition = 'none';
+      el.style.transform = `translateY(${delta}px)`;
+      void el.offsetHeight; // форсируем reflow, чтобы браузер зафиксировал стартовую точку
+      el.style.transition = 'transform .24s cubic-bezier(.22,1,.36,1)';
+      el.style.transform = '';
+    };
+
+    const onMove = (e) => {
+      if(!dragging) return;
+      e.preventDefault();
+      const touch = e.touches ? e.touches[0] : e;
+      const documentY = touch.clientY + window.scrollY;
+      const desiredTop = documentY - grabOffset;
+
+      // Ищем, перед каким соседом должен теперь оказаться перетаскиваемый элемент —
+      // используя РЕАЛЬНЫЕ (актуальные) позиции и высоты соседей, а не фиксированное число.
+      const siblings = [...list.querySelectorAll(selector)].filter(el => el !== item);
+      const desiredCenter = desiredTop + item.offsetHeight / 2;
+      let target = null;
+      for(const sib of siblings){
+        const sibCenter = sib.offsetTop + sib.offsetHeight / 2;
+        if(desiredCenter < sibCenter){ target = sib; break; }
+      }
+
+      const needsMove = target ? (item.nextElementSibling !== target) : (item.nextElementSibling !== null);
+      if(needsMove && siblings.length){
+        const before = new Map();
+        siblings.forEach(s => before.set(s, s.getBoundingClientRect().top));
+        const parent = siblings[0].parentElement;
+        if(target) target.before(item); else parent.appendChild(item);
+        siblings.forEach(s => flip(s, before.get(s)));
+        if(navigator.vibrate) navigator.vibrate(6);
+      }
+
+      // Перетаскиваемый элемент всегда пересчитывается от своей АКТУАЛЬНОЙ layout-позиции —
+      // поэтому даже сразу после перестановки в DOM визуального скачка не будет.
+      item.style.transform = `translateY(${desiredTop - item.offsetTop}px) scale(1.025)`;
+    };
+
+    const onEnd = () => {
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('touchend', onEnd);
+      document.removeEventListener('mouseup', onEnd);
+      if(!dragging) return;
+      const wasDragging = dragging;
+      dragging = false;
+
+      // Плавно "довозим" элемент в его финальную (уже верную) ячейку сетки.
+      item.style.transition = 'transform .24s cubic-bezier(.22,1,.36,1)';
+      item.style.transform = '';
+      setTimeout(() => {
+        item.classList.remove('dragging');
+        item.style.transition = '';
+        item.style.zIndex = '';
+      }, 240);
+
+      if(wasDragging) onDrop();
+    };
+
+    item.addEventListener('touchstart', startPress, {passive:true});
+    item.addEventListener('mousedown', startPress);
+    item.addEventListener('touchend', cancelPress);
+    item.addEventListener('mouseup', cancelPress);
+    item.addEventListener('mouseleave', cancelPress);
+    item.addEventListener('click', (e) => { if(item.classList.contains('dragging')){ e.preventDefault(); e.stopPropagation(); } }, true);
+  });
+}
+
 function bindManualSort(){
   const items = [...$('mainList').querySelectorAll('.list-item[data-card-id]')];
   if(!items.length) return;
   if(Object.keys(manualOrder).length === 0){
     items.forEach((it, i) => { manualOrder[it.dataset.cardId] = i + 1; });
   }
-  items.forEach(item => {
-    let pressTimer = null;
-    let dragging = false;
-    let startY = 0;
-
-    const startPress = (e) => {
-      pressTimer = setTimeout(() => {
-        dragging = true;
-        item.style.opacity = '0.5';
-        item.style.background = 'var(--ios-fill)';
-        if(navigator.vibrate) navigator.vibrate(20);
-        toast('Ведите палец вверх/вниз');
-        const touch = e.touches ? e.touches[0] : e;
-        startY = touch.clientY;
-        document.addEventListener('touchmove', onMove, {passive:false});
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('touchend', onEnd);
-        document.addEventListener('mouseup', onEnd);
-      }, 500);
-    };
-    const cancelPress = () => { clearTimeout(pressTimer); pressTimer = null; };
-    const onMove = (e) => {
-      if(!dragging) return;
-      e.preventDefault();
-      const touch = e.touches ? e.touches[0] : e;
-      const y = touch.clientY;
-      const all = [...$('mainList').querySelectorAll('.list-item[data-card-id]')];
-      let target = null;
-      for(const el of all){
-        if(el === item) continue;
-        const r = el.getBoundingClientRect();
-        if(y >= r.top && y <= r.bottom){ target = el; break; }
-      }
-      if(target){
-        const r = target.getBoundingClientRect();
-        const mid = r.top + r.height / 2;
-        if(y < mid) target.before(item);
-        else target.after(item);
-      }
-    };
-    const onEnd = () => {
-      document.removeEventListener('touchmove', onMove);
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('touchend', onEnd);
-      document.removeEventListener('mouseup', onEnd);
-      if(dragging){
-        item.style.opacity = '';
-        item.style.background = '';
-        dragging = false;
-        saveManualOrder();
-      }
-    };
-    item.addEventListener('touchstart', startPress, {passive:true});
-    item.addEventListener('mousedown', startPress);
-    item.addEventListener('touchend', cancelPress);
-    item.addEventListener('mouseup', cancelPress);
-    item.addEventListener('mouseleave', cancelPress);
-    item.addEventListener('click', (e) => { if(dragging){ e.preventDefault(); e.stopPropagation(); } }, true);
-  });
+  enableSmoothDrag('.list-item[data-card-id]', saveManualOrder);
 }
 
 async function saveManualOrder(){
@@ -2497,73 +2656,8 @@ async function saveManualOrder(){
 function bindFolderDrag(){
   const items = [...$('mainList').querySelectorAll('.list-item[data-folder-id]')];
   if(!items.length) return;
-
-  items.forEach(item => {
-    let pressTimer = null;
-    let dragging = false;
-    let startY = 0;
-
-    const startPress = (e) => {
-      if(!(manualModeActive && sortMode === 'manual')) return;
-      pressTimer = setTimeout(() => {
-        dragging = true;
-        item.style.opacity = '0.5';
-        item.style.background = 'var(--ios-fill)';
-        if(navigator.vibrate) navigator.vibrate(20);
-        toast('Ведите палец вверх/вниз');
-        const touch = e.touches ? e.touches[0] : e;
-        startY = touch.clientY;
-        document.addEventListener('touchmove', onMove, {passive:false});
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('touchend', onEnd);
-        document.addEventListener('mouseup', onEnd);
-      }, 500);
-    };
-
-    const cancelPress = () => { clearTimeout(pressTimer); pressTimer = null; };
-
-    const onMove = (e) => {
-      if(!dragging) return;
-      e.preventDefault();
-      const touch = e.touches ? e.touches[0] : e;
-      const y = touch.clientY;
-      const all = [...$('mainList').querySelectorAll('.list-item[data-folder-id]')];
-      let target = null;
-      for(const el of all){
-        if(el === item) continue;
-        const r = el.getBoundingClientRect();
-        if(y >= r.top && y <= r.bottom){ target = el; break; }
-      }
-      if(target){
-        const r = target.getBoundingClientRect();
-        const mid = r.top + r.height / 2;
-        if(y < mid) target.before(item);
-        else target.after(item);
-      }
-    };
-
-    const onEnd = () => {
-      document.removeEventListener('touchmove', onMove);
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('touchend', onEnd);
-      document.removeEventListener('mouseup', onEnd);
-      if(dragging){
-        item.style.opacity = '';
-        item.style.background = '';
-        dragging = false;
-        saveFolderOrder();
-      }
-    };
-
-    item.addEventListener('touchstart', startPress, {passive:true});
-    item.addEventListener('mousedown', startPress);
-    item.addEventListener('touchend', cancelPress);
-    item.addEventListener('mouseup', cancelPress);
-    item.addEventListener('mouseleave', cancelPress);
-    item.addEventListener('click', (e) => {
-      if(dragging){ e.preventDefault(); e.stopPropagation(); }
-    }, true);
-  });
+  if(!(manualModeActive && sortMode === 'manual')) return;
+  enableSmoothDrag('.list-item[data-folder-id]', saveFolderOrder);
 }
 
 async function saveFolderOrder(){
@@ -3550,6 +3644,7 @@ function setupPhotoUpload(){
 async function openSettings(){
   $('autoLockInput').value = vault.settings.autoLock || 60;
   $('clipClearChk').checked = vault.settings.clipClear !== false;
+  renderThemeRow(currentTheme);
   const hasPat = currentMeta && currentMeta.hasPattern;
   $('patternToggle').checked = !!hasPat;
   $('patternSub').textContent = hasPat ? 'Настроен' : 'Не настроен';
@@ -3802,6 +3897,7 @@ function renderFavList(){
 
 // ============ ИНИЦИАЛИЗАЦИЯ ============
 async function init(){
+  currentTheme = await loadTheme();
   buildPinPad(); renderPinDots(); renderTemplates(); setupPhotoUpload();
   updateSortLabel();
   updateTrashBadge();
