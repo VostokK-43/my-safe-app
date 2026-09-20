@@ -80,9 +80,13 @@
   }
   .screen{display:none;min-height:100vh;min-height:100dvh;
     padding:clamp(14px, 2.5vh, 24px) 20px max(20px, env(safe-area-inset-bottom));
-    animation:screenIn .28s cubic-bezier(.32,.72,0,1)}
+    animation:screenIn .38s cubic-bezier(.22,1,.36,1)}
   .screen.active{display:block}
-  @keyframes screenIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes screenIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+  @keyframes itemIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .item-in{animation:itemIn .42s cubic-bezier(.22,1,.36,1) both}
+  @keyframes rippleAnim{to{transform:scale(1);opacity:0}}
+  .ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.15;pointer-events:none;transform:scale(0);animation:rippleAnim .55s cubic-bezier(.22,1,.36,1)}
 
   #lockScreen{display:none;flex-direction:column;justify-content:center;align-items:stretch;
     min-height:100vh;min-height:100dvh;
@@ -193,7 +197,8 @@
   .dot.filled{
     background:radial-gradient(circle at 35% 30%, var(--accent-grad-2) 0%, var(--accent-grad-1) 100%);
     box-shadow:0 3px 10px var(--accent-shadow), inset 0 1px 0 rgba(255,255,255,0.3);
-    transform:scale(1.15);
+    transform:scale(1.2);
+    transition:background .2s cubic-bezier(.19,1.28,.42,.99), transform .32s cubic-bezier(.19,1.28,.42,.99), box-shadow .2s;
   }
 
   #pinPad{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(6px, 1.5vh, 12px);
@@ -364,6 +369,7 @@
     touch-action:none;
   }
   @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .sheet{animation-duration:.38s !important;animation-timing-function:cubic-bezier(.19,1.28,.42,.99) !important}
   .sheet-handle{width:38px;height:5px;border-radius:3px;background:var(--ios-fill-secondary);
     margin:0 auto 8px;touch-action:none;cursor:grab}
   .sheet-title{
@@ -491,12 +497,12 @@
     box-shadow:inset 0 0 0 1px var(--ios-separator)}
 
   .toast{position:fixed;bottom:max(32px, env(safe-area-inset-bottom));left:50%;
-    transform:translateX(-50%) translateY(8px);background:rgba(0,0,0,.85);
+    transform:translateX(-50%) translateY(14px) scale(.92);background:rgba(20,18,35,.92);
     backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);color:#fff;padding:12px 20px;
     border-radius:14px;font-size:15px;font-weight:700;letter-spacing:-0.3px;opacity:0;
-    transition:opacity .25s, transform .25s cubic-bezier(.32,.72,0,1);pointer-events:none;
+    transition:opacity .3s, transform .38s cubic-bezier(.19,1.28,.42,.99);pointer-events:none;
     z-index:9999;max-width:90%;text-align:center;box-shadow:var(--ios-shadow-m)}
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
 
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);
     -webkit-backdrop-filter:blur(8px);z-index:9998;display:flex;align-items:center;justify-content:center;
@@ -504,8 +510,8 @@
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   .modal-box{background:var(--ios-bg-elevated);color:var(--text);padding:24px;
     border-radius:var(--ios-radius-2xl);max-width:340px;width:100%;box-shadow:var(--ios-shadow-l);
-    animation:modalIn .32s cubic-bezier(.32,.72,0,1)}
-  @keyframes modalIn{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    animation:modalIn .42s cubic-bezier(.19,1.28,.42,.99)}
+  @keyframes modalIn{from{opacity:0;transform:scale(.85) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}
   .modal-box h2{margin:0 0 12px;font-size:20px;font-weight:800;letter-spacing:-0.6px;
     display:flex;align-items:center;gap:10px}
   .modal-box p{margin:0 0 16px;font-size:14px;line-height:1.5;color:var(--hint);letter-spacing:-0.2px;font-weight:600}
@@ -563,8 +569,33 @@
   .wizard-note{text-align:center;font-size:12px;color:var(--hint);margin:16px 4px 0;line-height:1.5;font-weight:600}
 
   .trash-restore-btn{width:auto;margin:0;padding:8px 14px;font-size:14px;border-radius:18px;
-    background:var(--ios-fill);color:var(--ios-blue);box-shadow:none;font-weight:700}
+    background:var(--ios-fill);color:var(--ios-blue);box-shadow:none;font-weight:700;
+    display:inline-flex;align-items:center;gap:5px}
   .trash-restore-btn:active{background:var(--ios-fill-secondary);transform:scale(.95)}
+  .trash-restore-btn svg{width:14px;height:14px;flex-shrink:0}
+
+  /* ===== Icon system ===== */
+  .list-icon{color:var(--ios-blue)}
+  .list-icon svg{width:22px;height:22px}
+  .icon-preview{color:var(--ios-blue)}
+  .icon-preview svg{width:32px;height:32px}
+  .tpl-btn{color:var(--ios-blue)}
+  .tpl-btn .ico svg{width:28px;height:28px}
+  .icon-pick{color:var(--ios-label-secondary)}
+  .icon-pick svg{width:22px;height:22px}
+  .icon-pick.sel{color:var(--ios-blue)}
+  .folder-name .ico svg{width:20px;height:20px;display:block}
+  .switch-row .sr-label .ico svg{width:20px;height:20px;display:block}
+  .wizard-opt .opt-icon svg{width:26px;height:26px}
+  .wizard-icon svg{width:46px;height:46px;color:var(--ios-blue)}
+  .nav-icon svg{width:21px;height:21px;display:block}
+  .sheet-item .ico svg{width:20px;height:20px;display:block}
+  .dropdown-item svg{width:18px;height:18px;flex-shrink:0}
+  .view-field-actions button svg{width:16px;height:16px}
+  .field-row button svg{width:16px;height:16px}
+  .btn-ico{display:inline-flex;vertical-align:-4px;margin-right:7px}
+  .btn-ico svg{width:18px;height:18px}
+  .act.fav-on{color:var(--ios-yellow)}
 </style>
 </head>
 <body>
@@ -595,13 +626,13 @@
 <div id="wizardScreen" class="screen">
   <div class="wizard-wrap">
     <div class="wizard-header">
-      <span class="wizard-icon">🔐</span>
+      <span class="wizard-icon"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.4"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
       <h2 class="wizard-title">Дополнительные способы входа</h2>
       <p class="wizard-text">Можно выбрать оба, один или пропустить — настроите позже в Настройках.</p>
     </div>
     <div class="wizard-opts">
       <div class="wizard-opt" id="wizPatternOpt">
-        <div class="opt-icon">🔷</div>
+        <div class="opt-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="5" cy="19" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="19" r="1.6" fill="currentColor" stroke="none"/></svg></div>
         <div class="opt-body">
           <div class="opt-title">Графический ключ</div>
           <div class="opt-desc" id="wizPatternDesc">Соединяйте точки пальцем на экране</div>
@@ -609,7 +640,7 @@
         <button class="opt-action" id="wizPatternBtn">Настроить</button>
       </div>
       <div class="wizard-opt" id="wizBioOpt">
-        <div class="opt-icon">👆</div>
+        <div class="opt-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3 0-5.2 2-5.2 5v1"/><path d="M17.2 9V8c0-2.2-1.5-3.6-3-3.6"/><path d="M7 9v1c0 4.4-1 7-3 8"/><path d="M17 9v1c0 4.4 1 6.4 2 7.4"/><path d="M10 20.5c1-1.2 1-3 1-6v-2"/><path d="M13 20.5c1.2-1.3 1.2-5 1.2-8V11"/></svg></div>
         <div class="opt-body">
           <div class="opt-title">Отпечаток / Face ID</div>
           <div class="opt-desc" id="wizBioDesc">Вход одним касанием</div>
@@ -627,14 +658,14 @@
 <div id="vaultScreen" class="screen">
   <div class="top-nav">
     <div class="nav-left">
-      <span class="nav-icon left" id="navBackBtn" title="Назад">‹</span>
+      <span class="nav-icon left" id="navBackBtn" title="Назад"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span>
       <span class="nav-title" id="navTitle">Сейф+</span>
     </div>
     <div class="nav-right">
-      <span class="nav-icon" id="navFavBtn" title="Избранное">♡</span>
-      <span class="nav-icon" id="navAddBtn" title="Добавить">+</span>
-      <span class="nav-icon" id="navSearchBtn" title="Поиск">🔍</span>
-      <span class="nav-icon" id="navMenuBtn" title="Меню">☰</span>
+      <span class="nav-icon" id="navFavBtn" title="Избранное"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 5c-2.5 4.6-9.5 9-9.5 9z"/></svg></span>
+      <span class="nav-icon" id="navAddBtn" title="Добавить"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
+      <span class="nav-icon" id="navSearchBtn" title="Поиск"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+      <span class="nav-icon" id="navMenuBtn" title="Меню"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
     </div>
   </div>
 
@@ -648,21 +679,21 @@
 <div id="addMenu" class="modal-overlay" style="display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
   <div class="sheet" id="addSheet" style="touch-action:none">
     <div class="sheet-handle"></div>
-    <div class="sheet-item" id="menuCreateFolder"><span class="ico">📁</span>Создать папку</div>
-    <div class="sheet-item" id="menuCreateCard"><span class="ico">📝</span>Создать карточку</div>
-    <div class="sheet-item" id="menuImportFile"><span class="ico">📎</span>Вставить файл(ы)</div>
-    <div class="sheet-item" id="menuImportFolder"><span class="ico">📂</span>Вставить папку</div>
-    <div class="sheet-item" id="menuCamera"><span class="ico">📷</span>Снимок с камеры</div>
+    <div class="sheet-item" id="menuCreateFolder"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M12 11v4M10 13h4"/></svg></span>Создать папку</div>
+    <div class="sheet-item" id="menuCreateCard"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M8 13h8M8 17h5"/></svg></span>Создать карточку</div>
+    <div class="sheet-item" id="menuImportFile"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.5V6a3 3 0 0 0-3-3H9L4 8v10a3 3 0 0 0 3 3h4"/><path d="M9 3v5H4"/><path d="M17 14v4M15 16h4"/></svg></span>Вставить файл(ы)</div>
+    <div class="sheet-item" id="menuImportFolder"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M9 13h6M13 10l3 3-3 3"/></svg></span>Вставить папку</div>
+    <div class="sheet-item" id="menuCamera"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-3h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></svg></span>Снимок с камеры</div>
     <div class="sheet-item" id="addMenuCancel" style="justify-content:center;color:var(--ios-blue);font-weight:700">Отмена</div>
   </div>
 </div>
 
 <div id="mainMenu" class="modal-overlay" style="display:none;align-items:flex-start;justify-content:flex-end;padding:20px;background:rgba(0,0,0,0.25)">
   <div class="dropdown">
-    <div class="dropdown-item" id="menuSettings"><span>⚙️</span>Настройки</div>
-    <div class="dropdown-item" id="menuSort"><span>↕️</span><span id="menuSortLabel">Сортировка: А→Я</span></div>
-    <div class="dropdown-item" id="menuLock"><span>🔒</span>Заблокировать</div>
-    <div class="dropdown-item danger" id="menuExit"><span>🚪</span>Выйти</div>
+    <div class="dropdown-item" id="menuSettings"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>Настройки</div>
+    <div class="dropdown-item" id="menuSort"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v14M8 17l-3-3M8 17l3-3"/><path d="M16 21V7M16 7l3 3M16 7l-3 3"/></svg></span><span id="menuSortLabel">Сортировка: А→Я</span></div>
+    <div class="dropdown-item" id="menuLock"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.4"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>Заблокировать</div>
+    <div class="dropdown-item danger" id="menuExit"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="11" height="18" rx="1"/><circle cx="13" cy="12" r="1" fill="currentColor" stroke="none"/></svg></span>Выйти</div>
   </div>
 </div>
 
@@ -695,7 +726,7 @@
     <span class="back" id="viewBack">‹</span>
     <span id="viewIcon"></span>
     <span id="viewTitle" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-    <span class="act" id="favBtn">☆</span>
+    <span class="act" id="favBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3-5.6-3.3-5.6 3.3 1.4-6.3-4.8-4.3 6.4-.6z"/></svg></span>
   </h1>
   <div id="viewFields"></div>
   <p style="font-size:13px;color:var(--hint);text-align:center;margin:16px 0 20px;font-weight:600" id="viewUpdated"></p>
@@ -713,7 +744,7 @@
       <input id="cardTitle" placeholder="Название" style="margin-bottom:0;font-weight:700;font-size:17px">
     </div>
   </div>
-  <button id="iconPickBtn" class="sec" style="margin-bottom:16px">🖼 Выбрать иконку</button>
+  <button id="iconPickBtn" class="sec" style="margin-bottom:16px"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 17l5-5 4 4 3-3 4 4"/></svg></span>Выбрать иконку</button>
   <label>Папка</label>
   <select id="cardFolder" style="margin-bottom:20px"></select>
   <label>Поля</label>
@@ -725,7 +756,7 @@
 
 <div id="iconScreen" class="screen">
   <h1><span class="back" id="iconBack">‹</span> Иконка</h1>
-  <button id="uploadPhotoBtn" class="sec" style="margin-bottom:10px">📷 Загрузить фото</button>
+  <button id="uploadPhotoBtn" class="sec" style="margin-bottom:10px"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-3h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></svg></span>Загрузить фото</button>
   <input type="file" id="photoInput" accept="image/*" style="display:none">
   <button id="removePhotoBtn" class="sec danger" style="display:none;margin-bottom:20px">Удалить фото</button>
   <label>Эмодзи</label>
@@ -740,7 +771,7 @@
 
   <label>Выбрать файл</label>
   <input type="file" id="importFile" accept=".xml,text/xml,application/xml" style="display:none">
-  <button id="importPickFileBtn" class="sec">📎 Выбрать XML-файл</button>
+  <button id="importPickFileBtn" class="sec"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.5V6a3 3 0 0 0-3-3H9L4 8v10a3 3 0 0 0 3 3h4"/><path d="M9 3v5H4"/><path d="M17 14v4M15 16h4"/></svg></span>Выбрать XML-файл</button>
   <p class="status" id="importFileName">Файл не выбран</p>
 
   <label style="margin-top:24px">Или вставить текст XML</label>
@@ -751,7 +782,7 @@
     <label for="importClearChk" style="margin:0;font-size:15px;color:var(--text);text-transform:none;letter-spacing:-0.3px;line-height:1.35;font-weight:600">Сначала удалить все текущие карточки и папки</label>
   </div>
 
-  <button id="importStartBtn" style="margin-top:16px">📥 Импортировать</button>
+  <button id="importStartBtn" style="margin-top:16px"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg></span>Импортировать</button>
   <p class="status" id="importPreview"></p>
   <p class="status" id="importProgress" style="color:var(--ios-orange);font-weight:700"></p>
 </div>
@@ -760,7 +791,7 @@
   <h1><span class="back" id="trashBack">‹</span> Корзина</h1>
   <p class="info" id="trashInfo">Удалённые карточки и папки хранятся здесь. Восстановите нужное или очистите корзину.</p>
   <div id="trashList"></div>
-  <button id="trashClearBtn" class="danger" style="margin-top:20px">🗑 Очистить корзину</button>
+  <button id="trashClearBtn" class="danger" style="margin-top:20px"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/></svg></span>Очистить корзину</button>
 </div>
 
 <div id="settingsScreen" class="screen">
@@ -778,51 +809,51 @@
   <div class="switch-group">
     <div class="switch-row">
       <div>
-        <div class="sr-label"><span class="ico">🔢</span> PIN-код</div>
+        <div class="sr-label"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="9" cy="8" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="8" r="1" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="9" cy="16" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="16" r="1" fill="currentColor" stroke="none"/></svg></span> PIN-код</div>
         <div class="sr-sub">Основной способ, всегда включён</div>
       </div>
       <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
     </div>
     <div class="switch-row">
       <div>
-        <div class="sr-label"><span class="ico">🔷</span> Графический ключ</div>
+        <div class="sr-label"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="5" cy="19" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="19" r="1.6" fill="currentColor" stroke="none"/></svg></span> Графический ключ</div>
         <div class="sr-sub" id="patternSub">Не настроен</div>
       </div>
       <label class="switch"><input type="checkbox" id="patternToggle"><span class="slider"></span></label>
     </div>
     <div class="switch-row" id="bioSwitchRow">
       <div>
-        <div class="sr-label"><span class="ico">👆</span> <span id="bioLabel">Отпечаток / Face ID</span></div>
+        <div class="sr-label"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3 0-5.2 2-5.2 5v1"/><path d="M17.2 9V8c0-2.2-1.5-3.6-3-3.6"/><path d="M7 9v1c0 4.4-1 7-3 8"/><path d="M17 9v1c0 4.4 1 6.4 2 7.4"/><path d="M10 20.5c1-1.2 1-3 1-6v-2"/><path d="M13 20.5c1.2-1.3 1.2-5 1.2-8V11"/></svg></span> <span id="bioLabel">Отпечаток / Face ID</span></div>
         <div class="sr-sub" id="bioSub">Проверка...</div>
       </div>
       <label class="switch"><input type="checkbox" id="bioToggle"><span class="slider"></span></label>
     </div>
   </div>
-  <button id="openBioSettingsBtn" class="sec" style="margin-top:8px;display:none">⚙️ Открыть настройки биометрии</button>
+  <button id="openBioSettingsBtn" class="sec" style="margin-top:8px;display:none"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>Открыть настройки биометрии</button>
   <p class="status" style="margin-bottom:16px">⚠️ PIN-код забывать нельзя — он базовый способ доступа.</p>
 
   <label style="margin-top:16px">Восстановление доступа</label>
-  <button id="recoveryManageBtn" class="sec">🔑 Recovery Key</button>
+  <button id="recoveryManageBtn" class="sec"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="14.5" r="4"/><path d="M10.5 11.5 20 2M17 5l2 2M14 8l2 2"/></svg></span>Recovery Key</button>
   <p class="status" id="recoveryStatus">—</p>
 
   <label style="margin-top:32px">Резервное копирование</label>
-  <button id="backupBtn" class="sec">💾 Создать копию</button>
-  <button id="restoreBtn" class="sec">📥 Восстановить из копии</button>
+  <button id="backupBtn" class="sec"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v5h8V4"/><rect x="8" y="14" width="8" height="6"/></svg></span>Создать копию</button>
+  <button id="restoreBtn" class="sec"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg></span>Восстановить из копии</button>
   <p class="status" id="storageStatus">Хранилище: проверка...</p>
 
   <label style="margin-top:32px">Безопасность PIN</label>
-  <button id="changePinBtn" class="sec">🔐 Сменить PIN-код</button>
+  <button id="changePinBtn" class="sec"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.4"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15" r="1.5" fill="currentColor" stroke="none"/></svg></span>Сменить PIN-код</button>
 
   <label style="margin-top:32px">Импорт данных</label>
-  <button id="openImportBtn" class="sec">📥 Импорт из XML (SafeBox Pro)</button>
+  <button id="openImportBtn" class="sec"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg></span>Импорт из XML (SafeBox Pro)</button>
 
   <label style="margin-top:32px">Корзина</label>
-  <button id="openTrashBtn" class="sec">🗑 Корзина <span id="trashCountBadge" style="color:var(--hint);font-weight:600"></span></button>
+  <button id="openTrashBtn" class="sec"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/></svg></span>Корзина <span id="trashCountBadge" style="color:var(--hint);font-weight:600"></span></button>
   <p class="status" id="trashHint">Удалённые карточки и папки можно восстановить.</p>
 
   <label style="margin-top:32px">Опасная зона</label>
-  <button id="lockNowBtn" class="sec">🔒 Заблокировать</button>
-  <button id="resetBtn" class="danger">⚠️ Сбросить всё</button>
+  <button id="lockNowBtn" class="sec"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.4"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>Заблокировать</button>
+  <button id="resetBtn" class="danger"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 9v5"/><circle cx="12" cy="17" r="0.9" fill="currentColor" stroke="none"/></svg></span>Сбросить всё</button>
 </div>
 
 <div id="restoreScreen" class="screen">
@@ -832,7 +863,7 @@
   </p>
   <label>Строка копии</label>
   <textarea id="restoreText" placeholder="Вставьте сюда строку из Избранного"></textarea>
-  <button id="pasteBtn" class="sec">📋 Вставить из буфера</button>
+  <button id="pasteBtn" class="sec"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8"/><path d="M6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1z"/><path d="M9 10h6M9 14h6"/></svg></span>Вставить из буфера</button>
   <label>PIN-код от копии</label>
   <input id="restorePin" type="password" inputmode="numeric" placeholder="PIN" autocomplete="off">
   <button id="restoreConfirmBtn" style="margin-top:8px">Восстановить</button>
@@ -846,7 +877,7 @@
     С её помощью вы сможете восстановить доступ, если забудете PIN. Запишите её на бумаге или в отдельный менеджер паролей. Не храните её в Telegram.
   </p>
   <div class="rec-key" id="recoveryKeyDisplay">····</div>
-  <button id="copyRecoveryBtn" class="sec">📋 Скопировать</button>
+  <button id="copyRecoveryBtn" class="sec"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8"/><path d="M6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1z"/><path d="M9 10h6M9 14h6"/></svg></span>Скопировать</button>
   <div class="chk">
     <input type="checkbox" id="recoveryConfirmChk">
     <label for="recoveryConfirmChk" style="margin:0;font-size:15px;color:var(--text);text-transform:none;letter-spacing:-0.3px;line-height:1.35;font-weight:600">Я сохранил(а) Recovery Key в надёжном месте</label>
@@ -861,16 +892,16 @@
   <input id="recoveryInputField" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX"
     autocomplete="off" autocapitalize="characters" spellcheck="false"
     style="font-family:ui-monospace, 'SF Mono', Menlo, monospace;letter-spacing:1.5px;text-align:center;font-size:14px">
-  <button id="submitRecoveryBtn" style="margin-top:8px">🔓 Открыть</button>
+  <button id="submitRecoveryBtn" style="margin-top:8px"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.4"/><path d="M8 10V7a4 4 0 0 1 7-2.6"/></svg></span>Открыть</button>
   <p class="status" id="recoveryInputError" style="color:var(--ios-red);min-height:20px;text-align:center"></p>
   <p class="status" id="recoveryInputHelp" style="text-align:center"></p>
-  <button id="recoveryWipeBtn" class="danger" style="margin-top:24px">⚠️ Стереть и создать заново</button>
+  <button id="recoveryWipeBtn" class="danger" style="margin-top:24px"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 9v5"/><circle cx="12" cy="17" r="0.9" fill="currentColor" stroke="none"/></svg></span>Стереть и создать заново</button>
 </div>
 
 <div id="recoveryManageScreen" class="screen">
   <h1><span class="back" id="recoveryManageBack">‹</span> Recovery Key</h1>
   <p class="info" id="recoveryManageInfo"></p>
-  <button id="recoveryRegenBtn" style="display:none">🔑 Создать Recovery Key</button>
+  <button id="recoveryRegenBtn" style="display:none"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="14.5" r="4"/><path d="M10.5 11.5 20 2M17 5l2 2M14 8l2 2"/></svg></span>Создать Recovery Key</button>
   <p class="status">Recovery Key хранится в мета-данных хранилища и защищён вашим PIN.</p>
 </div>
 
@@ -898,7 +929,7 @@
     Создайте новый бэкап для новой копии.
   </p>
   <p class="status" id="changePinOldAuthInfo" style="text-align:center;margin-bottom:20px;line-height:1.5"></p>
-  <button id="changePinNewBackupBtn">💾 Создать новый бэкап</button>
+  <button id="changePinNewBackupBtn"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v5h8V4"/><rect x="8" y="14" width="8" height="6"/></svg></span>Создать новый бэкап</button>
   <button id="changePinDoneBtn" class="sec" style="margin-top:8px">Готово</button>
 </div>
 
@@ -915,9 +946,9 @@
   <div class="sheet" id="folderActionsSheet" style="touch-action:none">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="folderActionsTitle">Папка</div>
-    <div class="sheet-item" id="faDelete"><span class="ico">🗑</span>Удалить папку</div>
-    <div class="sheet-item" id="faRename"><span class="ico">✏️</span>Переименовать</div>
-    <div class="sheet-item" id="faSort"><span class="ico">↕️</span>Сортировка</div>
+    <div class="sheet-item" id="faDelete"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/></svg></span>Удалить папку</div>
+    <div class="sheet-item" id="faRename"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 10-10-3-3L5 16l-1 4z"/><path d="M14 6l3 3"/></svg></span>Переименовать</div>
+    <div class="sheet-item" id="faSort"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v14M8 17l-3-3M8 17l3-3"/><path d="M16 21V7M16 7l3 3M16 7l-3 3"/></svg></span>Сортировка</div>
     <div class="sheet-item" id="faCancel" style="justify-content:center;color:var(--ios-blue);font-weight:700">Отмена</div>
   </div>
 </div>
@@ -926,8 +957,8 @@
   <div class="sheet" id="sortSheet" style="touch-action:none">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Сортировка</div>
-    <div class="sheet-item" id="sortAlpha"><span class="ico">🔤</span>По алфавиту (А→Я)</div>
-    <div class="sheet-item" id="sortManual"><span class="ico">✋</span>Вручную (таскать пальцем)</div>
+    <div class="sheet-item" id="sortAlpha"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6M4 9h4M4 13h2"/><path d="M15 3v14M15 17l-3-3M15 17l3-3"/></svg></span>По алфавиту (А→Я)</div>
+    <div class="sheet-item" id="sortManual"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12V5a1.5 1.5 0 0 1 3 0v6M11 11V4a1.5 1.5 0 0 1 3 0v7M14 11.5V6a1.5 1.5 0 0 1 3 0v9c0 4-2.5 6.5-6 6.5S5 18.5 5 15v-3a1.5 1.5 0 0 1 3 0"/></svg></span>Вручную (таскать пальцем)</div>
     <div class="sheet-item" id="sortCancel" style="justify-content:center;color:var(--ios-blue);font-weight:700">Отмена</div>
   </div>
 </div>
@@ -976,6 +1007,85 @@ const DEFAULT_FOLDERS = [];
 const ICONS = ['📁','🌐','💳','🪪','📝','🏦','📧','📶','📱','🔑','₿','🎮','🎬','🎵',
                '🛒','💼','🏥','🚗','🏠','✈️','🎓','📚','⚙️','🔒','💰','🎁','☁️','🔧',
                '⭐','❤️','🎯','🏢','🛡️','🔐','🗝️','📊','🧾','📋','🎨'];
+
+// ============ SVG icon system (заменяет эмодзи на современные векторные иконки) ============
+const ICONS_SVG = {
+  '📁':'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>',
+  '🌐':'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.4 2.5 3.8 5.5 3.8 9s-1.4 6.5-3.8 9c-2.4-2.5-3.8-5.5-3.8-9s1.4-6.5 3.8-9z"/>',
+  '💳':'<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.2h18"/><path d="M7 15h4"/>',
+  '🪪':'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.6" cy="11" r="2"/><path d="M6 16c.5-1.5 1.8-2.4 2.6-2.4s2 .9 2.6 2.4"/><path d="M14 10h5M14 13h5M14 16h3"/>',
+  '📝':'<path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M8 13h8M8 17h5"/>',
+  '🏦':'<path d="M3 21h18"/><path d="M4 21V10M8 21V10M12 21V10M16 21V10M20 21V10"/><path d="M2 10l10-6 10 6"/>',
+  '📧':'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 6.5l9 6.5 9-6.5"/>',
+  '📶':'<path d="M2 8.5a16 16 0 0 1 20 0"/><path d="M5.5 12.5a11 11 0 0 1 13 0"/><path d="M9 16.5a6 6 0 0 1 6 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/>',
+  '📱':'<rect x="7" y="2" width="10" height="20" rx="2.2"/><path d="M11 18h2"/>',
+  '🔑':'<circle cx="7.5" cy="14.5" r="4"/><path d="M10.5 11.5 20 2M17 5l2 2M14 8l2 2"/>',
+  '₿':'<path d="M7 4v16M11 4v16"/><path d="M6 4h7a3.5 3.5 0 0 1 0 7H6M6 11h8a3.5 3.5 0 0 1 0 7H6"/>',
+  '🎮':'<rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 10v4M5 12h4"/><circle cx="16" cy="10.5" r="1" fill="currentColor" stroke="none"/><circle cx="18.5" cy="13" r="1" fill="currentColor" stroke="none"/>',
+  '🎬':'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 15h18M8 4v5M8 15v5M16 4v5M16 15v5"/>',
+  '🎵':'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+  '🛒':'<circle cx="9" cy="20" r="1.3" fill="currentColor" stroke="none"/><circle cx="18" cy="20" r="1.3" fill="currentColor" stroke="none"/><path d="M2 3h2l2.4 12.2a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H6"/>',
+  '💼':'<rect x="2" y="7" width="20" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M2 12h20"/>',
+  '🏥':'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+  '🚗':'<path d="M3 13l2-6h14l2 6"/><rect x="2" y="13" width="20" height="6" rx="2"/><circle cx="7" cy="19" r="1.5" fill="currentColor" stroke="none"/><circle cx="17" cy="19" r="1.5" fill="currentColor" stroke="none"/>',
+  '🏠':'<path d="M4 11l8-7 8 7"/><path d="M6 10v10h12V10"/><path d="M10 20v-6h4v6"/>',
+  '✈️':'<path d="M2 13l20-9-7 20-3-8-8-3z"/>',
+  '🎓':'<path d="M2 9l10-5 10 5-10 5-10-5z"/><path d="M6 11.5V17c0 1.5 3 3 6 3s6-1.5 6-3v-5.5"/><path d="M22 9v6"/>',
+  '📚':'<path d="M4 5a2 2 0 0 1 2-2h6v18H6a2 2 0 0 1-2-2z"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/>',
+  '⚙️':'<circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  '🔒':'<rect x="4" y="10" width="16" height="10" rx="2.4"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+  '💰':'<circle cx="12" cy="12" r="9"/><path d="M9 9.6c0-1 1.2-1.8 3-1.8s3 .8 3 1.7-1.2 1.4-3 1.7-3 .8-3 1.8 1.2 1.8 3 1.8 3-.8 3-1.8"/><path d="M12 6v1.6M12 16.4V18"/>',
+  '🎁':'<rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 9h18v4H3z"/><path d="M12 9v12"/><path d="M12 9C10 5 6 5 6 7.5S9 9 12 9zM12 9c2-4 6-4 6-1.5S15 9 12 9z"/>',
+  '☁️':'<path d="M7 18a4.5 4.5 0 0 1-.7-8.9 5.5 5.5 0 0 1 10.6-1.6A4.5 4.5 0 0 1 17 18H7z"/>',
+  '🔧':'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2-2z"/>',
+  '⭐':'<path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3-5.6-3.3-5.6 3.3 1.4-6.3-4.8-4.3 6.4-.6z"/>',
+  '❤️':'<path d="M12 20s-7-4.4-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 5c-2.5 4.6-9.5 9-9.5 9z"/>',
+  '🎯':'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/>',
+  '🏢':'<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h1M8 11h1M8 15h1M15 7h1M15 11h1M15 15h1"/><path d="M10 21v-4h4v4"/>',
+  '🛡️':'<path d="M12 3l8 3v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V6z"/>',
+  '🔐':'<rect x="4" y="10" width="16" height="10" rx="2.4"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15" r="1.5" fill="currentColor" stroke="none"/>',
+  '🗝️':'<circle cx="8" cy="15" r="3.5"/><path d="M10.5 12.5 19 4M16 7l2 2M13.5 9.5l1.7 1.7"/>',
+  '📊':'<path d="M4 20V12M10 20V6M16 20v-9"/><path d="M2 20h20"/>',
+  '🧾':'<path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6"/>',
+  '📋':'<rect x="6" y="4" width="12" height="17" rx="2"/><rect x="9" y="2.4" width="6" height="3" rx="1"/><path d="M9 11h6M9 15h6"/>',
+  '🎨':'<path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-.9 2-2 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.1 0-.9.7-1.7 1.7-1.7H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8z"/><circle cx="7.5" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="9.5" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="14.5" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="16.5" cy="12" r="1.1" fill="currentColor" stroke="none"/>',
+  '📄':'<path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/>'
+};
+const ICON_HEART = '<path d="M12 20s-7-4.4-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 5c-2.5 4.6-9.5 9-9.5 9z"/>';
+const ICON_STAR = '<path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3-5.6-3.3-5.6 3.3 1.4-6.3-4.8-4.3 6.4-.6z"/>';
+const ICON_PLUS = '<path d="M12 5v14M5 12h14"/>';
+const ICON_SEARCH = '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>';
+const ICON_CHEVRON_LEFT = '<path d="M15 5l-7 7 7 7"/>';
+const ICON_MENU = '<path d="M4 7h16M4 12h16M4 17h16"/>';
+const ICON_DOTS_V = '<circle cx="12" cy="5" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.3" fill="currentColor" stroke="none"/>';
+const ICON_EYE = '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>';
+const ICON_DICE = '<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>';
+const ICON_CLOSE = '<path d="M6 6l12 12M18 6L6 18"/>';
+const ICON_TRASH = '<path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/>';
+const ICON_EDIT = '<path d="M4 20l4-1 10-10-3-3L5 16l-1 4z"/><path d="M14 6l3 3"/>';
+const ICON_SORT = '<path d="M8 3v14M8 17l-3-3M8 17l3-3"/><path d="M16 21V7M16 7l3 3M16 7l-3 3"/>';
+const ICON_HAND = '<path d="M8 12V5a1.5 1.5 0 0 1 3 0v6M11 11V4a1.5 1.5 0 0 1 3 0v7M14 11.5V6a1.5 1.5 0 0 1 3 0v9c0 4-2.5 6.5-6 6.5S5 18.5 5 15v-3a1.5 1.5 0 0 1 3 0"/>';
+const ICON_CAMERA = '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-3h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/>';
+const ICON_DOOR = '<rect x="5" y="3" width="11" height="18" rx="1"/><circle cx="13" cy="12" r="1" fill="currentColor" stroke="none"/>';
+const ICON_SAVE = '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v5h8V4"/><rect x="8" y="14" width="8" height="6"/>';
+const ICON_DOWNLOAD = '<path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/>';
+const ICON_UNLOCK = '<rect x="4" y="10" width="16" height="10" rx="2.4"/><path d="M8 10V7a4 4 0 0 1 7-2.6"/>';
+const ICON_CLIP = '<path d="M8 3h8"/><path d="M6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1z"/><path d="M9 10h6M9 14h6"/>';
+const ICON_ALERT = '<path d="M12 3l10 18H2z"/><path d="M12 9v5"/><circle cx="12" cy="17" r="0.9" fill="currentColor" stroke="none"/>';
+const ICON_FOLDER_PLUS = '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M12 11v4M10 13h4"/>';
+const ICON_FOLDER_IN = '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M9 13h6M13 10l3 3-3 3"/>';
+function svgWrap(inner, size, filled){
+  size = size || 22;
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="'+(filled?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+inner+'</svg>';
+}
+function iconMarkup(glyph, size){
+  const inner = ICONS_SVG[glyph];
+  if(!inner) return esc(glyph);
+  return svgWrap(inner, size, false);
+}
+function btnLabel(inner, text, size){
+  return '<span class="btn-ico">'+svgWrap(inner, size||18, false)+'</span>'+text;
+}
 const RECOVERY_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const WEAK_PINS = ['0000','1111','2222','3333','4444','5555','6666','7777','8888','9999',
                    '1234','4321','0123','3210','1212','2121','1122','2211'];
@@ -2181,10 +2291,10 @@ function renderMainList(){
   const menuBtn = $('navMenuBtn');
   if(menuBtn){
     if(currentFolderId !== null && !isFavView){
-      menuBtn.textContent = '⋮';
+      menuBtn.innerHTML = svgWrap(ICON_DOTS_V, 22);
       menuBtn.title = 'Действия с папкой';
     } else {
-      menuBtn.textContent = '☰';
+      menuBtn.innerHTML = svgWrap(ICON_MENU, 22);
       menuBtn.title = 'Меню';
     }
   }
@@ -2231,7 +2341,7 @@ function renderMainList(){
   if(foldersToShow.length){
     const group = document.createElement('div');
     group.className = 'list-group';
-    foldersToShow.forEach(f => {
+    foldersToShow.forEach((f, fi) => {
       const directCards = vault.cards.filter(c => c.folderId === f.id).length;
       const childFolders = vault.folders.filter(x => x.parentId === f.id).length;
       const subParts = [];
@@ -2243,12 +2353,13 @@ function renderMainList(){
       d.className = 'list-item';
       d.dataset.folderId = f.id;
       d.innerHTML = `
-        <div class="list-icon">${esc(f.icon || '📁')}</div>
+        <div class="list-icon">${iconMarkup(f.icon || '📁')}</div>
         <div class="list-body">
           <div class="list-title">${esc(f.name)}</div>
           <div class="list-sub">${subStr}</div>
         </div>
         <div class="list-chevron">›</div>`;
+      d.classList.add('item-in'); d.style.animationDelay = (fi*28)+'ms';
       d.onclick = () => {
         if(manualModeActive && sortMode === 'manual') return;
         currentFolderId = f.id;
@@ -2262,14 +2373,14 @@ function renderMainList(){
   if(cardsToShow.length){
     const group = document.createElement('div');
     group.className = 'list-group';
-    cardsToShow.forEach(c => {
+    cardsToShow.forEach((c, ci) => {
       const d = document.createElement('div');
       d.className = 'list-item';
       if(sortMode === 'manual') d.dataset.cardId = c.id;
 
       const iconHtml = c.customIcon
         ? `<img src="${c.customIcon}">`
-        : esc(c.icon || '📄');
+        : iconMarkup(c.icon || '📄');
       const favMark = c.favorite ? '<span class="list-fav">★</span>' : '';
 
       d.innerHTML = `
@@ -2279,6 +2390,7 @@ function renderMainList(){
           <div class="list-sub">${timeAgo(c.updated)}</div>
         </div>
         <div class="list-chevron">›</div>`;
+      d.classList.add('item-in'); d.style.animationDelay = (ci*28)+'ms';
       d.onclick = () => {
         if(manualModeActive && sortMode === 'manual') return;
         viewCard(c.id);
@@ -2623,7 +2735,7 @@ function renderTrash(){
 
     const iconHtml = (item.type === 'card' && item.card.customIcon)
       ? `<img src="${item.card.customIcon}">`
-      : esc(icon);
+      : iconMarkup(icon);
 
     d.innerHTML = `
       <div class="list-icon">${iconHtml}</div>
@@ -2631,7 +2743,7 @@ function renderTrash(){
         <div class="list-title">${esc(title)}</div>
         <div class="list-sub">${sub}</div>
       </div>
-      <button class="trash-restore-btn" data-idx="${idx}">↩ Восстановить</button>
+      <button class="trash-restore-btn" data-idx="${idx}">${svgWrap(ICON_FOLDER_IN,14)} Восстановить</button>
     `;
 
     d.querySelector('.trash-restore-btn').onclick = (e) => {
@@ -2891,7 +3003,7 @@ function renderIconGrid(gridId, selected, onClick){
   ICONS.forEach(ic=>{
     const b = document.createElement('div');
     b.className = 'icon-pick' + (ic===selected?' sel':'');
-    b.textContent = ic; b.dataset.icon = ic;
+    b.innerHTML = iconMarkup(ic, 22); b.dataset.icon = ic;
     b.onclick = () => {
       g.querySelectorAll('.icon-pick').forEach(x => x.classList.remove('sel'));
       b.classList.add('sel');
@@ -2974,12 +3086,12 @@ function renderTemplates(){
   const grid = $('tplGrid'); grid.innerHTML='';
   TEMPLATES.forEach(t=>{
     const b = document.createElement('div'); b.className = 'tpl-btn';
-    b.innerHTML = `<div class="ico">${t.icon}</div><div class="nm">${t.name}</div>`;
+    b.innerHTML = `<div class="ico">${iconMarkup(t.icon,30)}</div><div class="nm">${t.name}</div>`;
     b.onclick = ()=>pickTemplate(t);
     grid.appendChild(b);
   });
   const blank = document.createElement('div'); blank.className = 'tpl-btn wide';
-  blank.innerHTML = `<div class="ico">📄</div><div class="nm">Пустая карточка</div>`;
+  blank.innerHTML = `<div class="ico">${iconMarkup('📄',30)}</div><div class="nm">Пустая карточка</div>`;
   blank.onclick = ()=>pickTemplate(null);
   grid.appendChild(blank);
 }
@@ -3207,8 +3319,9 @@ function viewCard(id){
     img.src = c.customIcon;
     img.style.cssText = 'width:28px;height:28px;border-radius:8px;vertical-align:middle';
     iconEl.appendChild(img);
-  } else { iconEl.textContent = c.icon || '📄'; }
-  $('favBtn').textContent = c.favorite ? '⭐' : '☆';
+  } else { iconEl.innerHTML = iconMarkup(c.icon || '📄', 24); }
+  $('favBtn').innerHTML = svgWrap(ICON_STAR, 22, !!c.favorite);
+  $('favBtn').classList.toggle('fav-on', !!c.favorite);
   $('viewUpdated').textContent = c.updated ? 'Обновлено ' + timeAgo(c.updated) : '';
   const box = $('viewFields'); box.innerHTML='';
   (c.fields||[]).forEach(f=>{
@@ -3221,8 +3334,8 @@ function viewCard(id){
         ${isPass?'••••••••':esc(f.value)}
       </div>
       <div class="view-field-actions">
-        ${isPass?`<button class="viewBtn" data-action="toggle" data-fid="${f.id}">👁</button>`:''}
-        <button class="viewBtn" data-action="copy" data-val="${esc(f.value)}">📋</button>
+        ${isPass?`<button class="viewBtn" data-action="toggle" data-fid="${f.id}">${svgWrap(ICON_EYE,16)}</button>`:''}
+        <button class="viewBtn" data-action="copy" data-val="${esc(f.value)}">${svgWrap(ICON_CLIP,16)}</button>
       </div>`;
     box.appendChild(div);
   });
@@ -3257,7 +3370,8 @@ function viewCard(id){
     c.favorite = !c.favorite;
     const ok = await saveCardStorage(c);
     if(!ok){ c.favorite = !c.favorite; return; }
-    $('favBtn').textContent = c.favorite ? '⭐' : '☆';
+    $('favBtn').innerHTML = svgWrap(ICON_STAR, 22, !!c.favorite);
+    $('favBtn').classList.toggle('fav-on', !!c.favorite);
     toast(c.favorite ? 'В избранном' : 'Убрано из избранного');
   };
   show('viewScreen'); resetLockTimer();
@@ -3309,7 +3423,7 @@ function updateIconPreview(){
     const img = document.createElement('img');
     img.src = editingCardIcon.customIcon;
     el.appendChild(img);
-  } else { el.innerHTML = ''; el.textContent = editingCardIcon.icon || '📄'; }
+  } else { el.innerHTML = iconMarkup(editingCardIcon.icon || '📄', 32); }
 }
 function addFieldRow(name='', value='', id=uid()){
   const box = $('fieldsContainer');
@@ -3318,8 +3432,8 @@ function addFieldRow(name='', value='', id=uid()){
   row.innerHTML = `
     <input placeholder="Название" value="${esc(name)}" class="fName">
     <input placeholder="Значение" value="${esc(value)}" class="fValue">
-    <button type="button" class="genBtn" title="Сгенерировать" style="display:none">🎲</button>
-    <button type="button" class="delBtn">✕</button>`;
+    <button type="button" class="genBtn" title="Сгенерировать" style="display:none">${svgWrap(ICON_DICE,16)}</button>
+    <button type="button" class="delBtn">${svgWrap(ICON_CLOSE,16)}</button>`;
   wrap.appendChild(row);
   const bar = document.createElement('div'); bar.className = 'pwd-bar'; bar.style.display = 'none';
   bar.innerHTML = `<div class="pwd-fill"></div>`;
@@ -3671,7 +3785,7 @@ function renderFavList(){
   favCards.forEach(c => {
     const d = document.createElement('div');
     d.className = 'list-item';
-    const iconHtml = c.customIcon ? `<img src="${c.customIcon}">` : esc(c.icon || '📄');
+    const iconHtml = c.customIcon ? `<img src="${c.customIcon}">` : iconMarkup(c.icon || '📄');
     d.innerHTML = `
       <div class="list-icon">${iconHtml}</div>
       <div class="list-body">
@@ -3679,6 +3793,7 @@ function renderFavList(){
         <div class="list-sub">${timeAgo(c.updated)}</div>
       </div>
       <div class="list-chevron">›</div>`;
+    d.classList.add('item-in');
     d.onclick = () => viewCard(c.id);
     group.appendChild(d);
   });
@@ -3921,7 +4036,7 @@ $('searchInput').addEventListener('input', () => {
   const group = document.createElement('div'); group.className = 'list-group';
   results.forEach(c => {
     const d = document.createElement('div'); d.className = 'list-item';
-    const iconHtml = c.customIcon ? `<img src="${c.customIcon}">` : esc(c.icon || '📄');
+    const iconHtml = c.customIcon ? `<img src="${c.customIcon}">` : iconMarkup(c.icon || '📄');
     d.innerHTML = `
       <div class="list-icon">${iconHtml}</div>
       <div class="list-body">
@@ -3929,6 +4044,7 @@ $('searchInput').addEventListener('input', () => {
         <div class="list-sub">${timeAgo(c.updated)}</div>
       </div>
       <div class="list-chevron">›</div>`;
+    d.classList.add('item-in');
     d.onclick = () => viewCard(c.id);
     group.appendChild(d);
   });
@@ -3960,7 +4076,7 @@ $('recoveryManageBtn').onclick = ()=>{
     ? 'Recovery Key установлен. Вы можете создать новый — старый перестанет работать.'
     : 'Recovery Key не установлен. Если забудете PIN, восстановить доступ будет невозможно.';
   $('recoveryRegenBtn').style.display = 'block';
-  $('recoveryRegenBtn').textContent = has ? '🔑 Создать новый Recovery Key' : '🔑 Создать Recovery Key';
+  $('recoveryRegenBtn').innerHTML = btnLabel(ICONS_SVG['🔑'] || '<circle cx="7.5" cy="14.5" r="4"/><path d="M10.5 11.5 20 2M17 5l2 2M14 8l2 2"/>', has ? 'Создать новый Recovery Key' : 'Создать Recovery Key');
   show('recoveryManageScreen');
 };
 $('recoveryManageBack').onclick = ()=>show('settingsScreen');
@@ -4028,6 +4144,26 @@ $('importFile').onchange = (e) => {
   e.target.value = '';
 };
 $('importStartBtn').onclick = startImport;
+
+// ============ Тактильная отдача (ripple) на тап ============
+document.addEventListener('pointerdown', function(e){
+  const el = e.target.closest('button, .list-item, .sheet-item, .dropdown-item, .tpl-btn, .cat, .icon-pick, .folder-item, .trash-restore-btn');
+  if(!el || el.disabled) return;
+  const rect = el.getBoundingClientRect();
+  if(!rect.width || !rect.height) return;
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple';
+  const size = Math.max(rect.width, rect.height) * 1.5;
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+  ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+  const computedPos = getComputedStyle(el).position;
+  if(computedPos === 'static') el.style.position = 'relative';
+  const prevOverflow = el.style.overflow;
+  el.style.overflow = 'hidden';
+  el.appendChild(ripple);
+  ripple.addEventListener('animationend', () => { ripple.remove(); el.style.overflow = prevOverflow; }, { once:true });
+}, { passive:true });
 
 init();
 </script>
