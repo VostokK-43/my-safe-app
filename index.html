@@ -451,6 +451,37 @@
   .dropdown-item:active{background:var(--ios-fill)}
   .dropdown-item.danger{color:var(--ios-red)}
 
+  /* ===== Хлебные крошки (путь по папкам) ===== */
+  .breadcrumb-row{display:flex;align-items:center;gap:4px;padding:2px 2px 14px;flex-wrap:wrap}
+  .crumb{font-size:14px;font-weight:700;color:var(--ios-blue);cursor:pointer;letter-spacing:-0.2px;
+    white-space:nowrap;-webkit-user-select:none;user-select:none}
+  .crumb:active{opacity:.6}
+  .crumb.current{color:var(--hint);cursor:default}
+  .crumb.current:active{opacity:1}
+  .crumb-sep{display:flex;color:var(--ios-label-tertiary);flex-shrink:0}
+  .crumb-sep svg{width:13px;height:13px}
+
+  /* ===== Раздел «Недавние» ===== */
+  .recent-wrap{margin-bottom:18px}
+  .recent-title{font-size:13px;font-weight:700;color:var(--hint);text-transform:uppercase;
+    letter-spacing:0.4px;margin:0 4px 8px}
+  .recent-row{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none}
+  .recent-row::-webkit-scrollbar{display:none}
+  .recent-chip{flex-shrink:0;width:76px;display:flex;flex-direction:column;align-items:center;gap:6px;
+    cursor:pointer;-webkit-user-select:none;user-select:none}
+  .recent-chip:active{opacity:.65}
+  .recent-chip-icon{width:52px;height:52px;border-radius:16px;background:var(--ios-fill);color:var(--ios-blue);
+    display:flex;align-items:center;justify-content:center;box-shadow:var(--ios-shadow-s);overflow:hidden}
+  .recent-chip-icon svg{width:24px;height:24px}
+  .recent-chip-icon img{width:100%;height:100%;object-fit:cover}
+  .recent-chip-name{font-size:11.5px;font-weight:700;color:var(--text);text-align:center;
+    line-height:1.25;max-width:76px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* ===== Подписи разделов (когда на экране и папки, и карточки) ===== */
+  .section-label{font-size:13px;font-weight:700;color:var(--hint);text-transform:uppercase;
+    letter-spacing:0.4px;margin:0 4px 8px}
+  .list-group + .section-label{margin-top:18px}
+
   .cat-row{display:flex;gap:8px;overflow-x:auto;padding:0 0 4px;
     margin:0 -20px 20px;padding-left:20px;padding-right:20px;scrollbar-width:none}
   .cat-row::-webkit-scrollbar{display:none}
@@ -497,12 +528,18 @@
   #viewFields{background:var(--ios-bg-grouped);border-radius:var(--ios-radius-l);
     overflow:hidden;margin-bottom:20px;box-shadow:var(--ios-shadow-s)}
   .view-field{padding:14px 16px;border-bottom:0.5px solid var(--ios-separator);
-    display:flex;align-items:center;gap:12px}
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap}
   .view-field:last-child{border-bottom:none}
   .view-field-label{font-size:15px;color:var(--hint);flex-shrink:0;min-width:90px;letter-spacing:-0.2px;font-weight:700}
   .view-field-value{flex:1;font-size:15px;font-weight:700;letter-spacing:-0.3px;
     word-break:break-all;text-align:right;user-select:text;-webkit-user-select:text}
   .view-field-value.mono{font-family:ui-monospace, 'SF Mono', Menlo, monospace;font-size:14px}
+  /* Кликабельные поля (ссылка/email/телефон) — стиль как у распознанных данных в iOS: акцентный цвет, без подчёркивания */
+  .view-field-value.linkable{color:var(--ios-blue);cursor:pointer;-webkit-user-select:none;user-select:none;
+    display:inline-flex;align-items:center;justify-content:flex-end;gap:5px;transition:opacity .12s}
+  .view-field-value.linkable:active{opacity:.55}
+  .view-field-value.linkable svg{width:14px;height:14px;flex-shrink:0;opacity:.8}
+  .view-field-strength{margin-top:6px;flex-basis:100%}
   .view-field-actions{display:flex;gap:6px;flex-shrink:0}
   .view-field-actions button{width:32px;height:32px;padding:0;font-size:14px;margin:0;border-radius:50%;
     background:var(--ios-fill);color:var(--ios-blue);font-weight:700;box-shadow:none}
@@ -544,11 +581,16 @@
 
   .toast{position:fixed;bottom:max(32px, env(safe-area-inset-bottom));left:50%;
     transform:translateX(-50%) translateY(14px) scale(.92);background:rgba(20,18,35,.92);
-    backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);color:#fff;padding:12px 20px;
+    backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);color:#fff;padding:12px 14px 12px 20px;
     border-radius:14px;font-size:15px;font-weight:700;letter-spacing:-0.3px;opacity:0;
+    display:inline-flex;align-items:center;gap:12px;
     transition:opacity .3s, transform .38s cubic-bezier(.19,1.28,.42,.99);pointer-events:none;
     z-index:9999;max-width:90%;text-align:center;box-shadow:var(--ios-shadow-m)}
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1);pointer-events:auto}
+  .toast-undo-btn{background:rgba(255,255,255,.18);color:#fff;border:none;border-radius:9px;
+    padding:6px 13px;font-size:13px;font-weight:800;letter-spacing:-0.1px;cursor:pointer;
+    flex-shrink:0;width:auto;margin:0;box-shadow:none;transition:background .12s,transform .12s}
+  .toast-undo-btn:active{background:rgba(255,255,255,.32);transform:scale(.92)}
 
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);
     -webkit-backdrop-filter:blur(8px);z-index:9998;display:flex;align-items:center;justify-content:center;
@@ -846,7 +888,7 @@
 
 <div id="trashScreen" class="screen">
   <h1><span class="back" id="trashBack">‹</span> Корзина</h1>
-  <p class="info" id="trashInfo">Удалённые карточки и папки хранятся здесь. Восстановите нужное или очистите корзину.</p>
+  <p class="info" id="trashInfo">Удалённые карточки и папки хранятся здесь 30 дней, потом удаляются навсегда автоматически. Восстановите нужное или очистите корзину.</p>
   <div id="trashList"></div>
   <button id="trashClearBtn" class="danger" style="margin-top:20px"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/></svg></span>Очистить корзину</button>
 </div>
@@ -1027,7 +1069,7 @@
   <button id="manualDoneBtn" style="width:100%;margin:0;background:linear-gradient(135deg,#17C787 0%,#10A874 100%);box-shadow:0 10px 24px rgba(23,199,135,0.4)">✓ Готово</button>
 </div>
 
-<div id="toast" class="toast"></div>
+<div id="toast" class="toast"><span id="toastText"></span><button id="toastUndoBtn" class="toast-undo-btn" style="display:none">Отменить</button></div>
 
 <div id="wipeModal" class="modal-overlay" style="display:none">
   <div class="modal-box">
@@ -1062,6 +1104,7 @@ const PACK_SIZE      = 6;
 const PACK_THRESHOLD = 800;
 const SERVICE_KEYS   = 6;
 const TRASH_LIMIT    = 50;
+const TRASH_AUTO_PURGE_DAYS = 30;
 const enc = new TextEncoder(), dec = new TextDecoder();
 
 const DEFAULT_FOLDERS = [];
@@ -1222,7 +1265,65 @@ const uid = p => (p||'') + Date.now().toString(36) + Math.random().toString(36).
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const PWD_FIELD_RE = /pass(?!port)|парол|pin(?!k|g|e)|пин(?!г|к)|cvv|seed|ключ|приватн/i;
 function isPasswordField(name){ return PWD_FIELD_RE.test(String(name||'')); }
-function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
+
+// ============ Определение кликабельных полей (ссылка / email / телефон) ============
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const URL_RE = /^(https?:\/\/)?(www\.)?[a-z0-9а-я-]+(\.[a-z0-9а-я-]+)+(:[0-9]+)?([\/?#][^\s]*)?$/i;
+const PHONE_RE = /^\+?[0-9()\-\s]{6,20}$/;
+function detectFieldLinkType(name, value){
+  if(isPasswordField(name)) return null;
+  const v = String(value || '').trim();
+  if(!v) return null;
+  if(EMAIL_RE.test(v)) return 'email';
+  const digits = v.replace(/[^0-9]/g, '');
+  if(PHONE_RE.test(v) && digits.length >= 6 && digits.length <= 15) return 'tel';
+  if(URL_RE.test(v) && !/\s/.test(v)) return 'url';
+  return null;
+}
+function openExternalLink(type, rawValue){
+  const v = String(rawValue || '').trim();
+  try {
+    if(type === 'url'){
+      let url = v;
+      if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+      if(tg && typeof tg.openLink === 'function') tg.openLink(url);
+      else window.open(url, '_blank');
+    } else if(type === 'email'){
+      window.location.href = 'mailto:' + v;
+    } else if(type === 'tel'){
+      window.location.href = 'tel:' + v.replace(/[^\d+]/g, '');
+    }
+  } catch(e){ toast('Не удалось открыть'); }
+}
+function linkIconFor(type){
+  if(type === 'email') return '<path d="M3 5h18v14H3z"/><path d="M3 6.5l9 6.5 9-6.5"/>';
+  if(type === 'tel') return '<path d="M6.5 3.5c1 2 1.7 3.6 2.7 4.6-1 1-1.6 1.6-1.6 1.6a13 13 0 0 0 6.7 6.7s.6-.6 1.6-1.6c1 1 2.6 1.7 4.6 2.7 0 1.5-.4 3-1.6 3.7-1.2.8-2.8.9-4.2.4A18 18 0 0 1 3.5 7.7c-.5-1.4-.4-3 .4-4.2.7-1.2 2.2-1.6 3.7-1.6z"/>';
+  return '<path d="M14 3h7v7"/><path d="M21 3l-9 9"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/>';
+}
+let toastTimer = null;
+function toast(msg){
+  clearTimeout(toastTimer);
+  const t=$('toast');
+  $('toastText').textContent=msg;
+  $('toastUndoBtn').style.display='none';
+  t.classList.add('show');
+  toastTimer = setTimeout(()=>t.classList.remove('show'),2400);
+}
+function toastUndo(msg, undoFn){
+  clearTimeout(toastTimer);
+  const t=$('toast');
+  $('toastText').textContent=msg;
+  const btn = $('toastUndoBtn');
+  btn.style.display='inline-flex';
+  btn.onclick = (e) => {
+    e.stopPropagation();
+    clearTimeout(toastTimer);
+    t.classList.remove('show');
+    undoFn();
+  };
+  t.classList.add('show');
+  toastTimer = setTimeout(()=>t.classList.remove('show'),5000);
+}
 function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
 // ============ Заголовок в шапке ============
@@ -2000,6 +2101,7 @@ async function loadVaultAfterUnlock(){
   const fixed = await fixOrphanCards();
   if(fixed > 0) toast(`Карточек без папки: ${fixed}`);
   await checkAndPackIfNeeded();
+  await purgeOldTrash();
 }
 async function tryPin(){
   if(pinBuffer.length < 4){ $('pinError').textContent = 'Минимум 4 цифры'; return; }
@@ -2383,6 +2485,65 @@ function openVault(){
   resetLockTimer();
 }
 
+function getFolderPath(folderId){
+  const path = [];
+  let f = vault.folders.find(x => x.id === folderId);
+  while(f){
+    path.unshift(f);
+    f = f.parentId ? vault.folders.find(x => x.id === f.parentId) : null;
+  }
+  return path;
+}
+function renderBreadcrumb(container){
+  if(currentFolderId === null){ return; }
+  const path = getFolderPath(currentFolderId);
+  const row = document.createElement('div');
+  row.className = 'breadcrumb-row';
+  const rootCrumb = document.createElement('span');
+  rootCrumb.className = 'crumb';
+  rootCrumb.textContent = 'Сейф+';
+  rootCrumb.onclick = () => { currentFolderId = null; renderMainList(); };
+  row.appendChild(rootCrumb);
+  path.forEach((f, i) => {
+    const sep = document.createElement('span');
+    sep.className = 'crumb-sep';
+    sep.innerHTML = svgWrap('<path d="M9 6l6 6-6 6"/>', 13);
+    row.appendChild(sep);
+    const crumb = document.createElement('span');
+    const isLast = i === path.length - 1;
+    crumb.className = 'crumb' + (isLast ? ' current' : '');
+    crumb.textContent = f.name;
+    if(!isLast) crumb.onclick = () => { currentFolderId = f.id; renderMainList(); };
+    row.appendChild(crumb);
+  });
+  container.appendChild(row);
+}
+function renderRecentStrip(container){
+  const ids = vault.settings.recentCardIds || [];
+  const cards = ids.map(id => vault.cards.find(c => c.id === id)).filter(Boolean).slice(0, 10);
+  if(!cards.length) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'recent-wrap';
+  wrap.innerHTML = '<div class="recent-title">Недавние</div>';
+  const row = document.createElement('div');
+  row.className = 'recent-row';
+  cards.forEach(c => {
+    const chip = document.createElement('div');
+    chip.className = 'recent-chip';
+    const iconHtml = c.customIcon ? `<img src="${c.customIcon}">` : iconMarkup(c.icon || '📄', 20);
+    chip.innerHTML = `<div class="recent-chip-icon">${iconHtml}</div><div class="recent-chip-name">${esc(c.title)}</div>`;
+    chip.onclick = () => viewCard(c.id);
+    row.appendChild(chip);
+  });
+  wrap.appendChild(row);
+  container.appendChild(wrap);
+}
+function trackRecent(id){
+  if(!vault.settings.recentCardIds) vault.settings.recentCardIds = [];
+  vault.settings.recentCardIds = [id, ...vault.settings.recentCardIds.filter(x => x !== id)].slice(0, 10);
+  saveConf();
+}
+
 function renderMainList(){
   isFavView = false;
   const box = $('mainList');
@@ -2406,6 +2567,9 @@ function renderMainList(){
     }
   }
   updateTrashBadge();
+
+  renderBreadcrumb(box);
+  if(currentFolderId === null) renderRecentStrip(box);
 
   let foldersToShow = [];
   let cardsToShow = [];
@@ -2434,9 +2598,10 @@ function renderMainList(){
   }
 
   if(!foldersToShow.length && !cardsToShow.length){
-    box.innerHTML = '<div class="empty">' +
-      (currentFolderId ? 'В этой папке пока пусто' : 'Сейф пуст. Нажмите + чтобы добавить') +
-      '</div>';
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = currentFolderId ? 'В этой папке пока пусто' : 'Сейф пуст. Нажмите + чтобы добавить';
+    box.appendChild(empty);
     if(sortMode === 'manual' && manualModeActive){
       $('manualDoneBar').style.display = 'block';
     } else {
@@ -2445,7 +2610,13 @@ function renderMainList(){
     return;
   }
 
+  const showSectionLabels = foldersToShow.length > 0 && cardsToShow.length > 0;
+
   if(foldersToShow.length){
+    if(showSectionLabels){
+      const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.textContent = 'Папки';
+      box.appendChild(lbl);
+    }
     const group = document.createElement('div');
     group.className = 'list-group';
     foldersToShow.forEach((f, fi) => {
@@ -2478,6 +2649,10 @@ function renderMainList(){
   }
 
   if(cardsToShow.length){
+    if(showSectionLabels){
+      const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.textContent = 'Карточки';
+      box.appendChild(lbl);
+    }
     const group = document.createElement('div');
     group.className = 'list-group';
     cardsToShow.forEach((c, ci) => {
@@ -2679,6 +2854,19 @@ async function saveFolderOrder(){
 // ============ КОРЗИНА ============
 function trashCount(){ return (vault.trash || []).length; }
 
+// Автоочистка корзины: элементы старше 30 дней удаляются навсегда автоматически
+// (как у 1Password/Bitwarden/Apple Passwords) — корзина не превращается в вечную свалку.
+async function purgeOldTrash(){
+  if(!vault.trash || !vault.trash.length) return;
+  const cutoff = Date.now() - TRASH_AUTO_PURGE_DAYS*24*60*60*1000;
+  const before = vault.trash.length;
+  vault.trash = vault.trash.filter(item => (item.deletedAt || 0) >= cutoff);
+  if(vault.trash.length !== before){
+    await saveConf();
+    updateTrashBadge();
+  }
+}
+
 async function moveCardToTrash(card){
   if(trashCount() >= TRASH_LIMIT) return false;
   vault.trash.push({ type:'card', deletedAt: Date.now(), card: JSON.parse(JSON.stringify(card)) });
@@ -2765,6 +2953,12 @@ async function restoreTrashItem(index){
     return;
   }
 }
+// Восстанавливает самый последний удалённый элемент — для кнопки «Отменить» в тосте.
+async function restoreLastTrashItem(){
+  if(!vault.trash.length) return;
+  await restoreTrashItem(vault.trash.length - 1);
+  if($('vaultScreen').classList.contains('active')) renderMainList();
+}
 
 async function deleteTrashItemPermanently(index){
   const item = vault.trash[index];
@@ -2795,13 +2989,13 @@ function renderTrash(){
   if(!items.length){
     box.innerHTML = '<div class="empty">Корзина пуста</div>';
     $('trashClearBtn').style.display = 'none';
-    $('trashInfo').textContent = 'Удалённые карточки и папки хранятся здесь. Восстановите нужное или очистите корзину.';
+    $('trashInfo').textContent = 'Удалённые карточки и папки хранятся здесь 30 дней, потом удаляются навсегда автоматически. Восстановите нужное или очистите корзину.';
     return;
   }
 
   $('trashClearBtn').style.display = 'block';
   $('trashInfo').textContent = 'Элементов: ' + items.length + ' из ' + TRASH_LIMIT +
-    '. Восстановите нужное или очистите корзину.';
+    '. Автоматически удаляются навсегда через 30 дней после удаления.';
 
   box.innerHTML = '';
   const group = document.createElement('div');
@@ -2956,7 +3150,7 @@ async function deleteFolderById(folderId){
 
   updateNavTitle(currentFolderId ? (vault.folders.find(x=>x.id===currentFolderId)?.name || 'Сейф+') : 'Сейф+');
   renderMainList();
-  toast('Папка в корзине');
+  toastUndo('Папка в корзине', restoreLastTrashItem);
 }
 
 async function renameFolderById(folderId){
@@ -3159,7 +3353,7 @@ async function deleteFolder(){
 
   updateNavTitle('Сейф+');
   renderMainList();
-  toast('Папка в корзине');
+  toastUndo('Папка в корзине', restoreLastTrashItem);
   show('vaultScreen');
 }
 
@@ -3404,6 +3598,7 @@ async function startImport(){
 // ============ ПРОСМОТР / РЕДАКТОР ============
 function viewCard(id){
   const c = vault.cards.find(x=>x.id===id); if(!c) return;
+  trackRecent(id);
   $('viewTitle').textContent = c.title;
   updateNavTitle('Карточка');
   const iconEl = $('viewIcon');
@@ -3421,16 +3616,29 @@ function viewCard(id){
   (c.fields||[]).forEach(f=>{
     if(!f.value) return;
     const isPass = isPasswordField(f.name);
+    const linkType = isPass ? null : detectFieldLinkType(f.name, f.value);
+    const isLink = !!linkType;
     const div = document.createElement('div'); div.className = 'view-field';
+    let strengthHtml = '';
+    if(isPass){
+      const s = scorePassword(f.value);
+      const pct = Math.round(s/6*100);
+      const color = s <= 2 ? 'var(--ios-red)' : s <= 4 ? 'var(--ios-orange)' : 'var(--ios-green)';
+      strengthHtml = `<div class="view-field-strength pwd-bar"><div class="pwd-fill" style="width:${pct}%;background:${color}"></div></div>`;
+    }
     div.innerHTML = `
       <div class="view-field-label">${esc(f.name)}</div>
-      <div class="view-field-value ${isPass?'mono':''}" id="val-${f.id}">
-        ${isPass?'••••••••':esc(f.value)}
+      <div class="view-field-value ${isPass?'mono':''}${isLink?' linkable':''}" id="val-${f.id}" ${isLink?'data-link-type="'+linkType+'"':''}>
+        ${isLink ? svgWrap(linkIconFor(linkType),14) : ''}${isPass?'••••••••':esc(f.value)}
       </div>
       <div class="view-field-actions">
         ${isPass?`<button class="viewBtn" data-action="toggle" data-fid="${f.id}">${svgWrap(ICON_EYE,16)}</button>`:''}
         <button class="viewBtn" data-action="copy" data-val="${esc(f.value)}">${svgWrap(ICON_CLIP,16)}</button>
-      </div>`;
+      </div>
+      ${strengthHtml}`;
+    if(isLink){
+      div.querySelector('.view-field-value').onclick = () => openExternalLink(linkType, f.value);
+    }
     box.appendChild(div);
   });
   box.querySelectorAll('.viewBtn').forEach(btn=>{
@@ -3594,7 +3802,7 @@ async function deleteCard(){
   updateNavTitle('Сейф+');
   renderMainList();
   show('vaultScreen');
-  toast('Перемещено в корзину');
+  toastUndo('Перемещено в корзину', restoreLastTrashItem);
 }
 function openIconPicker(){
   $('removePhotoBtn').style.display = editingCardIcon.customIcon ? 'block' : 'none';
@@ -4133,11 +4341,13 @@ $('searchInput').addEventListener('input', () => {
   results.forEach(c => {
     const d = document.createElement('div'); d.className = 'list-item';
     const iconHtml = c.customIcon ? `<img src="${c.customIcon}">` : iconMarkup(c.icon || '📄');
+    const folder = c.folderId ? vault.folders.find(f => f.id === c.folderId) : null;
+    const subStr = (folder ? folder.name + ' · ' : '') + timeAgo(c.updated);
     d.innerHTML = `
       <div class="list-icon">${iconHtml}</div>
       <div class="list-body">
         <div class="list-title">${esc(c.title)}</div>
-        <div class="list-sub">${timeAgo(c.updated)}</div>
+        <div class="list-sub">${subStr}</div>
       </div>
       <div class="list-chevron">›</div>`;
     d.classList.add('item-in');
