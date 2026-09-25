@@ -28,7 +28,6 @@
     --ios-shadow-l: 0 24px 56px rgba(24,18,60,0.24);
     --ios-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', Roboto, system-ui, sans-serif;
     --nav-bg-rgba: rgba(255,255,255,0.78);
-    /* ===== Акцентная тема (по умолчанию — «Серая», исходная спокойная палитра) ===== */
     --ios-blue: #5A5F66;
     --ios-fill: rgba(120,120,128,0.14);
     --ios-fill-secondary: rgba(120,120,128,0.22);
@@ -46,7 +45,6 @@
     --btntext: var(--tg-theme-button-text-color, #FFFFFF);
     --danger: var(--ios-red);
   }
-  /* ===== Остальные цветовые темы («Оформление» в настройках) — светлый режим ===== */
   :root[data-theme="purple"]{
     --ios-blue: #6656F5; --ios-fill: rgba(102,86,245,0.08); --ios-fill-secondary: rgba(102,86,245,0.15);
     --ios-fill-tertiary: rgba(102,86,245,0.055); --accent-grad-1: #6656F5; --accent-grad-2: #8B6CF7;
@@ -67,42 +65,41 @@
     --ios-fill-tertiary: rgba(224,122,86,0.06); --accent-grad-1: #E07A56; --accent-grad-2: #EF9C78;
     --accent-shadow: rgba(224,122,86,0.32); --lock-bg-1: #FBEBE3; --lock-bg-2: #FCF3EE; --lock-bg-3: #F7DED0;
   }
-  @media (prefers-color-scheme: dark){
-    :root{
-      --ios-bg: #0A0A11; --ios-bg-elevated: #17171F; --ios-bg-grouped: #17171F;
-      --ios-separator: rgba(255,255,255,0.09); --ios-label: #F6F6FC;
-      --ios-label-secondary: rgba(246,246,252,0.62); --ios-label-tertiary: rgba(246,246,252,0.34);
-      --ios-shadow-s: 0 1px 3px rgba(0,0,0,0.35);
-      --ios-shadow-m: 0 10px 28px rgba(0,0,0,0.45);
-      --ios-shadow-l: 0 24px 56px rgba(0,0,0,0.6);
-      --nav-bg-rgba: rgba(23,23,31,0.78);
-      /* Серая (по умолчанию) — тёмный вариант */
-      --ios-blue: #A0A6AD;
-      --ios-fill: rgba(160,166,173,0.18); --ios-fill-secondary: rgba(160,166,173,0.28);
-      --ios-fill-tertiary: rgba(160,166,173,0.1);
-      --accent-grad-1: #8A8F97; --accent-grad-2: #5A5E64; --accent-shadow: rgba(160,166,173,0.3);
-      --lock-bg-1: #1C1C1E; --lock-bg-2: #131315; --lock-bg-3: #232326;
-    }
-    :root[data-theme="purple"]{
-      --ios-blue: #8C7BFF; --ios-fill: rgba(138,124,255,0.14); --ios-fill-secondary: rgba(138,124,255,0.24);
-      --ios-fill-tertiary: rgba(138,124,255,0.10); --accent-grad-1: #7C6CFF; --accent-grad-2: #A78BFA;
-      --accent-shadow: rgba(124,108,255,0.45); --lock-bg-1: #171425; --lock-bg-2: #0E0D16; --lock-bg-3: #1E1A33;
-    }
-    :root[data-theme="blue"]{
-      --ios-blue: #6FA8FF; --ios-fill: rgba(111,168,255,0.15); --ios-fill-secondary: rgba(111,168,255,0.25);
-      --ios-fill-tertiary: rgba(111,168,255,0.1); --accent-grad-1: #4A87E8; --accent-grad-2: #7CB0FF;
-      --accent-shadow: rgba(111,168,255,0.4); --lock-bg-1: #101B2C; --lock-bg-2: #0B131E; --lock-bg-3: #16263D;
-    }
-    :root[data-theme="green"]{
-      --ios-blue: #4FCBAE; --ios-fill: rgba(79,203,174,0.14); --ios-fill-secondary: rgba(79,203,174,0.24);
-      --ios-fill-tertiary: rgba(79,203,174,0.09); --accent-grad-1: #2FA88C; --accent-grad-2: #57D2B4;
-      --accent-shadow: rgba(79,203,174,0.38); --lock-bg-1: #0F2019; --lock-bg-2: #0A1512; --lock-bg-3: #16291F;
-    }
-    :root[data-theme="peach"]{
-      --ios-blue: #F0987C; --ios-fill: rgba(240,152,124,0.15); --ios-fill-secondary: rgba(240,152,124,0.25);
-      --ios-fill-tertiary: rgba(240,152,124,0.1); --accent-grad-1: #DE7C57; --accent-grad-2: #F2A585;
-      --accent-shadow: rgba(240,152,124,0.4); --lock-bg-1: #241611; --lock-bg-2: #180F0C; --lock-bg-3: #2E1C15;
-    }
+  /* === Тёмная схема — управляется атрибутом data-color-scheme, а не @media,
+     потому что WebView Telegram не отдаёт prefers-color-scheme в CSS. === */
+  :root[data-color-scheme="dark"]{
+    --ios-bg: #0A0A11; --ios-bg-elevated: #17171F; --ios-bg-grouped: #17171F;
+    --ios-separator: rgba(255,255,255,0.09); --ios-label: #F6F6FC;
+    --ios-label-secondary: rgba(246,246,252,0.62); --ios-label-tertiary: rgba(246,246,252,0.34);
+    --ios-shadow-s: 0 1px 3px rgba(0,0,0,0.35);
+    --ios-shadow-m: 0 10px 28px rgba(0,0,0,0.45);
+    --ios-shadow-l: 0 24px 56px rgba(0,0,0,0.6);
+    --nav-bg-rgba: rgba(23,23,31,0.78);
+    --ios-blue: #A0A6AD;
+    --ios-fill: rgba(160,166,173,0.18); --ios-fill-secondary: rgba(160,166,173,0.28);
+    --ios-fill-tertiary: rgba(160,166,173,0.1);
+    --accent-grad-1: #8A8F97; --accent-grad-2: #5A5E64; --accent-shadow: rgba(160,166,173,0.3);
+    --lock-bg-1: #1C1C1E; --lock-bg-2: #131315; --lock-bg-3: #232326;
+  }
+  :root[data-color-scheme="dark"][data-theme="purple"]{
+    --ios-blue: #8C7BFF; --ios-fill: rgba(138,124,255,0.14); --ios-fill-secondary: rgba(138,124,255,0.24);
+    --ios-fill-tertiary: rgba(138,124,255,0.10); --accent-grad-1: #7C6CFF; --accent-grad-2: #A78BFA;
+    --accent-shadow: rgba(124,108,255,0.45); --lock-bg-1: #171425; --lock-bg-2: #0E0D16; --lock-bg-3: #1E1A33;
+  }
+  :root[data-color-scheme="dark"][data-theme="blue"]{
+    --ios-blue: #6FA8FF; --ios-fill: rgba(111,168,255,0.15); --ios-fill-secondary: rgba(111,168,255,0.25);
+    --ios-fill-tertiary: rgba(111,168,255,0.1); --accent-grad-1: #4A87E8; --accent-grad-2: #7CB0FF;
+    --accent-shadow: rgba(111,168,255,0.4); --lock-bg-1: #101B2C; --lock-bg-2: #0B131E; --lock-bg-3: #16263D;
+  }
+  :root[data-color-scheme="dark"][data-theme="green"]{
+    --ios-blue: #4FCBAE; --ios-fill: rgba(79,203,174,0.14); --ios-fill-secondary: rgba(79,203,174,0.24);
+    --ios-fill-tertiary: rgba(79,203,174,0.09); --accent-grad-1: #2FA88C; --accent-grad-2: #57D2B4;
+    --accent-shadow: rgba(79,203,174,0.38); --lock-bg-1: #0F2019; --lock-bg-2: #0A1512; --lock-bg-3: #16291F;
+  }
+  :root[data-color-scheme="dark"][data-theme="peach"]{
+    --ios-blue: #F0987C; --ios-fill: rgba(240,152,124,0.15); --ios-fill-secondary: rgba(240,152,124,0.25);
+    --ios-fill-tertiary: rgba(240,152,124,0.1); --accent-grad-1: #DE7C57; --accent-grad-2: #F2A585;
+    --accent-shadow: rgba(240,152,124,0.4); --lock-bg-1: #241611; --lock-bg-2: #180F0C; --lock-bg-3: #2E1C15;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
@@ -451,7 +448,6 @@
   .dropdown-item:active{background:var(--ios-fill)}
   .dropdown-item.danger{color:var(--ios-red)}
 
-  /* ===== Хлебные крошки (путь по папкам) ===== */
   .breadcrumb-row{display:flex;align-items:center;gap:4px;padding:2px 2px 14px;flex-wrap:wrap}
   .crumb{font-size:14px;font-weight:700;color:var(--ios-blue);cursor:pointer;letter-spacing:-0.2px;
     white-space:nowrap;-webkit-user-select:none;user-select:none}
@@ -461,7 +457,6 @@
   .crumb-sep{display:flex;color:var(--ios-label-tertiary);flex-shrink:0}
   .crumb-sep svg{width:13px;height:13px}
 
-  /* ===== Раздел «Недавние» ===== */
   .recent-wrap{margin-bottom:18px}
   .recent-title{font-size:13px;font-weight:700;color:var(--hint);text-transform:uppercase;
     letter-spacing:0.4px;margin:0 4px 8px;display:flex;align-items:center;gap:4px;cursor:pointer;
@@ -481,7 +476,6 @@
   .recent-chip-name{font-size:11.5px;font-weight:700;color:var(--text);text-align:center;
     line-height:1.25;max-width:76px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-  /* ===== Подписи разделов (когда на экране и папки, и карточки) ===== */
   .section-label{font-size:13px;font-weight:700;color:var(--hint);text-transform:uppercase;
     letter-spacing:0.4px;margin:0 4px 8px}
   .list-group + .section-label{margin-top:18px}
@@ -538,7 +532,6 @@
   .view-field-value{flex:1;font-size:15px;font-weight:700;letter-spacing:-0.3px;
     word-break:break-all;text-align:right;user-select:text;-webkit-user-select:text}
   .view-field-value.mono{font-family:ui-monospace, 'SF Mono', Menlo, monospace;font-size:14px}
-  /* Кликабельные поля (ссылка/email/телефон) — стиль как у распознанных данных в iOS: акцентный цвет, без подчёркивания */
   .view-field-value.linkable{color:var(--ios-blue);cursor:pointer;-webkit-user-select:none;user-select:none;
     display:inline-flex;align-items:center;justify-content:flex-end;gap:5px;transition:opacity .12s}
   .view-field-value.linkable:active{opacity:.55}
@@ -561,6 +554,20 @@
   .field-row .genBtn{color:var(--ios-blue);font-size:18px}
   .pwd-bar{height:3px;background:var(--ios-fill);border-radius:2px;margin-top:8px;overflow:hidden}
   .pwd-fill{height:100%;width:0;transition:width .25s, background .25s;border-radius:2px}
+
+  /* === Ручная сортировка полей внутри карточки === */
+  .field-wrap.dragging{
+    background:var(--ios-bg-elevated);
+    box-shadow:0 16px 34px rgba(24,18,60,0.24);
+    z-index:20; position:relative; will-change:transform;
+  }
+  .field-wrap .drag-hint{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);
+    background:rgba(20,18,35,.85);color:#fff;font-size:12px;font-weight:700;
+    padding:5px 12px;border-radius:12px;pointer-events:none;opacity:0;
+    transition:opacity .2s, transform .2s;letter-spacing:-0.2px;
+  }
+  .field-wrap.armed .drag-hint{opacity:1;transform:translate(-50%,-50%) scale(1)}
 
   .icon-preview{width:64px;height:64px;border-radius:16px;background:var(--ios-fill);
     display:flex;align-items:center;justify-content:center;font-size:36px;cursor:pointer;
@@ -666,7 +673,6 @@
   .trash-restore-btn:active{background:var(--ios-fill-secondary);transform:scale(.95)}
   .trash-restore-btn svg{width:14px;height:14px;flex-shrink:0}
 
-  /* ===== Icon system ===== */
   .list-icon{color:var(--ios-blue)}
   .list-icon svg{width:22px;height:22px}
   .icon-preview{color:var(--ios-blue)}
@@ -689,7 +695,6 @@
   .btn-ico svg{width:18px;height:18px}
   .act.fav-on{color:var(--ios-yellow)}
 
-  /* ===== Оформление: выбор цветовой темы ===== */
   .theme-row{display:flex;gap:14px;padding:18px 16px;background:var(--ios-bg-grouped);
     border-radius:var(--ios-radius-l);box-shadow:var(--ios-shadow-s);margin-bottom:8px;flex-wrap:wrap}
   .theme-swatch{width:46px;height:46px;border-radius:50%;cursor:pointer;position:relative;flex-shrink:0;
@@ -765,6 +770,12 @@
       <span class="nav-title" id="navTitle">Сейф+</span>
     </div>
     <div class="nav-right">
+      <span class="nav-icon" id="navThemeBtn" title="Тема">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+        </svg>
+      </span>
       <span class="nav-icon" id="navFavBtn" title="Избранное"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 5c-2.5 4.6-9.5 9-9.5 9z"/></svg></span>
       <span class="nav-icon" id="navAddBtn" title="Добавить"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
       <span class="nav-icon" id="navSearchBtn" title="Поиск"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
@@ -848,6 +859,7 @@
   <label>Папка</label>
   <select id="cardFolder" style="margin-bottom:20px"></select>
   <label>Поля</label>
+  <p class="info" style="margin:-4px 4px 12px;font-size:12px">Долгое нажатие на поле — перетащить вверх или вниз.</p>
   <div id="fieldsContainer"></div>
   <button id="addFieldBtn" class="sec" style="margin-top:4px">+ Добавить поле</button>
   <button id="saveCardBtn" style="margin-top:12px">Сохранить</button>
@@ -916,6 +928,20 @@
         <div class="sr-sub">Лента последних открытых карточек сверху</div>
       </div>
       <label class="switch"><input type="checkbox" id="recentToggle"><span class="slider"></span></label>
+    </div>
+  </div>
+
+  <label style="margin-top:32px">Открытие ссылок</label>
+  <div class="switch-group">
+    <div class="switch-row">
+      <div>
+        <div class="sr-label">
+          <span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span>
+          Открывать сайты внутри мини-аппа
+        </div>
+        <div class="sr-sub">Выкл. — Android/Telegram предложит браузеры (как в самом Telegram). Вкл. — встроенный просмотрщик. На email и телефон не влияет</div>
+      </div>
+      <label class="switch"><input type="checkbox" id="openLinksInMiniToggle"><span class="slider"></span></label>
     </div>
   </div>
 
@@ -1060,10 +1086,22 @@
   <div class="sheet" id="folderActionsSheet" style="touch-action:none">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="folderActionsTitle">Папка</div>
-    <div class="sheet-item" id="faDelete"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/></svg></span>Удалить папку</div>
+    <div class="sheet-item" id="faIcon"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 17l5-5 4 4 3-3 4 4"/></svg></span>Изменить иконку</div>
     <div class="sheet-item" id="faRename"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 10-10-3-3L5 16l-1 4z"/><path d="M14 6l3 3"/></svg></span>Переименовать</div>
     <div class="sheet-item" id="faSort"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v14M8 17l-3-3M8 17l3-3"/><path d="M16 21V7M16 7l3 3M16 7l-3 3"/></svg></span>Сортировка</div>
+    <div class="sheet-item" id="faDelete" style="color:var(--ios-red)"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/></svg></span>Удалить папку</div>
     <div class="sheet-item" id="faCancel" style="justify-content:center;color:var(--ios-blue);font-weight:700">Отмена</div>
+  </div>
+</div>
+
+<div id="folderIconSheet" class="modal-overlay" style="display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
+  <div class="sheet" id="folderIconSheetInner" style="touch-action:none">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Иконка папки</div>
+    <div style="padding:4px 16px 20px">
+      <div class="icon-grid" id="folderIconPickGrid" style="margin:0"></div>
+    </div>
+    <div class="sheet-item" id="folderIconCancel" style="justify-content:center;color:var(--ios-blue);font-weight:700">Отмена</div>
   </div>
 </div>
 
@@ -1117,6 +1155,7 @@ try { if (typeof tg.expand === 'function') tg.expand(); } catch(e){}
 
 const META_KEY        = 'safe_meta_v4';
 const THEME_KEY        = 'safe_theme_v1';
+const COLOR_KEY        = 'safe_color_scheme_v1';
 const CONF_KEY        = 'safe_conf_v4';
 const INDEX_KEY       = 'safe_index_v4';
 const CARD_PREFIX     = 'safe_card_v4_';
@@ -1138,7 +1177,6 @@ const ICONS = ['📁','🌐','💳','🪪','📝','🏦','📧','📶','📱','�
                '🛒','💼','🏥','🚗','🏠','✈️','🎓','📚','⚙️','🔒','💰','🎁','☁️','🔧',
                '⭐','❤️','🎯','🏢','🛡️','🔐','🗝️','📊','🧾','📋','🎨'];
 
-// ============ SVG icon system (заменяет эмодзи на современные векторные иконки) ============
 const ICONS_SVG = {
   '📁':'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>',
   '🌐':'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.4 2.5 3.8 5.5 3.8 9s-1.4 6.5-3.8 9c-2.4-2.5-3.8-5.5-3.8-9s1.4-6.5 3.8-9z"/>',
@@ -1258,6 +1296,44 @@ function renderThemeRow(activeId){
     box.appendChild(el);
   });
 }
+
+// ============ Цветовая схема (светлая/тёмная) ============
+// В WebView Telegram prefers-color-scheme в CSS не срабатывает, поэтому
+// управляем через атрибут data-color-scheme. По умолчанию — авто из tg.colorScheme.
+const ICON_SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+const ICON_MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
+function applyColorScheme(mode){
+  const html = document.documentElement;
+  if(mode === 'light' || mode === 'dark'){
+    html.setAttribute('data-color-scheme', mode);
+  } else {
+    const tgScheme = (tg && tg.colorScheme) || null;
+    if(tgScheme === 'light' || tgScheme === 'dark'){
+      html.setAttribute('data-color-scheme', tgScheme);
+    } else {
+      const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      html.setAttribute('data-color-scheme', dark ? 'dark' : 'light');
+    }
+  }
+  updateThemeIcon();
+}
+function updateThemeIcon(){
+  const btn = $('navThemeBtn'); if(!btn) return;
+  const dark = document.documentElement.getAttribute('data-color-scheme') === 'dark';
+  btn.innerHTML = svgWrap(dark ? ICON_MOON : ICON_SUN, 21, false);
+}
+async function loadColorScheme(){
+  let saved = null;
+  try { saved = await storeGet(COLOR_KEY); } catch(e){}
+  applyColorScheme(saved || 'auto');
+}
+async function toggleColorScheme(){
+  const current = document.documentElement.getAttribute('data-color-scheme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  applyColorScheme(next);
+  try { await storeSet(COLOR_KEY, next); } catch(e){}
+}
+
 let vault = { folders: [], cards: [], trash: [], settings: { autoLock: 60, clipClear: true } };
 let storageMode = 'individual';
 let sortMode = 'alpha';
@@ -1292,7 +1368,6 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 const PWD_FIELD_RE = /pass(?!port)|парол|pin(?!k|g|e)|пин(?!г|к)|cvv|seed|ключ|приватн/i;
 function isPasswordField(name){ return PWD_FIELD_RE.test(String(name||'')); }
 
-// ============ Определение кликабельных полей (ссылка / email / телефон) ============
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const URL_RE = /^(https?:\/\/)?(www\.)?[a-z0-9а-я-]+(\.[a-z0-9а-я-]+)+(:[0-9]+)?([\/?#][^\s]*)?$/i;
 const PHONE_RE = /^\+?[0-9()\-\s]{6,20}$/;
@@ -1306,26 +1381,94 @@ function detectFieldLinkType(name, value){
   if(URL_RE.test(v) && !/\s/.test(v)) return 'url';
   return null;
 }
+
+// Открытие ссылок: URL → tg.openLink (системный диалог выбора браузера,
+// ровно как в самом Telegram). Email/tel → tg.openLink + фолбэк на window.open,
+// потому что WebView Telegram не всегда пропускает mailto:/tel: через openLink.
+// window.location.href здесь НЕ используем: именно он вешал окно с ERR_UNKNOWN_URL_SCHEME.
 function openExternalLink(type, rawValue){
   const v = String(rawValue || '').trim();
+  if(!v) return;
+  const inMiniApp = vault.settings.openLinksInMiniApp === true;
+
+  let url;
+  if(type === 'url'){
+    url = v;
+    if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  } else if(type === 'email'){
+    url = 'mailto:' + v;
+  } else if(type === 'tel'){
+    url = 'tel:' + v.replace(/[^\d+]/g, '');
+  } else return;
+
+  // Режим «в мини-аппе» — только для http/https. Email/tel всегда уходят системно.
+  if(inMiniApp && type === 'url'){ openInMiniApp(url); return; }
+
+  // Основной путь — tg.openLink (передаёт url системе через Intent.ACTION_VIEW,
+  // тот же механизм, что использует клиент Telegram для ссылок из чата).
+  if(tg && typeof tg.openLink === 'function'){
+    try {
+      tg.openLink(url, { try_instant_view: false });
+      // Для не-URL схем подстрахуемся window.open — Telegram перехватывает
+      // это как открытие внешнего приложения (Gmail/Почта/Телефон).
+      if(type !== 'url'){
+        setTimeout(() => {
+          try { window.open(url, '_blank', 'noopener,noreferrer'); } catch(e){}
+        }, 120);
+      }
+      return;
+    } catch(e){ /* падаем на фолбэк */ }
+  }
+
   try {
-    if(type === 'url'){
-      let url = v;
-      if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
-      if(tg && typeof tg.openLink === 'function') tg.openLink(url);
-      else window.open(url, '_blank');
-    } else if(type === 'email'){
-      window.location.href = 'mailto:' + v;
-    } else if(type === 'tel'){
-      window.location.href = 'tel:' + v.replace(/[^\d+]/g, '');
-    }
-  } catch(e){ toast('Не удалось открыть'); }
+    const w = window.open(url, '_blank', 'noopener,noreferrer');
+    if(!w) toast('Установите браузер по умолчанию в настройках телефона');
+  } catch(e){
+    toast('Не удалось открыть ссылку');
+  }
 }
 function linkIconFor(type){
   if(type === 'email') return '<path d="M3 5h18v14H3z"/><path d="M3 6.5l9 6.5 9-6.5"/>';
   if(type === 'tel') return '<path d="M6.5 3.5c1 2 1.7 3.6 2.7 4.6-1 1-1.6 1.6-1.6 1.6a13 13 0 0 0 6.7 6.7s.6-.6 1.6-1.6c1 1 2.6 1.7 4.6 2.7 0 1.5-.4 3-1.6 3.7-1.2.8-2.8.9-4.2.4A18 18 0 0 1 3.5 7.7c-.5-1.4-.4-3 .4-4.2.7-1.2 2.2-1.6 3.7-1.6z"/>';
   return '<path d="M14 3h7v7"/><path d="M21 3l-9 9"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/>';
 }
+// Открытие ссылки во встроенном iframe-просмотрщике (по желанию пользователя).
+let _miniAppOverlay = null;
+function openInMiniApp(url){
+  closeMiniApp();
+  const wrap = document.createElement('div');
+  wrap.id = 'miniAppBrowser';
+  wrap.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#fff;display:flex;flex-direction:column';
+  wrap.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--ios-bg-elevated);border-bottom:1px solid var(--ios-separator)">
+      <button id="miniAppClose" style="width:36px;height:36px;padding:0;border-radius:50%;background:var(--ios-fill);color:var(--ios-label);box-shadow:none;margin:0;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div style="flex:1;font-size:14px;font-weight:600;color:var(--hint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(url)}</div>
+      <button id="miniAppExternal" style="width:36px;height:36px;padding:0;border-radius:50%;background:var(--ios-fill);color:var(--ios-blue);box-shadow:none;margin:0;flex-shrink:0" title="Открыть в браузере">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"/><path d="M21 3l-9 9"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>
+      </button>
+    </div>
+    <iframe src="${esc(url)}" style="flex:1;border:none;width:100%;background:#fff" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>`;
+  document.body.appendChild(wrap);
+  _miniAppOverlay = wrap;
+  wrap.querySelector('#miniAppClose').onclick = closeMiniApp;
+  wrap.querySelector('#miniAppExternal').onclick = () => {
+    closeMiniApp();
+    if(tg && typeof tg.openLink === 'function'){
+      try { tg.openLink(url, { try_instant_view: false }); } catch(e){}
+    } else {
+      try { window.open(url, '_blank', 'noopener,noreferrer'); } catch(e){}
+    }
+  };
+}
+function closeMiniApp(){
+  if(_miniAppOverlay && _miniAppOverlay.parentNode){
+    _miniAppOverlay.parentNode.removeChild(_miniAppOverlay);
+  }
+  _miniAppOverlay = null;
+}
+
 let toastTimer = null;
 function toast(msg){
   clearTimeout(toastTimer);
@@ -1352,13 +1495,10 @@ function toastUndo(msg, undoFn){
 }
 function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
-// ============ Заголовок в шапке ============
 function updateNavTitle(text){
   const el = $('navTitle');
   if(el) el.textContent = text || 'Сейф+';
 }
-
-// ============ Бейдж корзины на иконке меню ============
 function updateTrashBadge(){
   const btn = $('navMenuBtn');
   if(!btn) return;
@@ -1372,7 +1512,6 @@ function updateTrashBadge(){
   btn.appendChild(b);
 }
 
-// ============ BiometricManager ============
 function getBio(){ try { return tg.BiometricManager || null; } catch(e){ return null; } }
 function initBiometric(){
   if(bioInited) return Promise.resolve(bioInitDone);
@@ -1469,7 +1608,6 @@ async function tryUnlockWithBiometric(meta){
   } catch(e){ return { error: 'Повреждены данные' }; }
 }
 
-// ============ Утилиты ============
 function timeAgo(ts){
   if(!ts) return '';
   const diff = Date.now() - ts;
@@ -1517,7 +1655,6 @@ function generateRecoveryKey(){
 }
 function normalizeRecoveryKey(s){ return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
 
-// ============ Крипто ============
 async function deriveKey(pin, salt){
   const km = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey({ name:'PBKDF2', salt, iterations:150000, hash:'SHA-256' },
@@ -1579,7 +1716,6 @@ async function tryUnlockWithPattern(patternKey, meta){
   } catch(e){ return { error: 'Повреждены данные' }; }
 }
 
-// ============ Pattern canvas ============
 const PATTERN = { canvas: null, ctx: null, size: 0, cells: [], active: false, sequence: [], pointerPos: null, bound: false };
 function initPatternCanvas(){
   PATTERN.canvas = $('patternCanvas');
@@ -1780,7 +1916,6 @@ async function handlePatternComplete(seq){
   }
 }
 
-// ============ Мастер ============
 function openWizard(){ refreshWizard(); show('wizardScreen'); }
 function refreshWizard(){
   const hasPat = currentMeta && currentMeta.hasPattern;
@@ -1835,7 +1970,6 @@ async function wizardBioSetup(){
   }
 }
 
-// ============ Хранилище ============
 const useCloud = tg.CloudStorage && typeof tg.CloudStorage.getItem === 'function';
 function storeGet(k){
   if(useCloud) return new Promise((res,rej)=>tg.CloudStorage.getItem(k,(e,v)=>e?rej(e):res(v)));
@@ -1882,16 +2016,34 @@ async function rebuildIndexFromCloud(){
   } catch(e){}
   return idx;
 }
+// saveConf вызывается из многих мест параллельно (избранное, сортировка,
+// настройки). CloudStorage не выдерживает одновременную запись одного ключа —
+// раньше второй вызов падал с "Не удалось сохранить настройки". Теперь
+// запросы сериализуются, а последнее состояние дописывается автоматически.
+let _saveConfRunning = false;
+let _saveConfQueued = false;
 async function saveConf(){
   if(!cryptoKey) return false;
+  if(_saveConfRunning){ _saveConfQueued = true; return false; }
+  _saveConfRunning = true;
+  let result = false;
   try {
     const conf = { folders: vault.folders, trash: vault.trash || [], settings: vault.settings, storageMode, sortMode };
     const payload = await encryptJSON(cryptoKey, conf);
     const str = JSON.stringify(payload);
     await storeSet(CONF_KEY, str);
     try { await storeSet(CONF_BACKUP, str); } catch(e){}
-    return true;
-  } catch(e){ toast('Не удалось сохранить настройки'); return false; }
+    result = true;
+  } catch(e){
+    console.error('saveConf error:', e);
+  } finally {
+    _saveConfRunning = false;
+    if(_saveConfQueued){
+      _saveConfQueued = false;
+      setTimeout(() => { saveConf(); }, 40);
+    }
+  }
+  return result;
 }
 async function saveCardStorage(card){
   if(!cryptoKey) return false;
@@ -1979,9 +2131,6 @@ async function loadAllCards(){
   let corrupted = 0;
   if(index.packs.length > 0){
     storageMode = 'packed';
-    // Раньше пакеты грузились строго по очереди (await в цикле) — каждый запрос
-    // к CloudStorage ждал предыдущий. Теперь запрашиваем все параллельно:
-    // общее время = время самого медленного запроса, а не сумма всех.
     const results = await Promise.all(index.packs.map(async pk => {
       try {
         const raw = await storeGet(pk);
@@ -1996,8 +2145,6 @@ async function loadAllCards(){
     return normalizeCards(cards);
   }
   storageMode = 'individual';
-  // То же самое для обычного (непакованного) режима — раньше каждая карточка
-  // грузилась отдельным последовательным запросом, отсюда и долгая разблокировка.
   const results = await Promise.all(index.cards.map(async ck => {
     try {
       const raw = await storeGet(ck);
@@ -2053,7 +2200,6 @@ async function fixOrphanCards(){
   return fixed;
 }
 
-// ============ PIN ============
 function renderPinDots(){
   const n = pinBuffer.length;
   $('pinDots').innerHTML = Array.from({length: Math.max(n,4)}, (_,i)=>
@@ -2293,7 +2439,6 @@ async function submitRecovery(){
   toast('Доступ восстановлен');
 }
 
-// ============ Смена PIN ============
 function openChangePin(){
   $('changePinOld').value = ''; $('changePinNew').value = ''; $('changePinNew2').value = '';
   $('changePinError').textContent = '';
@@ -2500,7 +2645,6 @@ async function onPatternToggle(){
   }
 }
 
-// ============ ГЛАВНЫЙ ЭКРАН ============
 function openVault(){
   currentFolderId = null;
   isFavView = false;
@@ -2735,11 +2879,6 @@ function renderMainList(){
   }
 }
 
-// ============ Плавный Drag & Drop (общий движок для карточек и папок) ============
-// Вместо мгновенного "прыжка" DOM-узла: перетаскиваемый элемент плавно следует за пальцем
-// (transform: translateY), а соседи плавно "раздвигаются" transform-переходом. Реальный
-// порядок в DOM пересчитывается только один раз, в момент отпускания пальца — визуально
-// это происходит без единого скачка, т.к. финальные transform совпадают с новой раскладкой.
 function enableSmoothDrag(selector, onDrop){
   const list = $('mainList');
   const items = [...list.querySelectorAll(selector)];
@@ -2748,7 +2887,7 @@ function enableSmoothDrag(selector, onDrop){
   items.forEach(item => {
     let pressTimer = null;
     let dragging = false;
-    let grabOffset = 0; // расстояние от пальца до верхнего края элемента (в координатах документа)
+    let grabOffset = 0;
 
     const startPress = (e) => {
       const touch = e.touches ? e.touches[0] : e;
@@ -2771,14 +2910,13 @@ function enableSmoothDrag(selector, onDrop){
       document.addEventListener('mouseup', onEnd);
     };
 
-    // Плавно "въезжает" соседний элемент на новую позицию (классический FLIP).
     const flip = (el, oldTop) => {
       const newTop = el.getBoundingClientRect().top;
       const delta = oldTop - newTop;
       if(!delta) return;
       el.style.transition = 'none';
       el.style.transform = `translateY(${delta}px)`;
-      void el.offsetHeight; // форсируем reflow, чтобы браузер зафиксировал стартовую точку
+      void el.offsetHeight;
       el.style.transition = 'transform .24s cubic-bezier(.22,1,.36,1)';
       el.style.transform = '';
     };
@@ -2790,8 +2928,6 @@ function enableSmoothDrag(selector, onDrop){
       const documentY = touch.clientY + window.scrollY;
       const desiredTop = documentY - grabOffset;
 
-      // Ищем, перед каким соседом должен теперь оказаться перетаскиваемый элемент —
-      // используя РЕАЛЬНЫЕ (актуальные) позиции и высоты соседей, а не фиксированное число.
       const siblings = [...list.querySelectorAll(selector)].filter(el => el !== item);
       const desiredCenter = desiredTop + item.offsetHeight / 2;
       let target = null;
@@ -2810,8 +2946,6 @@ function enableSmoothDrag(selector, onDrop){
         if(navigator.vibrate) navigator.vibrate(6);
       }
 
-      // Перетаскиваемый элемент всегда пересчитывается от своей АКТУАЛЬНОЙ layout-позиции —
-      // поэтому даже сразу после перестановки в DOM визуального скачка не будет.
       item.style.transform = `translateY(${desiredTop - item.offsetTop}px) scale(1.025)`;
     };
 
@@ -2824,7 +2958,6 @@ function enableSmoothDrag(selector, onDrop){
       const wasDragging = dragging;
       dragging = false;
 
-      // Плавно "довозим" элемент в его финальную (уже верную) ячейку сетки.
       item.style.transition = 'transform .24s cubic-bezier(.22,1,.36,1)';
       item.style.transform = '';
       setTimeout(() => {
@@ -2892,11 +3025,7 @@ async function saveFolderOrder(){
   await saveConf();
 }
 
-// ============ КОРЗИНА ============
 function trashCount(){ return (vault.trash || []).length; }
-
-// Автоочистка корзины: элементы старше 30 дней удаляются навсегда автоматически
-// (как у 1Password/Bitwarden/Apple Passwords) — корзина не превращается в вечную свалку.
 async function purgeOldTrash(){
   if(!vault.trash || !vault.trash.length) return;
   const cutoff = Date.now() - TRASH_AUTO_PURGE_DAYS*24*60*60*1000;
@@ -2907,7 +3036,6 @@ async function purgeOldTrash(){
     updateTrashBadge();
   }
 }
-
 async function moveCardToTrash(card){
   if(trashCount() >= TRASH_LIMIT) return false;
   vault.trash.push({ type:'card', deletedAt: Date.now(), card: JSON.parse(JSON.stringify(card)) });
@@ -2917,7 +3045,6 @@ async function moveCardToTrash(card){
   updateTrashBadge();
   return true;
 }
-
 async function moveFolderToTrash(folderId){
   if(trashCount() >= TRASH_LIMIT) return false;
   const f = vault.folders.find(x => x.id === folderId);
@@ -2953,7 +3080,6 @@ async function moveFolderToTrash(folderId){
   updateTrashBadge();
   return true;
 }
-
 async function restoreTrashItem(index){
   const item = vault.trash[index];
   if(!item) return;
@@ -2994,13 +3120,11 @@ async function restoreTrashItem(index){
     return;
   }
 }
-// Восстанавливает самый последний удалённый элемент — для кнопки «Отменить» в тосте.
 async function restoreLastTrashItem(){
   if(!vault.trash.length) return;
   await restoreTrashItem(vault.trash.length - 1);
   if($('vaultScreen').classList.contains('active')) renderMainList();
 }
-
 async function deleteTrashItemPermanently(index){
   const item = vault.trash[index];
   if(!item) return;
@@ -3011,7 +3135,6 @@ async function deleteTrashItemPermanently(index){
   renderTrash();
   toast('Удалено навсегда');
 }
-
 async function clearTrash(){
   if(trashCount() === 0){ toast('Корзина пуста'); return; }
   if(!confirm('Очистить корзину? Все элементы будут удалены навсегда.')) return;
@@ -3021,7 +3144,6 @@ async function clearTrash(){
   renderTrash();
   toast('Корзина очищена');
 }
-
 function renderTrash(){
   const box = $('trashList');
   if(!box) return;
@@ -3120,14 +3242,12 @@ function updateSortLabel(){
   if(el) el.textContent = 'Сортировка: ' + labels[sortMode];
 }
 
-// ============ Меню папки (долгое нажатие) ============
 let longPressTarget = null;
-
 function openFolderActions(folderId){
   longPressTarget = folderId;
   const f = vault.folders.find(x => x.id === folderId);
   if(!f) return;
-  $('folderActionsTitle').textContent = f.icon + ' ' + f.name;
+  $('folderActionsTitle').textContent = (ICONS_SVG[f.icon] ? '' : f.icon + ' ') + f.name;
   $('folderActionsMenu').style.display = 'flex';
 }
 function closeFolderActions(){
@@ -3155,7 +3275,38 @@ $('faSort').onclick = () => {
   openSortSheet();
 };
 
-// ============ Меню действий карточки (долгое нажатие / «•••» в карточке) ============
+// === Иконка папки из шторки действий ===
+let folderIconTarget = null;
+function openFolderIconPicker(folderId){
+  const f = vault.folders.find(x => x.id === folderId);
+  if(!f) return;
+  folderIconTarget = folderId;
+  const g = $('folderIconPickGrid'); g.innerHTML = '';
+  ICONS.forEach(ic => {
+    const b = document.createElement('div');
+    b.className = 'icon-pick' + (ic === f.icon ? ' sel' : '');
+    b.innerHTML = iconMarkup(ic, 22);
+    b.onclick = async () => {
+      const folder = vault.folders.find(x => x.id === folderIconTarget);
+      if(!folder) return;
+      folder.icon = ic;
+      const ok = await saveConf();
+      $('folderIconSheet').style.display = 'none';
+      if(ok){ toast('Иконка обновлена'); renderMainList(); }
+      else { toast('Не удалось сохранить'); }
+    };
+    g.appendChild(b);
+  });
+  $('folderIconSheet').style.display = 'flex';
+}
+$('folderIconCancel').onclick = () => { $('folderIconSheet').style.display = 'none'; };
+$('folderIconSheet').addEventListener('click', (e) => { if(e.target === $('folderIconSheet')) $('folderIconSheet').style.display = 'none'; });
+$('faIcon').onclick = () => {
+  const id = longPressTarget;
+  closeFolderActions();
+  if(id) openFolderIconPicker(id);
+};
+
 let cardActionsTarget = null;
 function buildCardShareText(c){
   return `${c.title}\n` + (c.fields||[]).map(f=>`${f.name}: ${f.value}`).join('\n');
@@ -3344,7 +3495,6 @@ function bindFolderLongPress(){
   });
 }
 
-// ============ Шторка сортировки ============
 function openSortSheet(){ $('sortSheetMenu').style.display = 'flex'; }
 function closeSortSheet(){ $('sortSheetMenu').style.display = 'none'; }
 
@@ -3362,8 +3512,6 @@ $('sortAlpha').onclick = async () => {
 
 $('sortManual').onclick = async () => {
   if(sortMode !== 'manual'){
-    // Стартуем ручную сортировку ровно с того порядка, что виден сейчас на экране —
-    // по алфавиту или по дате (смотря что было активно), а не со старых/неполных данных.
     const cardCmp = sortMode === 'date'
       ? (a,b) => (b.updated||0) - (a.updated||0)
       : (a,b) => (a.title||'').localeCompare(b.title||'', 'ru');
@@ -3397,7 +3545,6 @@ $('manualDoneBtn').onclick = async () => {
   renderMainList();
 };
 
-// ============ Папки (редактор) ============
 function openFolders(){ renderFoldersList(); show('foldersScreen'); }
 function renderFoldersList(){
   const box = $('foldersList'); box.innerHTML='';
@@ -3519,7 +3666,6 @@ async function deleteFolder(){
   show('vaultScreen');
 }
 
-// ============ Шаблоны ============
 const TEMPLATES = [
   { id:'login',   icon:'🌐', name:'Логин / Пароль', folder:null,   fields:['Логин','Пароль','Сайт','Заметка'] },
   { id:'email',   icon:'📧', name:'Email', folder:null,           fields:['Email','Пароль','Сервер (IMAP)','Порт','Заметка'] },
@@ -3547,7 +3693,6 @@ function renderTemplates(){
 }
 function pickTemplate(t){ pendingTemplate = t; openEditor(null); }
 
-// ============ ИМПОРТ XML ============
 function guessIcon(name, isFolder){
   const n = String(name || '').toLowerCase();
   if(isFolder){
@@ -3757,7 +3902,6 @@ async function startImport(){
   }
 }
 
-// ============ ПРОСМОТР / РЕДАКТОР ============
 function viewCard(id){
   const c = vault.cards.find(x=>x.id===id); if(!c) return;
   trackRecent(id);
@@ -3889,6 +4033,13 @@ function addFieldRow(name='', value='', id=uid()){
   const bar = document.createElement('div'); bar.className = 'pwd-bar'; bar.style.display = 'none';
   bar.innerHTML = `<div class="pwd-fill"></div>`;
   wrap.appendChild(bar);
+
+  // Подсказка для drag-and-drop полей.
+  const hint = document.createElement('div');
+  hint.className = 'drag-hint';
+  hint.textContent = '⇅ ведите палец';
+  wrap.appendChild(hint);
+
   const nameInput = row.querySelector('.fName');
   const valInput = row.querySelector('.fValue');
   const genBtn = row.querySelector('.genBtn');
@@ -3908,9 +4059,105 @@ function addFieldRow(name='', value='', id=uid()){
   row.querySelector('.delBtn').onclick = () => wrap.remove();
   box.appendChild(wrap);
   checkFieldType();
+  bindFieldDrag(wrap);
 }
+
+// Ручная сортировка полей в редакторе карточки: долгое нажатие на поле (не на инпут)
+// включает режим перетаскивания, дальше — та же плавная FLIP-техника, что и для карточек.
+function bindFieldDrag(wrap){
+  const box = $('fieldsContainer');
+  let pressTimer = null;
+  let dragging = false;
+  let grabOffset = 0;
+
+  const startPress = (e) => {
+    if(e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+    const t = e.touches ? e.touches[0] : e;
+    const y0 = t.clientY;
+    wrap.classList.add('armed');
+    pressTimer = setTimeout(() => { wrap.classList.remove('armed'); enterDrag(y0); }, 500);
+  };
+  const cancelPress = () => {
+    clearTimeout(pressTimer); pressTimer = null;
+    wrap.classList.remove('armed');
+  };
+
+  const enterDrag = (clientY) => {
+    dragging = true;
+    wrap.classList.add('dragging');
+    if(navigator.vibrate) navigator.vibrate(20);
+    grabOffset = (clientY + window.scrollY) - wrap.offsetTop;
+    document.addEventListener('touchmove', onMove, {passive:false});
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchend', onEnd);
+    document.addEventListener('mouseup', onEnd);
+  };
+
+  const flip = (el, oldTop) => {
+    const newTop = el.getBoundingClientRect().top;
+    const delta = oldTop - newTop;
+    if(!delta) return;
+    el.style.transition = 'none';
+    el.style.transform = `translateY(${delta}px)`;
+    void el.offsetHeight;
+    el.style.transition = 'transform .22s cubic-bezier(.22,1,.36,1)';
+    el.style.transform = '';
+  };
+
+  const onMove = (e) => {
+    if(!dragging) return;
+    e.preventDefault();
+    const t = e.touches ? e.touches[0] : e;
+    const docY = t.clientY + window.scrollY;
+    const desiredTop = docY - grabOffset;
+    const siblings = [...box.querySelectorAll('.field-wrap')].filter(x => x !== wrap);
+    const desiredCenter = desiredTop + wrap.offsetHeight / 2;
+    let target = null;
+    for(const s of siblings){
+      const c = s.offsetTop + s.offsetHeight / 2;
+      if(desiredCenter < c){ target = s; break; }
+    }
+    const needs = target ? (wrap.nextElementSibling !== target) : (wrap.nextElementSibling !== null);
+    if(needs && siblings.length){
+      const before = new Map();
+      siblings.forEach(s => before.set(s, s.getBoundingClientRect().top));
+      if(target) target.before(wrap); else box.appendChild(wrap);
+      siblings.forEach(s => flip(s, before.get(s)));
+      if(navigator.vibrate) navigator.vibrate(5);
+    }
+    wrap.style.transform = `translateY(${desiredTop - wrap.offsetTop}px) scale(1.02)`;
+  };
+
+  const onEnd = () => {
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('touchend', onEnd);
+    document.removeEventListener('mouseup', onEnd);
+    if(!dragging) return;
+    dragging = false;
+    wrap.style.transition = 'transform .22s cubic-bezier(.22,1,.36,1)';
+    wrap.style.transform = '';
+    setTimeout(() => {
+      wrap.classList.remove('dragging');
+      wrap.style.transition = '';
+      wrap.style.zIndex = '';
+    }, 220);
+  };
+
+  wrap.addEventListener('touchstart', startPress, {passive:true});
+  wrap.addEventListener('mousedown', startPress);
+  wrap.addEventListener('touchend', cancelPress);
+  wrap.addEventListener('mouseup', cancelPress);
+  wrap.addEventListener('mouseleave', cancelPress);
+  wrap.addEventListener('touchmove', () => { if(!dragging) cancelPress(); }, {passive:true});
+  wrap.addEventListener('click', (e) => {
+    if(dragging){ e.preventDefault(); e.stopPropagation(); }
+  }, true);
+}
+
 async function saveCard(){
   const title = $('cardTitle').value.trim(); if(!title){ toast('Введите название'); return; }
+  // Порядок полей определяется DOM после возможных перетаскиваний.
   const fields = [...$('fieldsContainer').querySelectorAll('.field-wrap')].map(w=>({
     id: w.dataset.id,
     name: w.querySelector('.fName').value,
@@ -3997,12 +4244,12 @@ function setupPhotoUpload(){
   };
 }
 
-// ============ Настройки ============
 async function openSettings(){
   $('autoLockInput').value = vault.settings.autoLock || 60;
   $('clipClearChk').checked = vault.settings.clipClear !== false;
   renderThemeRow(currentTheme);
   $('recentToggle').checked = vault.settings.recentEnabled !== false;
+  $('openLinksInMiniToggle').checked = vault.settings.openLinksInMiniApp === true;
   const hasPat = currentMeta && currentMeta.hasPattern;
   $('patternToggle').checked = !!hasPat;
   $('patternSub').textContent = hasPat ? 'Настроен' : 'Не настроен';
@@ -4222,7 +4469,6 @@ async function onBioLogin(){
   openVault();
 }
 
-// ============ Избранное ============
 function renderFavList(){
   const favCards = vault.cards.filter(c => c.favorite);
   const box = $('mainList');
@@ -4255,9 +4501,9 @@ function renderFavList(){
   bindCardLongPress();
 }
 
-// ============ ИНИЦИАЛИЗАЦИЯ ============
 async function init(){
   currentTheme = await loadTheme();
+  await loadColorScheme();
   buildPinPad(); renderPinDots(); renderTemplates(); setupPhotoUpload();
   updateSortLabel();
   updateTrashBadge();
@@ -4294,7 +4540,6 @@ async function init(){
   }
 }
 
-// ============ ОБРАБОТЧИКИ ============
 $('wizPatternBtn').onclick = () => { patternFromWizard = true; pendingPattern = null; openPatternScreen('set'); };
 $('wizBioBtn').onclick = () => { wizardBioSetup(); };
 $('wizContinueBtn').onclick = () => { finishWizard(); };
@@ -4344,6 +4589,8 @@ $('navFavBtn').onclick = () => {
   show('vaultScreen');
 };
 
+$('navThemeBtn').onclick = () => { toggleColorScheme(); };
+
 $('navAddBtn').onclick = () => {
   const sheet = $('addSheet');
   if(sheet){
@@ -4391,7 +4638,6 @@ $('menuExit').onclick = () => {
   }
 };
 
-// Универсальный свайп вниз для всех шторок
 function enableSheetSwipe(sheetId, overlayId){
   const sheet = $(sheetId);
   const overlay = $(overlayId);
@@ -4456,6 +4702,7 @@ function enableSheetSwipe(sheetId, overlayId){
 
 enableSheetSwipe('addSheet', 'addMenu');
 enableSheetSwipe('folderActionsSheet', 'folderActionsMenu');
+enableSheetSwipe('folderIconSheetInner', 'folderIconSheet');
 enableSheetSwipe('cardActionsSheet', 'cardActionsMenu');
 enableSheetSwipe('sortSheet', 'sortSheetMenu');
 
@@ -4546,6 +4793,13 @@ $('recentToggle').onchange = async () => {
   await saveConf();
   toast(vault.settings.recentEnabled ? 'Недавние включены' : 'Недавние отключены');
 };
+$('openLinksInMiniToggle').onchange = async () => {
+  vault.settings.openLinksInMiniApp = $('openLinksInMiniToggle').checked;
+  await saveConf();
+  toast(vault.settings.openLinksInMiniApp
+    ? 'Сайты — внутри мини-аппа'
+    : 'Сайты — в браузере телефона');
+};
 $('bioToggle').onchange = onBioToggle;
 $('openBioSettingsBtn').onclick = openBioSettings;
 $('tplBack').onclick = ()=>{ updateNavTitle('Сейф+'); show('vaultScreen'); };
@@ -4557,12 +4811,10 @@ $('addFieldBtn').onclick = ()=>addFieldRow();
 $('iconPickBtn').onclick = openIconPicker;
 $('iconBack').onclick = ()=>show('editScreen');
 
-// Кнопки корзины
 $('openTrashBtn').onclick = ()=>{ openTrash(); };
 $('trashBack').onclick = ()=>{ openSettings(); };
 $('trashClearBtn').onclick = ()=>{ clearTrash(); };
 
-// Кнопки импорта XML
 $('openImportBtn').onclick = ()=>{ openImport(); };
 $('importBack').onclick = ()=>{ updateNavTitle('Сейф+'); show('settingsScreen'); };
 $('importPickFileBtn').onclick = ()=>{ $('importFile').click(); };
@@ -4591,7 +4843,6 @@ $('importFile').onchange = (e) => {
 };
 $('importStartBtn').onclick = startImport;
 
-// ============ Тактильная отдача (ripple) на тап ============
 document.addEventListener('pointerdown', function(e){
   const el = e.target.closest('button, .list-item, .sheet-item, .dropdown-item, .tpl-btn, .cat, .icon-pick, .folder-item, .trash-restore-btn');
   if(!el || el.disabled) return;
