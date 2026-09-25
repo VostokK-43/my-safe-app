@@ -38,11 +38,13 @@
     --lock-bg-1: #F5F6F8;
     --lock-bg-2: #EFF0F2;
     --lock-bg-3: #E1E3E6;
-    --bg: var(--tg-theme-bg-color, var(--ios-bg));
-    --text: var(--tg-theme-text-color, var(--ios-label));
-    --hint: var(--tg-theme-hint-color, var(--ios-label-secondary));
-    --btn: var(--tg-theme-button-color, var(--ios-blue));
-    --btntext: var(--tg-theme-button-text-color, #FFFFFF);
+    /* Отвязано от Telegram: тема полностью управляется нашим data-color-scheme,
+       иначе при переключении тёмного/светлого в приложении текст сливался с фоном. */
+    --bg: var(--ios-bg);
+    --text: var(--ios-label);
+    --hint: var(--ios-label-secondary);
+    --btn: var(--ios-blue);
+    --btntext: #FFFFFF;
     --danger: var(--ios-red);
   }
   :root[data-theme="purple"]{
@@ -65,8 +67,6 @@
     --ios-fill-tertiary: rgba(224,122,86,0.06); --accent-grad-1: #E07A56; --accent-grad-2: #EF9C78;
     --accent-shadow: rgba(224,122,86,0.32); --lock-bg-1: #FBEBE3; --lock-bg-2: #FCF3EE; --lock-bg-3: #F7DED0;
   }
-  /* === Тёмная схема — управляется атрибутом data-color-scheme (WebView Telegram
-     не отдаёт prefers-color-scheme в CSS, поэтому @media dark тут не работает). === */
   :root[data-color-scheme="dark"]{
     --ios-bg: #0A0A11; --ios-bg-elevated: #17171F; --ios-bg-grouped: #17171F;
     --ios-separator: rgba(255,255,255,0.09); --ios-label: #F6F6FC;
@@ -241,20 +241,22 @@
   #patternStatus.error{color:var(--ios-red);font-weight:600}
 
   #vaultScreen{padding:0}
-  .top-nav{display:flex;align-items:center;padding:14px 16px;
+  .top-nav{display:flex;align-items:center;padding:14px 12px;
     background:var(--nav-bg-rgba);
     backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
     border-bottom:1px solid var(--ios-separator);
-    position:sticky;top:0;z-index:50;box-shadow:var(--ios-shadow-s);gap:8px;}
-  .nav-left{display:flex;align-items:center;gap:8px}
-  .nav-right{display:flex;align-items:center;gap:18px;margin-left:auto}
-  .nav-title{font-size:24px;font-weight:800;color:var(--text);letter-spacing:-0.8px;line-height:1;
+    position:sticky;top:0;z-index:50;box-shadow:var(--ios-shadow-s);gap:6px;}
+  .nav-left{display:flex;align-items:center;gap:6px;min-width:0;flex:1}
+  /* Компактнее — чтобы 5 иконок (луна, сердце, +, поиск, меню) не уезжали за экран. */
+  .nav-right{display:flex;align-items:center;gap:4px;margin-left:auto;flex-shrink:0}
+  .nav-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.8px;line-height:1;
     user-select:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .nav-icon{font-size:24px;font-weight:700;cursor:pointer;width:38px;height:38px;
+  .nav-icon{font-size:22px;font-weight:700;cursor:pointer;width:34px;height:34px;
     display:flex;align-items:center;justify-content:center;border-radius:50%;
-    transition:background .15s, transform .1s;user-select:none;color:var(--text);line-height:1;position:relative;}
+    transition:background .15s, transform .1s;user-select:none;color:var(--text);line-height:1;position:relative;
+    flex-shrink:0;}
   .nav-icon:active{background:var(--ios-fill);transform:scale(.9)}
-  .nav-icon.left{font-size:38px;font-weight:600;margin-left:-4px}
+  .nav-icon.left{font-size:32px;font-weight:600;margin-left:-4px}
 
   .nav-badge{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;padding:0 5px;
     border-radius:9px;background:var(--ios-blue);color:#fff;font-size:11px;font-weight:800;
@@ -428,7 +430,9 @@
 
   .chk{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--text);margin:12px 4px;
     letter-spacing:-0.3px;cursor:pointer;-webkit-user-select:none;user-select:none}
-  .chk input{width:22px;height:22px;margin:0;accent-color:var(--ios-blue);flex-shrink:0}  .rec-key{font-family:ui-monospace, 'SF Mono', Menlo, monospace;font-size:16px;
+  .chk input{width:22px;height:22px;margin:0;accent-color:var(--ios-blue);flex-shrink:0}
+
+  .rec-key{font-family:ui-monospace, 'SF Mono', Menlo, monospace;font-size:16px;
     background:var(--ios-fill-tertiary);padding:20px;border-radius:var(--ios-radius-l);
     letter-spacing:1.5px;text-align:center;word-break:break-all;margin:20px 0;
     user-select:all;-webkit-user-select:all;line-height:1.7;font-weight:800;color:var(--text);
@@ -530,7 +534,7 @@
   .switch-row .sr-label .ico svg{width:20px;height:20px;display:block}
   .wizard-opt .opt-icon svg{width:26px;height:26px}
   .wizard-icon svg{width:46px;height:46px;color:var(--ios-blue)}
-  .nav-icon svg{width:21px;height:21px;display:block}
+  .nav-icon svg{width:20px;height:20px;display:block}
   .sheet-item .ico svg{width:20px;height:20px;display:block}
   .dropdown-item svg{width:18px;height:18px;flex-shrink:0}
   .view-field-actions button svg{width:16px;height:16px}
@@ -549,8 +553,7 @@
   .theme-swatch.active{border-color:var(--ios-label)}
   .theme-swatch svg{width:18px;height:18px}
 </style>
-</head>
-<body>
+</head><body>
 
 <div id="lockScreen" class="screen active">
   <h1 class="lock-title">Сейф+</h1>
@@ -615,15 +618,15 @@
     </div>
     <div class="nav-right">
       <span class="nav-icon" id="navThemeBtn" title="Тема">
-        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="4"/>
           <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
         </svg>
       </span>
-      <span class="nav-icon" id="navFavBtn" title="Избранное"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 5c-2.5 4.6-9.5 9-9.5 9z"/></svg></span>
-      <span class="nav-icon" id="navAddBtn" title="Добавить"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
-      <span class="nav-icon" id="navSearchBtn" title="Поиск"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
-      <span class="nav-icon" id="navMenuBtn" title="Меню"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
+      <span class="nav-icon" id="navFavBtn" title="Избранное"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 5c-2.5 4.6-9.5 9-9.5 9z"/></svg></span>
+      <span class="nav-icon" id="navAddBtn" title="Добавить"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
+      <span class="nav-icon" id="navSearchBtn" title="Поиск"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+      <span class="nav-icon" id="navMenuBtn" title="Меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
     </div>
   </div>
 
@@ -1140,6 +1143,8 @@ function renderThemeRow(activeId){
     box.appendChild(el);
   });
 }
+// Тема: data-color-scheme переключается нами, а не Telegram.
+// Иначе при чужом режиме (тёмный Telegram / светлое приложение) текст сливался с фоном.
 function applyColorScheme(mode){
   const html = document.documentElement;
   if(mode === 'light' || mode === 'dark'){
@@ -1158,7 +1163,7 @@ function applyColorScheme(mode){
 function updateThemeIcon(){
   const btn = $('navThemeBtn'); if(!btn) return;
   const dark = document.documentElement.getAttribute('data-color-scheme') === 'dark';
-  btn.innerHTML = svgWrap(dark ? ICON_MOON : ICON_SUN, 21, false);
+  btn.innerHTML = svgWrap(dark ? ICON_MOON : ICON_SUN, 20, false);
 }
 async function loadColorScheme(){
   let saved = null;
@@ -1236,38 +1241,36 @@ function extractHostForIcon(value){
   } catch(e){}
   return null;
 }
+// Загрузка favicon через Image (не fetch) — fetch в WebView Telegram
+// блокируется политикой и зависает. Image грузится всегда, canvas не портится
+// благодаря CORS-заголовкам Google/DuckDuckGo.
 async function fetchFaviconForHost(host){
-  const endpoints = [
+  const urls = [
+    'https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://' + host + '&size=64',
     'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(host) + '&sz=64',
     'https://icons.duckduckgo.com/ip3/' + encodeURIComponent(host) + '.ico'
   ];
-  let lastError = null;
-  for(const url of endpoints){
+  for(const url of urls){
     try {
-      const resp = await fetch(url, { mode:'cors', cache:'force-cache' });
-      if(!resp.ok) throw new Error('HTTP ' + resp.status);
-      const blob = await resp.blob();
-      const dataUrl = await new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-          try {
-            const size = 48;
-            const canvas = document.createElement('canvas');
-            canvas.width = size; canvas.height = size;
-            const ctx = canvas.getContext('2d');
-            const scale = Math.max(size / img.width, size / img.height);
-            const w = img.width * scale, h = img.height * scale;
-            ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
-            resolve(canvas.toDataURL('image/jpeg', 0.6));
-          } catch(err){ reject(err); }
-        };
-        img.onerror = () => reject(new Error('decode failed'));
-        img.src = URL.createObjectURL(blob);
+      const img = await new Promise((resolve, reject) => {
+        const el = new Image();
+        el.crossOrigin = 'anonymous';
+        const timer = setTimeout(() => { el.src = ''; reject(new Error('timeout')); }, 8000);
+        el.onload = () => { clearTimeout(timer); resolve(el); };
+        el.onerror = () => { clearTimeout(timer); reject(new Error('load')); };
+        el.src = url;
       });
-      return dataUrl;
-    } catch(e){ lastError = e; }
+      const size = 48;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const scale = Math.max(size / img.width, size / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+      return canvas.toDataURL('image/jpeg', 0.6);
+    } catch(e){ /* пробуем следующий */ }
   }
-  throw lastError || new Error('favicon not found');
+  throw new Error('favicon not found');
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -1287,37 +1290,25 @@ function openExternalLink(type, rawValue){
   const v = String(rawValue || '').trim();
   if(!v) return;
   const inMiniApp = vault.settings.openLinksInMiniApp === true;
-
   let url;
-  if(type === 'url'){
-    url = v;
-    if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
-  } else if(type === 'email'){
-    url = 'mailto:' + v;
-  } else if(type === 'tel'){
-    url = 'tel:' + v.replace(/[^\d+]/g, '');
-  } else return;
-
+  if(type === 'url'){ url = v; if(!/^https?:\/\//i.test(url)) url = 'https://' + url; }
+  else if(type === 'email'){ url = 'mailto:' + v; }
+  else if(type === 'tel'){ url = 'tel:' + v.replace(/[^\d+]/g, ''); }
+  else return;
   if(inMiniApp && type === 'url'){ openInMiniApp(url); return; }
-
   if(tg && typeof tg.openLink === 'function'){
     try {
       tg.openLink(url, { try_instant_view: false });
       if(type !== 'url'){
-        setTimeout(() => {
-          try { window.open(url, '_blank', 'noopener,noreferrer'); } catch(e){}
-        }, 120);
+        setTimeout(() => { try { window.open(url, '_blank', 'noopener,noreferrer'); } catch(e){} }, 120);
       }
       return;
-    } catch(e){ /* фолбэк ниже */ }
+    } catch(e){}
   }
-
   try {
     const w = window.open(url, '_blank', 'noopener,noreferrer');
     if(!w) toast('Установите браузер по умолчанию в настройках телефона');
-  } catch(e){
-    toast('Не удалось открыть ссылку');
-  }
+  } catch(e){ toast('Не удалось открыть ссылку'); }
 }
 function linkIconFor(type){
   if(type === 'email') return '<path d="M3 5h18v14H3z"/><path d="M3 6.5l9 6.5 9-6.5"/>';
@@ -1346,17 +1337,12 @@ function openInMiniApp(url){
   wrap.querySelector('#miniAppClose').onclick = closeMiniApp;
   wrap.querySelector('#miniAppExternal').onclick = () => {
     closeMiniApp();
-    if(tg && typeof tg.openLink === 'function'){
-      try { tg.openLink(url, { try_instant_view: false }); } catch(e){}
-    } else {
-      try { window.open(url, '_blank', 'noopener,noreferrer'); } catch(e){}
-    }
+    if(tg && typeof tg.openLink === 'function'){ try { tg.openLink(url, { try_instant_view: false }); } catch(e){} }
+    else { try { window.open(url, '_blank', 'noopener,noreferrer'); } catch(e){} }
   };
 }
 function closeMiniApp(){
-  if(_miniAppOverlay && _miniAppOverlay.parentNode){
-    _miniAppOverlay.parentNode.removeChild(_miniAppOverlay);
-  }
+  if(_miniAppOverlay && _miniAppOverlay.parentNode){ _miniAppOverlay.parentNode.removeChild(_miniAppOverlay); }
   _miniAppOverlay = null;
 }
 
@@ -1650,9 +1636,7 @@ function drawPattern(){
       if(i === 0) ctx.moveTo(cell.cx, cell.cy);
       else ctx.lineTo(cell.cx, cell.cy);
     });
-    if(PATTERN.active && PATTERN.pointerPos){
-      ctx.lineTo(PATTERN.pointerPos.x, PATTERN.pointerPos.y);
-    }
+    if(PATTERN.active && PATTERN.pointerPos){ ctx.lineTo(PATTERN.pointerPos.x, PATTERN.pointerPos.y); }
     ctx.stroke();
   }
   PATTERN.cells.forEach(c => {
@@ -1758,11 +1742,7 @@ async function handlePatternComplete(seq){
     setTimeout(resetPatternSequence, 400);
     return;
   }
-  if(patternMode === 'set'){
-    pendingPattern = seq;
-    setTimeout(() => { openPatternScreen('confirm'); }, 300);
-    return;
-  }
+  if(patternMode === 'set'){ pendingPattern = seq; setTimeout(() => { openPatternScreen('confirm'); }, 300); return; }
   if(patternMode === 'confirm'){
     if(seq !== pendingPattern){
       setPatternStatus('Не совпало. Начните заново.', true);
@@ -1907,8 +1887,6 @@ async function rebuildIndexFromCloud(){
   } catch(e){}
   return idx;
 }
-// saveConf сериализован: CloudStorage не выдерживает параллельные записи
-// одного ключа. Без очереди появлялся тост «Не удалось сохранить настройки».
 let _saveConfRunning = false;
 let _saveConfQueued = false;
 async function saveConf(){
@@ -2080,11 +2058,7 @@ async function fixOrphanCards(){
   const folderIds = new Set(vault.folders.map(f => f.id));
   let fixed = 0;
   for(const c of vault.cards){
-    if(c.folderId && !folderIds.has(c.folderId)){
-      c.folderId = null;
-      fixed++;
-      await saveCardStorage(c);
-    }
+    if(c.folderId && !folderIds.has(c.folderId)){ c.folderId = null; fixed++; await saveCardStorage(c); }
   }
   return fixed;
 }
@@ -2629,10 +2603,10 @@ function renderMainList(){
   const menuBtn = $('navMenuBtn');
   if(menuBtn){
     if(currentFolderId !== null && !isFavView){
-      menuBtn.innerHTML = svgWrap(ICON_DOTS_V, 22);
+      menuBtn.innerHTML = svgWrap(ICON_DOTS_V, 20);
       menuBtn.title = 'Действия с папкой';
     } else {
-      menuBtn.innerHTML = svgWrap(ICON_MENU, 22);
+      menuBtn.innerHTML = svgWrap(ICON_MENU, 20);
       menuBtn.title = 'Меню';
     }
   }
@@ -2752,7 +2726,9 @@ function renderMainList(){
     });
     box.appendChild(group);
 
-    if(sortMode === 'manual') bindManualSort();
+    // Ручное перетаскивание включается ТОЛЬКО когда пользователь сам вошёл в этот режим
+    // (иначе порядок "съезжал" при каждом рендере после перезапуска).
+    if(sortMode === 'manual' && manualModeActive) bindManualSort();
     bindCardLongPress();
   }
 
@@ -2866,10 +2842,21 @@ function enableSmoothDrag(selector, onDrop){
 }
 
 function bindManualSort(){
+  // Не запускаем перетаскивание вне активного режима ручной сортировки.
+  if(!manualModeActive) return;
+  if(sortMode !== 'manual') return;
   const items = [...$('mainList').querySelectorAll('.list-item[data-card-id]')];
   if(!items.length) return;
-  if(Object.keys(manualOrder).length === 0){
-    items.forEach((it, i) => { manualOrder[it.dataset.cardId] = i + 1; });
+  // Если manualOrder содержит устаревшие id (карточки удалялись/добавлялись) — пересобираем
+  // порядок по тому, что видно на экране, чтобы сортировка не «прыгала».
+  const idsNow = items.map(i => i.dataset.cardId);
+  const needsReinit = idsNow.some(id => !manualOrder[id]) ||
+                      Object.keys(manualOrder).some(id => !idsNow.includes(id));
+  if(needsReinit){
+    const newOrder = {};
+    idsNow.forEach((id, i) => { newOrder[id] = i + 1; });
+    manualOrder = newOrder;
+    vault.settings.manualOrder = manualOrder;
   }
   enableSmoothDrag('.list-item[data-card-id]', saveManualOrder);
 }
@@ -3134,7 +3121,7 @@ function openFolderActions(folderId){
   longPressTarget = folderId;
   const f = vault.folders.find(x => x.id === folderId);
   if(!f) return;
-  $('folderActionsTitle').textContent = (ICONS_SVG[f.icon] ? '' : f.icon + ' ') + f.name;
+  $('folderActionsTitle').textContent = f.name;
   $('folderActionsMenu').style.display = 'flex';
 }
 function closeFolderActions(){
@@ -4509,10 +4496,7 @@ $('menuImportFolder').onclick = () => { $('addMenu').style.display = 'none'; toa
 $('menuCamera').onclick = () => { $('addMenu').style.display = 'none'; toast('Функция «Снимок с камеры» в разработке'); };
 
 $('menuSettings').onclick = () => { $('mainMenu').style.display = 'none'; openSettings(); };
-$('menuSort').onclick = () => {
-  $('mainMenu').style.display = 'none';
-  openSortSheet();
-};
+$('menuSort').onclick = () => { $('mainMenu').style.display = 'none'; openSortSheet(); };
 $('menuLock').onclick = () => { $('mainMenu').style.display = 'none'; lockNow(); };
 $('menuExit').onclick = () => {
   $('mainMenu').style.display = 'none';
@@ -4529,14 +4513,18 @@ function enableSheetSwipe(sheetId, overlayId){
   let startY = 0, currentY = 0, dragging = false;
   const CLOSE = 80;
   const onDown = (e) => {
+    // Не перехватываем клики по пунктам шторки, иконкам, инпутам —
+    // иначе тап по этим элементам не доходит (шторка их "съедала" из-за
+    // setPointerCapture). Иконки папок раньше не работали именно по этой причине.
     if(e.target.closest('.sheet-item')) return;
     if(e.target.closest('button')) return;
+    if(e.target.closest('.icon-pick')) return;
+    if(e.target.closest('input, textarea, select')) return;
     dragging = true;
     startY = e.clientY;
     currentY = startY;
     sheet.style.animation = 'none';
     sheet.style.transition = 'none';
-    try { sheet.setPointerCapture(e.pointerId); } catch(err){}
   };
   const onMove = (e) => {
     if(!dragging) return;
@@ -4671,9 +4659,7 @@ $('recentToggle').onchange = async () => {
 $('openLinksInMiniToggle').onchange = async () => {
   vault.settings.openLinksInMiniApp = $('openLinksInMiniToggle').checked;
   await saveConf();
-  toast(vault.settings.openLinksInMiniApp
-    ? 'Сайты — внутри мини-аппа'
-    : 'Сайты — в браузере телефона');
+  toast(vault.settings.openLinksInMiniApp ? 'Сайты — внутри мини-аппа' : 'Сайты — в браузере телефона');
 };
 $('bioToggle').onchange = onBioToggle;
 $('openBioSettingsBtn').onclick = openBioSettings;
