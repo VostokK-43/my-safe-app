@@ -409,6 +409,9 @@
   .pwd-bar{height:3px;background:var(--ios-fill);border-radius:2px;margin-top:8px;overflow:hidden}
   .pwd-fill{height:100%;width:0;transition:width .25s, background .25s;border-radius:2px}
 
+  .field-drag-handle{display:flex;align-items:center;justify-content:center;width:26px;height:36px;flex-shrink:0;
+    color:var(--ios-label-tertiary);cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;margin-left:-4px}
+  .field-drag-handle:active{color:var(--ios-blue)}
   .field-wrap.dragging{background:var(--ios-bg-elevated);
     box-shadow:0 16px 34px rgba(24,18,60,0.24);z-index:20;position:relative;will-change:transform;}
   .field-wrap .drag-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);
@@ -706,7 +709,7 @@
   <label>Папка</label>
   <select id="cardFolder" style="margin-bottom:20px"></select>
   <label>Поля</label>
-  <p class="info" style="margin:-4px 4px 12px;font-size:12px">Долгое нажатие на поле — перетащить вверх или вниз.</p>
+  <p class="info" style="margin:-4px 4px 12px;font-size:12px">Потяните за значок ⋮⋮ слева от поля, чтобы переместить его вверх или вниз.</p>
   <div id="fieldsContainer"></div>
   <button id="addFieldBtn" class="sec" style="margin-top:4px">+ Добавить поле</button>
   <button id="saveCardBtn" style="margin-top:12px">Сохранить</button>
@@ -786,7 +789,7 @@
           <span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span>
           Открывать сайты внутри мини-аппа
         </div>
-        <div class="sr-sub">Выкл. — Android/Telegram предложит браузеры (как в самом Telegram). Вкл. — встроенный просмотрщик. На email и телефон не влияет</div>
+        <div class="sr-sub">Выкл. — открывает в браузере телефона (независимо от настроек Telegram). Вкл. — встроенный просмотрщик. На email и телефон не влияет</div>
       </div>
       <label class="switch"><input type="checkbox" id="openLinksInMiniToggle"><span class="slider"></span></label>
     </div>
@@ -966,6 +969,18 @@
   </div>
 </div>
 
+<div id="shareSheetMenu" class="modal-overlay" style="display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
+  <div class="sheet" id="shareSheet" style="touch-action:none">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Поделиться через</div>
+    <div class="sheet-item" id="shareTelegram"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3L2 11l6 2m14-10L15 20l-7-7m14-10L8 13"/></svg></span>Telegram</div>
+    <div class="sheet-item" id="shareWhatsapp"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.5-4.5A8 8 0 1 1 8 20L3 21z"/><path d="M9 10c0 3 2 5 5 5"/></svg></span>WhatsApp</div>
+    <div class="sheet-item" id="shareEmail"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 6.5l9 6.5 9-6.5"/></svg></span>Email</div>
+    <div class="sheet-item" id="shareCopyFallback"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8"/><path d="M6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1z"/><path d="M9 10h6M9 14h6"/></svg></span>Скопировать</div>
+    <div class="sheet-item" id="shareCancel" style="justify-content:center;color:var(--ios-blue);font-weight:700">Отмена</div>
+  </div>
+</div>
+
 <div id="sortSheetMenu" class="modal-overlay" style="display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
   <div class="sheet" id="sortSheet" style="touch-action:none">
     <div class="sheet-handle"></div>
@@ -1098,6 +1113,16 @@ function iconMarkup(glyph, size){
   if(!inner) return esc(glyph);
   return svgWrap(inner, size, false);
 }
+// Единая функция отрисовки иконки карточки: сайт (живой favicon по домену) → своё фото → эмодзи-иконка.
+function cardIconHtml(c, size){
+  if(c && c.faviconDomain){
+    return `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(c.faviconDomain)}&sz=64" alt="">`;
+  }
+  if(c && c.customIcon){
+    return `<img src="${c.customIcon}">`;
+  }
+  return iconMarkup((c && c.icon) || '📄', size);
+}
 function btnLabel(inner, text, size){
   return '<span class="btn-ico">'+svgWrap(inner, size||18, false)+'</span>'+text;
 }
@@ -1187,6 +1212,7 @@ let pinBuffer = '', pinMode = 'unlock', tempPin = '';
 let lockTimer = null, clipboardTimer = null;
 let pendingTemplate = null, pendingRecoveryKey = null, currentMeta = null;
 let wipeTimer = null, storageError = false;
+let metaCache = null; // мета-данные хранилища, прочитанные при старте/блокировке — чтобы не ходить в облако второй раз при вводе PIN
 let patternMode = null;
 let pendingPattern = null;
 let bioAvailable = false;
@@ -1241,38 +1267,6 @@ function extractHostForIcon(value){
   } catch(e){}
   return null;
 }
-// Загрузка favicon через Image (не fetch) — fetch в WebView Telegram
-// блокируется политикой и зависает. Image грузится всегда, canvas не портится
-// благодаря CORS-заголовкам Google/DuckDuckGo.
-async function fetchFaviconForHost(host){
-  const urls = [
-    'https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://' + host + '&size=64',
-    'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(host) + '&sz=64',
-    'https://icons.duckduckgo.com/ip3/' + encodeURIComponent(host) + '.ico'
-  ];
-  for(const url of urls){
-    try {
-      const img = await new Promise((resolve, reject) => {
-        const el = new Image();
-        el.crossOrigin = 'anonymous';
-        const timer = setTimeout(() => { el.src = ''; reject(new Error('timeout')); }, 8000);
-        el.onload = () => { clearTimeout(timer); resolve(el); };
-        el.onerror = () => { clearTimeout(timer); reject(new Error('load')); };
-        el.src = url;
-      });
-      const size = 48;
-      const canvas = document.createElement('canvas');
-      canvas.width = size; canvas.height = size;
-      const ctx = canvas.getContext('2d');
-      const scale = Math.max(size / img.width, size / img.height);
-      const w = img.width * scale, h = img.height * scale;
-      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
-      return canvas.toDataURL('image/jpeg', 0.6);
-    } catch(e){ /* пробуем следующий */ }
-  }
-  throw new Error('favicon not found');
-}
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const URL_RE = /^(https?:\/\/)?(www\.)?[a-z0-9а-я-]+(\.[a-z0-9а-я-]+)+(:[0-9]+)?([\/?#][^\s]*)?$/i;
 const PHONE_RE = /^\+?[0-9()\-\s]{6,20}$/;
@@ -1289,26 +1283,30 @@ function detectFieldLinkType(name, value){
 function openExternalLink(type, rawValue){
   const v = String(rawValue || '').trim();
   if(!v) return;
-  const inMiniApp = vault.settings.openLinksInMiniApp === true;
   let url;
   if(type === 'url'){ url = v; if(!/^https?:\/\//i.test(url)) url = 'https://' + url; }
   else if(type === 'email'){ url = 'mailto:' + v; }
   else if(type === 'tel'){ url = 'tel:' + v.replace(/[^\d+]/g, ''); }
   else return;
-  if(inMiniApp && type === 'url'){ openInMiniApp(url); return; }
-  if(tg && typeof tg.openLink === 'function'){
+
+  if(type === 'url'){
+    const inMiniApp = vault.settings.openLinksInMiniApp === true;
+    if(inMiniApp){ openInMiniApp(url); return; }
+    // ВАЖНО: раньше здесь при выключенном тумблере всё равно вызывался tg.openLink() —
+    // а это метод самого Telegram, который подчиняется НАСТРОЙКЕ ВСТРОЕННОГО БРАУЗЕРА
+    // САМОГО TELEGRAM, а не нашему тумблеру. Поэтому "выключено" не работало как
+    // ожидалось. Теперь при выключенном тумблере открываем строго через системный
+    // window.open — независимо от того, что настроено в самом Telegram.
     try {
-      tg.openLink(url, { try_instant_view: false });
-      if(type !== 'url'){
-        setTimeout(() => { try { window.open(url, '_blank', 'noopener,noreferrer'); } catch(e){} }, 120);
-      }
-      return;
-    } catch(e){}
+      const w = window.open(url, '_blank', 'noopener,noreferrer');
+      if(!w) toast('Разрешите всплывающие окна в браузере');
+    } catch(e){ toast('Не удалось открыть ссылку'); }
+    return;
   }
-  try {
-    const w = window.open(url, '_blank', 'noopener,noreferrer');
-    if(!w) toast('Установите браузер по умолчанию в настройках телефона');
-  } catch(e){ toast('Не удалось открыть ссылку'); }
+  // email / tel — системное поведение само по себе не зависит от Telegram,
+  // tg.openLink здесь не нужен и только добавлял путаницу.
+  try { window.location.href = url; }
+  catch(e){ toast('Не удалось открыть'); }
 }
 function linkIconFor(type){
   if(type === 'email') return '<path d="M3 5h18v14H3z"/><path d="M3 6.5l9 6.5 9-6.5"/>';
@@ -1887,30 +1885,29 @@ async function rebuildIndexFromCloud(){
   } catch(e){}
   return idx;
 }
-let _saveConfRunning = false;
-let _saveConfQueued = false;
-async function saveConf(){
-  if(!cryptoKey) return false;
-  if(_saveConfRunning){ _saveConfQueued = true; return false; }
-  _saveConfRunning = true;
-  let result = false;
-  try {
-    const conf = { folders: vault.folders, trash: vault.trash || [], settings: vault.settings, storageMode, sortMode };
-    const payload = await encryptJSON(cryptoKey, conf);
-    const str = JSON.stringify(payload);
-    await storeSet(CONF_KEY, str);
-    try { await storeSet(CONF_BACKUP, str); } catch(e){}
-    result = true;
-  } catch(e){
-    console.error('saveConf error:', e);
-  } finally {
-    _saveConfRunning = false;
-    if(_saveConfQueued){
-      _saveConfQueued = false;
-      setTimeout(() => { saveConf(); }, 40);
+// Раньше при параллельном вызове saveConf() второй вызов сразу получал "не удалось",
+// хотя данные потом всё равно сохранялись с опозданием — вызывающий код (например,
+// смена иконки папки) видел ложную ошибку и не обновлял экран. Теперь все вызовы
+// выстраиваются в цепочку промисов: каждый честно дожидается своей очереди и получает
+// РЕАЛЬНЫЙ результат именно своей попытки сохранения (а не чужой).
+let _saveConfChain = Promise.resolve();
+function saveConf(){
+  const run = async () => {
+    if(!cryptoKey) return false;
+    try {
+      const conf = { folders: vault.folders, trash: vault.trash || [], settings: vault.settings, storageMode, sortMode };
+      const payload = await encryptJSON(cryptoKey, conf);
+      const str = JSON.stringify(payload);
+      await storeSet(CONF_KEY, str);
+      try { await storeSet(CONF_BACKUP, str); } catch(e){}
+      return true;
+    } catch(e){
+      console.error('saveConf error:', e);
+      return false;
     }
-  }
-  return result;
+  };
+  _saveConfChain = _saveConfChain.then(run, run);
+  return _saveConfChain;
 }
 async function saveCardStorage(card){
   if(!cryptoKey) return false;
@@ -2142,9 +2139,11 @@ async function tryPin(){
   if(pinBuffer.length < 4){ $('pinError').textContent = 'Минимум 4 цифры'; return; }
   if(pinMode==='unlock'){
     if(storageError){ $('pinError').textContent = 'Хранилище недоступно. Перезапустите приложение.'; return; }
-    let found;
-    try { found = await detectMeta(); }
-    catch(e) { $('pinError').textContent = 'Ошибка хранилища. Попробуйте позже'; return; }
+    let found = metaCache;
+    if(!found){
+      try { found = await detectMeta(); }
+      catch(e) { $('pinError').textContent = 'Ошибка хранилища. Попробуйте позже'; return; }
+    }
     if(!found){
       pinMode='create';
       $('pinError').textContent='Придумайте PIN (мин. 4 цифры)';
@@ -2573,7 +2572,7 @@ function renderRecentStrip(container){
     cards.forEach(c => {
       const chip = document.createElement('div');
       chip.className = 'recent-chip';
-      const iconHtml = c.customIcon ? `<img src="${c.customIcon}">` : iconMarkup(c.icon || '📄', 20);
+      const iconHtml = cardIconHtml(c, 20);
       chip.innerHTML = `<div class="recent-chip-icon">${iconHtml}</div><div class="recent-chip-name">${esc(c.title)}</div>`;
       chip.onclick = () => viewCard(c.id);
       row.appendChild(chip);
@@ -2705,9 +2704,7 @@ function renderMainList(){
       if(sortMode === 'manual') d.dataset.cardId = c.id;
       d.dataset.cardIdLp = c.id;
 
-      const iconHtml = c.customIcon
-        ? `<img src="${c.customIcon}">`
-        : iconMarkup(c.icon || '📄');
+      const iconHtml = cardIconHtml(c, 22);
       const favMark = c.favorite ? '<span class="list-fav">★</span>' : '';
 
       d.innerHTML = `
@@ -2847,17 +2844,20 @@ function bindManualSort(){
   if(sortMode !== 'manual') return;
   const items = [...$('mainList').querySelectorAll('.list-item[data-card-id]')];
   if(!items.length) return;
-  // Если manualOrder содержит устаревшие id (карточки удалялись/добавлялись) — пересобираем
-  // порядок по тому, что видно на экране, чтобы сортировка не «прыгала».
-  const idsNow = items.map(i => i.dataset.cardId);
-  const needsReinit = idsNow.some(id => !manualOrder[id]) ||
-                      Object.keys(manualOrder).some(id => !idsNow.includes(id));
-  if(needsReinit){
-    const newOrder = {};
-    idsNow.forEach((id, i) => { newOrder[id] = i + 1; });
-    manualOrder = newOrder;
-    vault.settings.manualOrder = manualOrder;
-  }
+  // ВАЖНО: раньше здесь сравнивали видимые (текущая папка) карточки со ВСЕМ manualOrder —
+  // и почти всегда решали "надо пересобрать", потому что карточки из ДРУГИХ папок
+  // закономерно отсутствуют в видимом списке. Пересборка при этом заменяла весь
+  // manualOrder целиком, стирая порядок для всех остальных папок — отсюда и "слетает
+  // после выхода из папки". Теперь только ДОБАВЛЯЕМ ранги отсутствующим карточкам,
+  // никогда не удаляя и не переписывая существующие записи.
+  let changed = false;
+  let maxRank = 0;
+  Object.values(manualOrder).forEach(v => { if(v > maxRank) maxRank = v; });
+  items.forEach(item => {
+    const id = item.dataset.cardId;
+    if(!manualOrder[id]){ manualOrder[id] = ++maxRank; changed = true; }
+  });
+  if(changed) vault.settings.manualOrder = manualOrder;
   enableSmoothDrag('.list-item[data-card-id]', saveManualOrder);
 }
 
@@ -3058,9 +3058,7 @@ function renderTrash(){
       sub = 'Папка' + (parts.length ? ' · ' + parts.join(' · ') : '') + ' · удалено ' + timeAgo(item.deletedAt);
     }
 
-    const iconHtml = (item.type === 'card' && item.card.customIcon)
-      ? `<img src="${item.card.customIcon}">`
-      : iconMarkup(icon);
+    const iconHtml = (item.type === 'card') ? cardIconHtml(item.card, 22) : iconMarkup(icon);
 
     d.innerHTML = `
       <div class="list-icon">${iconHtml}</div>
@@ -3244,17 +3242,44 @@ async function toggleFavoriteById(id){
   }
   if($('vaultScreen').classList.contains('active')) renderMainList();
 }
+// «Поделиться»: сначала пробуем настоящее системное окно (Web Share API). В WebView Telegram
+// оно нередко недоступно — раньше в этом случае молча выполнялось копирование, и казалось,
+// что кнопка «Поделиться» не отличается от «Скопировать». Теперь вместо тихого копирования
+// открывается своя шторка с явным выбором: Telegram, WhatsApp, Email, Скопировать.
+let shareText = '';
 function shareCardNative(c){
   const txt = buildCardShareText(c);
-  try {
-    if(navigator.share){
-      const p = navigator.share({text:txt});
-      if(p && typeof p.catch === 'function') p.catch(()=>{});
-    } else {
-      copyToClipboard(txt);
-    }
-  } catch(e){ copyToClipboard(txt); }
+  shareText = txt;
+  if(navigator.share){
+    try {
+      const p = navigator.share({ title: c.title, text: txt });
+      if(p && typeof p.catch === 'function'){
+        p.catch(err => { if(!err || err.name !== 'AbortError') openShareSheet(); });
+      }
+      return;
+    } catch(e){ /* упало синхронно — покажем свою шторку */ }
+  }
+  openShareSheet();
 }
+function openShareSheet(){ $('shareSheetMenu').style.display = 'flex'; }
+function closeShareSheet(){ $('shareSheetMenu').style.display = 'none'; }
+function openShareUrl(url){
+  closeShareSheet();
+  try {
+    if(tg && typeof tg.openLink === 'function' && /^https?:/i.test(url)){ tg.openLink(url); return; }
+  } catch(e){}
+  try { window.open(url, '_blank', 'noopener,noreferrer'); } catch(e){ toast('Не удалось открыть'); }
+}
+$('shareCancel').onclick = closeShareSheet;
+$('shareSheetMenu').addEventListener('click', (e) => { if(e.target === $('shareSheetMenu')) closeShareSheet(); });
+$('shareTelegram').onclick = () => openShareUrl('https://t.me/share/url?url=%20&text=' + encodeURIComponent(shareText));
+$('shareWhatsapp').onclick = () => openShareUrl('https://wa.me/?text=' + encodeURIComponent(shareText));
+$('shareEmail').onclick = () => {
+  closeShareSheet();
+  const first = (shareText.split('\n')[0] || 'Сейф+');
+  window.location.href = 'mailto:?subject=' + encodeURIComponent(first) + '&body=' + encodeURIComponent(shareText);
+};
+$('shareCopyFallback').onclick = () => { closeShareSheet(); copyToClipboard(shareText); };
 async function deleteCardById(id){
   if(!(await checkTrashLimitBeforeAdd())) return;
   if(!confirm('Переместить карточку в корзину? Восстановить можно из корзины.')) return;
@@ -3755,12 +3780,10 @@ function viewCard(id){
   $('viewTitle').textContent = c.title;
   updateNavTitle('Карточка');
   const iconEl = $('viewIcon');
-  if(c.customIcon){
-    iconEl.innerHTML = '';
-    const img = document.createElement('img');
-    img.src = c.customIcon;
-    img.style.cssText = 'width:28px;height:28px;border-radius:8px;vertical-align:middle';
-    iconEl.appendChild(img);
+  if(c.faviconDomain || c.customIcon){
+    iconEl.innerHTML = cardIconHtml(c, 24);
+    const img = iconEl.querySelector('img');
+    if(img) img.style.cssText = 'width:28px;height:28px;border-radius:8px;vertical-align:middle;object-fit:cover';
   } else { iconEl.innerHTML = iconMarkup(c.icon || '📄', 24); }
   $('favBtn').innerHTML = svgWrap(ICON_STAR, 22, !!c.favorite);
   $('favBtn').classList.toggle('fav-on', !!c.favorite);
@@ -3838,7 +3861,8 @@ function openEditor(id){
   $('cardTitle').value = c ? c.title : '';
   editingCardIcon = {
     icon: c ? (c.icon || '📄') : (pendingTemplate ? pendingTemplate.icon : '📄'),
-    customIcon: c ? (c.customIcon || null) : null
+    customIcon: c ? (c.customIcon || null) : null,
+    faviconDomain: c ? (c.faviconDomain || null) : null
   };
   updateIconPreview();
   const sel = $('cardFolder'); sel.innerHTML='';
@@ -3860,11 +3884,8 @@ function openEditor(id){
 }
 function updateIconPreview(){
   const el = $('iconPreview');
-  if(editingCardIcon.customIcon){
-    el.innerHTML = '';
-    const img = document.createElement('img');
-    img.src = editingCardIcon.customIcon;
-    el.appendChild(img);
+  if(editingCardIcon.faviconDomain || editingCardIcon.customIcon){
+    el.innerHTML = cardIconHtml(editingCardIcon, 32);
   } else { el.innerHTML = iconMarkup(editingCardIcon.icon || '📄', 32); }
 }
 function addFieldRow(name='', value='', id=uid()){
@@ -3872,6 +3893,7 @@ function addFieldRow(name='', value='', id=uid()){
   const wrap = document.createElement('div'); wrap.className = 'field-wrap'; wrap.dataset.id = id;
   const row = document.createElement('div'); row.className = 'field-row';
   row.innerHTML = `
+    <span class="field-drag-handle" title="Потяните, чтобы переместить">${svgWrap('<circle cx="9" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.4" fill="currentColor" stroke="none"/>', 18)}</span>
     <input placeholder="Название" value="${esc(name)}" class="fName">
     <input placeholder="Значение" value="${esc(value)}" class="fValue">
     <button type="button" class="fetchIconBtn" title="Загрузить иконку сайта" style="display:none">${svgWrap(ICON_DOWNLOAD,16)}</button>
@@ -3914,33 +3936,27 @@ function addFieldRow(name='', value='', id=uid()){
     }
   });
 
-  fetchIconBtn.onclick = async (e) => {
+  fetchIconBtn.onclick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     const host = extractHostForIcon(valInput.value);
     if(!host){ toast('Введите адрес сайта или email'); return; }
-    if(!editingCardIcon) editingCardIcon = { icon: '📄', customIcon: null };
-    if(editingCardIcon.customIcon){
+    if(!editingCardIcon) editingCardIcon = { icon: '📄', customIcon: null, faviconDomain: null };
+    if(editingCardIcon.customIcon || editingCardIcon.faviconDomain){
       if(!confirm('Заменить текущую иконку карточки иконкой сайта ' + host + '?')) return;
     }
-    fetchIconBtn.disabled = true;
-    fetchIconBtn.classList.add('spin');
-    toast('Загружаем иконку ' + host + '...');
-    try {
-      const dataUrl = await fetchFaviconForHost(host);
-      editingCardIcon.customIcon = dataUrl;
-      editingCardIcon.icon = '📄';
-      updateIconPreview();
-      const removeBtn = $('removePhotoBtn');
-      if(removeBtn) removeBtn.style.display = 'block';
-      toast('Иконка загружена');
-    } catch(err){
-      console.error('favicon', err);
-      toast('Не удалось загрузить иконку ' + host);
-    } finally {
-      fetchIconBtn.disabled = false;
-      fetchIconBtn.classList.remove('spin');
-    }
+    // Раньше иконка скачивалась через canvas и хранилась как base64-картинка внутри
+    // карточки — но у Telegram CloudStorage лимит ~4096 символов на одно значение,
+    // и такая картинка почти всегда его превышала (плюс скачивание нередко падало
+    // из-за CORS). Теперь просто запоминаем домен — иконка подгружается "вживую"
+    // при каждом показе, без ограничений по размеру и без риска ошибок CORS.
+    editingCardIcon.faviconDomain = host;
+    editingCardIcon.customIcon = null;
+    editingCardIcon.icon = '📄';
+    updateIconPreview();
+    const removeBtn = $('removePhotoBtn');
+    if(removeBtn) removeBtn.style.display = 'block';
+    toast('Иконка сайта подключена');
   };
 
   genBtn.onclick = () => { valInput.value = genPassword(16); updateBar(); };
@@ -3958,6 +3974,7 @@ function bindFieldDrag(wrap){
 
   const startPress = (e) => {
     if(e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+    if(e.target.closest && e.target.closest('.field-drag-handle')) return;
     const t = e.touches ? e.touches[0] : e;
     const y0 = t.clientY;
     wrap.classList.add('armed');
@@ -3968,6 +3985,7 @@ function bindFieldDrag(wrap){
     wrap.classList.remove('armed');
   };
   const enterDrag = (clientY) => {
+    if(dragging) return;
     dragging = true;
     wrap.classList.add('dragging');
     if(navigator.vibrate) navigator.vibrate(20);
@@ -4031,6 +4049,17 @@ function bindFieldDrag(wrap){
   wrap.addEventListener('mouseup', cancelPress);
   wrap.addEventListener('mouseleave', cancelPress);
   wrap.addEventListener('touchmove', () => { if(!dragging) cancelPress(); }, {passive:true});
+  // Явная «ручка» ⋮⋮ слева: тащить можно сразу, без долгого нажатия.
+  const handle = wrap.querySelector('.field-drag-handle');
+  if(handle){
+    const hs = (e) => {
+      if(e.cancelable) e.preventDefault();
+      const t = e.touches ? e.touches[0] : e;
+      enterDrag(t.clientY);
+    };
+    handle.addEventListener('touchstart', hs, {passive:false});
+    handle.addEventListener('mousedown', hs);
+  }
   wrap.addEventListener('click', (e) => {
     if(dragging){ e.preventDefault(); e.stopPropagation(); }
   }, true);
@@ -4048,8 +4077,9 @@ async function saveCard(){
   const cardData = {
     id: existing ? existing.id : uid('c_'),
     title, folderId,
-    icon: editingCardIcon.customIcon ? '📄' : (editingCardIcon.icon || '📄'),
+    icon: (editingCardIcon.customIcon || editingCardIcon.faviconDomain) ? '📄' : (editingCardIcon.icon || '📄'),
     customIcon: editingCardIcon.customIcon || null,
+    faviconDomain: editingCardIcon.faviconDomain || null,
     fields,
     favorite: existing ? (existing.favorite || false) : false,
     updated: Date.now()
@@ -4080,10 +4110,11 @@ async function deleteCard(){
   toastUndo('Перемещено в корзину', restoreLastTrashItem);
 }
 function openIconPicker(){
-  $('removePhotoBtn').style.display = editingCardIcon.customIcon ? 'block' : 'none';
-  renderIconGrid('cardIconGrid', editingCardIcon.customIcon ? null : editingCardIcon.icon, (ic) => {
+  $('removePhotoBtn').style.display = (editingCardIcon.customIcon || editingCardIcon.faviconDomain) ? 'block' : 'none';
+  renderIconGrid('cardIconGrid', (editingCardIcon.customIcon || editingCardIcon.faviconDomain) ? null : editingCardIcon.icon, (ic) => {
     editingCardIcon.icon = ic;
     editingCardIcon.customIcon = null;
+    editingCardIcon.faviconDomain = null;
     updateIconPreview();
     $('removePhotoBtn').style.display = 'none';
   });
@@ -4106,6 +4137,7 @@ function setupPhotoUpload(){
         ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
         const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
         editingCardIcon.customIcon = dataUrl;
+        editingCardIcon.faviconDomain = null;
         updateIconPreview();
         toast('Фото добавлено');
         $('removePhotoBtn').style.display = 'block';
@@ -4117,9 +4149,10 @@ function setupPhotoUpload(){
   };
   $('removePhotoBtn').onclick = () => {
     editingCardIcon.customIcon = null;
+    editingCardIcon.faviconDomain = null;
     updateIconPreview();
     $('removePhotoBtn').style.display = 'none';
-    toast('Фото удалено');
+    toast('Иконка удалена');
   };
 }
 
@@ -4287,6 +4320,7 @@ async function lockNow(){
   let meta = null;
   try {
     const found = await detectMeta();
+    metaCache = found || null;
     if(found){
       meta = JSON.parse(found.value);
       if(meta.pinLength){ expectedPinLength = meta.pinLength; $('pinSubmitBtn').style.display = 'none'; }
@@ -4356,7 +4390,7 @@ function renderFavList(){
     const d = document.createElement('div');
     d.className = 'list-item';
     d.dataset.cardIdLp = c.id;
-    const iconHtml = c.customIcon ? `<img src="${c.customIcon}">` : iconMarkup(c.icon || '📄');
+    const iconHtml = cardIconHtml(c, 22);
     d.innerHTML = `
       <div class="list-icon">${iconHtml}</div>
       <div class="list-body">
@@ -4373,13 +4407,17 @@ function renderFavList(){
 }
 
 async function init(){
-  currentTheme = await loadTheme();
-  await loadColorScheme();
+  // 1) Клавиатуру PIN рисуем СРАЗУ — до любых обращений к хранилищу Telegram.
+  //    Раньше она ждала загрузку темы и цветовой схемы (два сетевых запроса подряд),
+  //    поэтому кнопки появлялись с заметной задержкой.
   buildPinPad(); renderPinDots(); renderTemplates(); setupPhotoUpload();
   updateSortLabel();
   updateTrashBadge();
-  await initBiometric();
-  bioAvailable = isBioAvailable();
+  updateThemeIcon();
+  // 2) Тема, цвет и биометрия грузятся ПАРАЛЛЕЛЬНО с проверкой хранилища, а не по очереди.
+  const themePromise = loadTheme().then(t => { currentTheme = t; }).catch(() => {});
+  const colorPromise = loadColorScheme().catch(() => {});
+  const bioPromise = initBiometric().then(() => { bioAvailable = isBioAvailable(); }).catch(() => {});
   let found;
   try { found = await detectMeta(); }
   catch(e){
@@ -4390,6 +4428,10 @@ async function init(){
     return;
   }
   storageError = false;
+  metaCache = found || null;
+  // Для кнопок альтернативного входа нужно знать про биометрию — ждём её здесь,
+  // клавиатура PIN к этому моменту уже давно на экране.
+  await bioPromise;
   if(found){
     pinMode='unlock';
     $('lockHint').textContent='Введите PIN';
@@ -4567,6 +4609,7 @@ enableSheetSwipe('addSheet', 'addMenu');
 enableSheetSwipe('folderActionsSheet', 'folderActionsMenu');
 enableSheetSwipe('folderIconSheetInner', 'folderIconSheet');
 enableSheetSwipe('cardActionsSheet', 'cardActionsMenu');
+enableSheetSwipe('shareSheet', 'shareSheetMenu');
 enableSheetSwipe('sortSheet', 'sortSheetMenu');
 
 $('searchInput').addEventListener('input', () => {
@@ -4585,7 +4628,7 @@ $('searchInput').addEventListener('input', () => {
   const group = document.createElement('div'); group.className = 'list-group';
   results.forEach(c => {
     const d = document.createElement('div'); d.className = 'list-item';
-    const iconHtml = c.customIcon ? `<img src="${c.customIcon}">` : iconMarkup(c.icon || '📄');
+    const iconHtml = cardIconHtml(c, 22);
     const folder = c.folderId ? vault.folders.find(f => f.id === c.folderId) : null;
     const subStr = (folder ? folder.name + ' · ' : '') + timeAgo(c.updated);
     d.innerHTML = `
