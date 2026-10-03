@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<script>(function(){try{var t=localStorage.getItem('safe_theme_v1');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}try{var c=localStorage.getItem('safe_color_scheme_v1');if(c!=='light'&&c!=='dark'){c=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-color-scheme',c);}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#F1F2FA" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0A0A11" media="(prefers-color-scheme: dark)">
@@ -1030,6 +1031,8 @@ const PACK_THRESHOLD = 800;
 const SERVICE_KEYS   = 6;
 const TRASH_LIMIT    = 50;
 const TRASH_AUTO_PURGE_DAYS = 30;
+const PIN_LOCKOUT_KEY = 'safe_pin_lockout_v1';
+const LOCKOUT_SCHEDULE = [ {after:5,min:1}, {after:6,min:5}, {after:7,min:15}, {after:8,min:60} ]; // как в iOS
 const enc = new TextEncoder(), dec = new TextDecoder();
 
 const DEFAULT_FOLDERS = [];
@@ -1141,6 +1144,7 @@ const THEMES = [
 ];
 function applyTheme(id){
   document.documentElement.setAttribute('data-theme', id || 'gray');
+  try { localStorage.setItem(THEME_KEY, id || 'gray'); } catch(e){}
 }
 async function loadTheme(){
   let id = 'gray';
@@ -1174,6 +1178,7 @@ function applyColorScheme(mode){
   const html = document.documentElement;
   if(mode === 'light' || mode === 'dark'){
     html.setAttribute('data-color-scheme', mode);
+    try { localStorage.setItem(COLOR_KEY, mode); } catch(e){}
   } else {
     const tgScheme = (tg && tg.colorScheme) || null;
     if(tgScheme === 'light' || tgScheme === 'dark'){
@@ -1292,11 +1297,14 @@ function openExternalLink(type, rawValue){
   if(type === 'url'){
     const inMiniApp = vault.settings.openLinksInMiniApp === true;
     if(inMiniApp){ openInMiniApp(url); return; }
-    // ВАЖНО: раньше здесь при выключенном тумблере всё равно вызывался tg.openLink() —
-    // а это метод самого Telegram, который подчиняется НАСТРОЙКЕ ВСТРОЕННОГО БРАУЗЕРА
-    // САМОГО TELEGRAM, а не нашему тумблеру. Поэтому "выключено" не работало как
-    // ожидалось. Теперь при выключенном тумблере открываем строго через системный
-    // window.open — независимо от того, что настроено в самом Telegram.
+    // try_browser заставляет Telegram открыть ссылку в НАСТОЯЩЕМ внешнем браузере,
+    // игнорируя собственную настройку "встроенный браузер". Просто window.open()
+    // внутри WebView Telegram почти всегда не срабатывает вообще — поэтому тут
+    // обязательно нужен именно tg.openLink(), а не попытка обойти его стороной.
+    if(tg && typeof tg.openLink === 'function'){
+      try { tg.openLink(url, { try_instant_view: false, try_browser: true }); return; }
+      catch(e){}
+    }
     try {
       const w = window.open(url, '_blank', 'noopener,noreferrer');
       if(!w) toast('Разрешите всплывающие окна в браузере');
@@ -2135,7 +2143,63 @@ async function loadVaultAfterUnlock(){
   await checkAndPackIfNeeded();
   await purgeOldTrash();
 }
+// ============ Блокировка после неверных попыток PIN (как в iOS) ============
+let lockoutUntilMs = 0;
+let lockoutTimer = null;
+async function getPinLockout(){
+  try { const raw = await storeGet(PIN_LOCKOUT_KEY); return raw ? JSON.parse(raw) : { attempts: 0, lockUntil: 0 }; }
+  catch(e){ return { attempts: 0, lockUntil: 0 }; }
+}
+async function setPinLockout(obj){
+  try { await storeSet(PIN_LOCKOUT_KEY, JSON.stringify(obj)); } catch(e){}
+}
+async function recordFailedPinAttempt(){
+  const state = await getPinLockout();
+  state.attempts = (state.attempts || 0) + 1;
+  let minutes = 0;
+  for(const step of LOCKOUT_SCHEDULE){ if(state.attempts >= step.after) minutes = step.min; }
+  if(minutes > 0){
+    state.lockUntil = Date.now() + minutes*60000;
+    await setPinLockout(state);
+    startLockoutCountdown(state.lockUntil);
+  } else {
+    await setPinLockout(state);
+  }
+}
+async function clearPinLockout(){
+  lockoutUntilMs = 0;
+  clearInterval(lockoutTimer);
+  await setPinLockout({ attempts: 0, lockUntil: 0 });
+}
+function startLockoutCountdown(lockUntil){
+  lockoutUntilMs = lockUntil;
+  clearInterval(lockoutTimer);
+  const pad = $('pinPad');
+  const submitBtn = $('pinSubmitBtn');
+  const tick = () => {
+    const remain = lockoutUntilMs - Date.now();
+    if(remain <= 0){
+      clearInterval(lockoutTimer);
+      lockoutUntilMs = 0;
+      if(pad){ pad.style.pointerEvents = ''; pad.style.opacity = ''; }
+      if(submitBtn) submitBtn.disabled = false;
+      $('pinError').textContent = '';
+      return;
+    }
+    const m = Math.floor(remain/60000), sec = Math.floor((remain%60000)/1000);
+    $('pinError').textContent = 'Слишком много попыток. Повторите через ' + m + ':' + String(sec).padStart(2,'0');
+  };
+  if(pad){ pad.style.pointerEvents = 'none'; pad.style.opacity = '.4'; }
+  if(submitBtn) submitBtn.disabled = true;
+  tick();
+  lockoutTimer = setInterval(tick, 1000);
+}
+async function checkLockoutOnLoad(){
+  const state = await getPinLockout();
+  if(state.lockUntil && state.lockUntil > Date.now()) startLockoutCountdown(state.lockUntil);
+}
 async function tryPin(){
+  if(pinMode==='unlock' && lockoutUntilMs > Date.now()) return;
   if(pinBuffer.length < 4){ $('pinError').textContent = 'Минимум 4 цифры'; return; }
   if(pinMode==='unlock'){
     if(storageError){ $('pinError').textContent = 'Хранилище недоступно. Перезапустите приложение.'; return; }
@@ -2158,7 +2222,7 @@ async function tryPin(){
     try { key = await deriveKey(pinBuffer, unb64(meta.salt)); }
     catch(e){ $('pinError').textContent = 'Повреждены данные. Восстановите из копии'; pinBuffer=''; renderPinDots(); return; }
     try { await decryptJSON(key, meta.verify); }
-    catch { $('pinError').textContent='Неверный PIN'; pinBuffer=''; renderPinDots(); return; }
+    catch { $('pinError').textContent='Неверный PIN'; pinBuffer=''; renderPinDots(); await recordFailedPinAttempt(); return; }
 
     if(meta.pinLength){ expectedPinLength = meta.pinLength; $('pinSubmitBtn').style.display = 'none'; }
     else {
@@ -2169,6 +2233,7 @@ async function tryPin(){
     }
 
     cryptoKey = key; currentMeta = meta;
+    await clearPinLockout();
     pinBuffer=''; renderPinDots();
     try { await loadVaultAfterUnlock(); }
     catch(e){
@@ -4329,6 +4394,7 @@ async function lockNow(){
   } catch(e){}
   renderPinDots();
   refreshAltAuthRow();
+  checkLockoutOnLoad();
   if(meta && meta.hasPattern){ openPatternScreen('verify'); }
   else { show('lockScreen'); }
 }
@@ -4418,6 +4484,7 @@ async function init(){
   const themePromise = loadTheme().then(t => { currentTheme = t; }).catch(() => {});
   const colorPromise = loadColorScheme().catch(() => {});
   const bioPromise = initBiometric().then(() => { bioAvailable = isBioAvailable(); }).catch(() => {});
+  checkLockoutOnLoad();
   let found;
   try { found = await detectMeta(); }
   catch(e){
