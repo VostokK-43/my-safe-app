@@ -5,7 +5,7 @@
 <script>(function(){try{var t=localStorage.getItem('safe_theme_v1');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}try{var c=localStorage.getItem('safe_color_scheme_v1');if(c!=='light'&&c!=='dark'){c=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-color-scheme',c);}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#F1F2FA" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0A0A11" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <title>Safe+</title>
 <link rel="preconnect" href="https://telegram.org" crossorigin>
 <link rel="dns-prefetch" href="https://telegram.org">
@@ -622,6 +622,60 @@
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .promo-go{flex-shrink:0;padding:7px 14px;border-radius:999px;font-size:13.5px;font-weight:800;letter-spacing:-0.2px;
     color:var(--ios-blue);background:var(--ios-fill)}
+
+  /* ================= AMOLED: настоящий чёрный + окантовка ================= */
+  :root{--sheet-shadow:0 -12px 32px rgba(0,0,0,0.2)}
+  :root[data-color-scheme="dark"], :root[data-color-scheme="dark"][data-theme]{
+    --ios-bg:#000; --ios-bg-elevated:#000; --ios-bg-grouped:#000;
+    --ios-separator:rgba(255,255,255,0.12);
+    --ios-shadow-s:0 0 0 1px rgba(255,255,255,0.14);
+    --ios-shadow-m:0 0 0 1px rgba(255,255,255,0.14), 0 10px 28px rgba(0,0,0,0.75);
+    --ios-shadow-l:0 0 0 1px rgba(255,255,255,0.16), 0 24px 56px rgba(0,0,0,0.9);
+    --sheet-shadow:0 0 0 1px rgba(255,255,255,0.15), 0 -16px 48px rgba(0,0,0,0.9);
+    --nav-bg-rgba:rgba(0,0,0,0.82);
+    --lock-bg-1:#000; --lock-bg-2:#000; --lock-bg-3:#000;
+  }
+  :root[data-color-scheme="dark"] #pinPad button{box-shadow:none;border-color:rgba(255,255,255,0.16)}
+  :root[data-color-scheme="dark"] .list-item.dragging,
+  :root[data-color-scheme="dark"] .field-wrap.dragging{box-shadow:0 0 0 1px rgba(255,255,255,0.22), 0 16px 34px rgba(0,0,0,0.9)}
+
+  /* ================= единый стиль всплывающих окон ================= */
+  .sheet{border-radius:28px 28px 0 0;padding:10px 0 max(16px, env(safe-area-inset-bottom));box-shadow:var(--sheet-shadow)}
+  .sheet-handle{width:40px;height:5px;margin:0 auto 12px}
+  .sheet-title{font-size:12.5px;font-weight:800;letter-spacing:.5px;padding:0 0 10px}
+  .sheet-item{margin:2px 14px;padding:10px 12px;border-radius:16px;font-size:16.5px;
+    transition:background .15s, transform .12s}
+  .sheet-item:active{background:var(--ios-fill);transform:scale(.985)}
+  .sheet-item .ico{width:40px;height:40px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    font-size:20px;color:var(--ios-blue);background:var(--ios-fill-tertiary);border:1px solid var(--ios-separator)}
+  .sheet-item .ico svg{width:20px;height:20px;display:block}
+  .sheet-item.danger{color:var(--ios-red)}
+  .sheet-item.danger .ico{color:var(--ios-red);background:rgba(255,77,94,.12);border-color:rgba(255,77,94,.30)}
+  .sheet-item.cancel{justify-content:center;margin:10px 14px 0;padding:15px 12px;background:var(--ios-fill);
+    color:var(--ios-blue);font-weight:800}
+  .sheet-item.cancel:active{background:var(--ios-fill-secondary)}
+  .lang-note{white-space:pre-line;padding:4px 22px 8px;font-size:12px;line-height:1.45;color:var(--hint);font-weight:600;text-align:center}
+
+  /* центральные окна (подтверждения, предупреждения) — тоже шторки снизу */
+  .modal-overlay.sheet-modal{align-items:flex-end;padding:0;background:rgba(0,0,0,0.4)}
+  .sheet-modal .modal-box{max-width:520px;width:100%;border-radius:28px 28px 0 0;
+    padding:10px 20px max(20px, env(safe-area-inset-bottom));box-shadow:var(--sheet-shadow);
+    animation:sheetUp .38s cubic-bezier(.19,1.28,.42,.99)}
+  .sheet-modal .modal-box h2{justify-content:center;text-align:center;font-size:21px;margin:6px 0 10px}
+  .sheet-modal .modal-box p{text-align:center;white-space:pre-line}
+  #dialogText{font-size:15.5px;line-height:1.5;color:var(--ios-label-secondary);margin:4px 0 18px}
+  #dialogInput{margin:0 0 14px;text-align:center;font-weight:700}
+
+  /* ================= кнопки ================= */
+  button.danger{background:rgba(255,77,94,.12);color:var(--ios-red);box-shadow:none;border:1px solid rgba(255,77,94,.32)}
+  button.danger:active{background:rgba(255,77,94,.2);box-shadow:none}
+  button.danger.solid{background:linear-gradient(135deg,#FF5C6C 0%,#E5384A 100%);color:#fff;border:none;
+    box-shadow:0 8px 20px rgba(255,77,94,.35), inset 0 1px 0 rgba(255,255,255,.2)}
+  button.danger.solid:active{box-shadow:0 3px 10px rgba(255,77,94,.35)}
+  button.danger:disabled{opacity:.4}
+  .action-bar{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+  .action-bar button{margin:0;padding:16px 20px;border-radius:18px;font-size:17px}
+  .pick-row .list-sub:empty{display:none}
 </style>
 </head><body>
 
@@ -727,16 +781,18 @@
     <div class="sheet-item" id="menuImportFile"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.5V6a3 3 0 0 0-3-3H9L4 8v10a3 3 0 0 0 3 3h4"/><path d="M9 3v5H4"/><path d="M17 14v4M15 16h4"/></svg></span><span data-i18n="add.file">Вставить файл(ы)</span></div>
     <div class="sheet-item" id="menuImportFolder"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M9 13h6M13 10l3 3-3 3"/></svg></span><span data-i18n="add.folderImport">Вставить папку</span></div>
     <div class="sheet-item" id="menuCamera"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-3h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></svg></span><span data-i18n="add.camera">Снимок с камеры</span></div>
-    <div class="sheet-item" id="addMenuCancel" style="justify-content:center;color:var(--ios-blue);font-weight:700" data-i18n="action.cancel">Отмена</div>
+    <div class="sheet-item cancel" id="addMenuCancel" data-i18n="action.cancel">Отмена</div>
   </div>
 </div>
 
-<div id="mainMenu" class="modal-overlay" style="display:none;align-items:flex-start;justify-content:flex-end;padding:20px;background:rgba(0,0,0,0.25)">
-  <div class="dropdown">
-    <div class="dropdown-item" id="menuSettings"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span><span data-i18n="menu.settings">Настройки</span></div>
-    <div class="dropdown-item" id="menuSort"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v14M8 17l-3-3M8 17l3-3"/><path d="M16 21V7M16 7l3 3M16 7l-3 3"/></svg></span><span id="menuSortLabel">Сортировка: А→Я</span></div>
-    <div class="dropdown-item" id="menuLock"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.4"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><span data-i18n="menu.lock">Заблокировать</span></div>
-    <div class="dropdown-item danger" id="menuExit"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="11" height="18" rx="1"/><circle cx="13" cy="12" r="1" fill="currentColor" stroke="none"/></svg></span><span data-i18n="menu.exit">Выйти</span></div>
+<div id="mainMenu" class="modal-overlay" style="display:none;align-items:flex-end;justify-content:center;padding:0;background:rgba(0,0,0,0.35)">
+  <div class="sheet" id="mainSheet" style="touch-action:none">
+    <div class="sheet-handle"></div>
+    <div class="sheet-item" id="menuSettings"><span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span><span data-i18n="menu.settings">Настройки</span></div>
+    <div class="sheet-item" id="menuSort"><span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v14M8 17l-3-3M8 17l3-3"/><path d="M16 21V7M16 7l3 3M16 7l-3 3"/></svg></span><span id="menuSortLabel">Сортировка: А→Я</span></div>
+    <div class="sheet-item" id="menuLock"><span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.4"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><span data-i18n="menu.lock">Заблокировать</span></div>
+    <div class="sheet-item danger" id="menuExit"><span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="11" height="18" rx="1"/><circle cx="13" cy="12" r="1" fill="currentColor" stroke="none"/></svg></span><span data-i18n="menu.exit">Выйти</span></div>
+    <div class="sheet-item cancel" id="mainMenuCancel" data-i18n="action.cancel">Отмена</div>
   </div>
 </div>
 
@@ -751,11 +807,20 @@
   <label data-i18n="edit.titlePlaceholder">Название</label>
   <input id="folderName" placeholder="Например, Банки" data-i18n-ph="folder.namePlaceholder" autocomplete="off">
   <label data-i18n="folder.parentLabel">Родительская папка</label>
-  <select id="folderParent"></select>
+  <select id="folderParent" style="display:none"></select>
+  <div class="switch-group" style="margin-bottom:12px">
+    <div class="list-item pick-row" id="folderParentRow" role="button" tabindex="0">
+      <span class="lang-ico" id="folderParentIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></span>
+      <div class="list-body"><div class="list-title" id="folderParentTitle"></div><div class="list-sub" id="folderParentSub"></div></div>
+      <div class="list-chevron">›</div>
+    </div>
+  </div>
   <label data-i18n="folder.iconLabel">Иконка</label>
   <div class="icon-grid" id="folderIconGrid"></div>
-  <button id="saveFolderBtn" data-i18n="action.save">Сохранить</button>
-  <button id="deleteFolderBtn" class="danger" data-i18n="fa.delete" style="margin-top:8px;display:none">Удалить папку</button>
+  <div class="action-bar">
+    <button id="saveFolderBtn"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-i18n="action.save">Сохранить</span></button>
+    <button id="deleteFolderBtn" class="danger" style="display:none"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/></svg></span><span data-i18n="fa.delete">Удалить папку</span></button>
+  </div>
 </div>
 
 <div id="tplScreen" class="screen">
@@ -786,13 +851,22 @@
   </div>
   <button id="iconPickBtn" class="sec" style="margin-bottom:16px"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 17l5-5 4 4 3-3 4 4"/></svg></span><span data-i18n="edit.chooseIcon">Выбрать иконку</span></button>
   <label data-i18n="edit.folderLabel">Папка</label>
-  <select id="cardFolder" style="margin-bottom:20px"></select>
+  <select id="cardFolder" style="display:none"></select>
+  <div class="switch-group" style="margin-bottom:20px">
+    <div class="list-item pick-row" id="cardFolderRow" role="button" tabindex="0">
+      <span class="lang-ico" id="cardFolderIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></span>
+      <div class="list-body"><div class="list-title" id="cardFolderTitle"></div><div class="list-sub" id="cardFolderSub"></div></div>
+      <div class="list-chevron">›</div>
+    </div>
+  </div>
   <label data-i18n="edit.fieldsLabel">Поля</label>
   <p class="info" data-i18n="edit.dragFieldHint" style="margin:-4px 4px 12px;font-size:12px">Потяните за значок ⋮⋮ слева от поля, чтобы переместить его вверх или вниз.</p>
   <div id="fieldsContainer"></div>
   <button id="addFieldBtn" class="sec" style="margin-top:4px">+ <span data-i18n="edit.addField">Добавить поле</span></button>
-  <button id="saveCardBtn" data-i18n="action.save" style="margin-top:12px">Сохранить</button>
-  <button id="deleteCardBtn" class="danger" data-i18n="ca.delete" style="margin-top:8px">Удалить</button>
+  <div class="action-bar">
+    <button id="saveCardBtn"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-i18n="action.save">Сохранить</span></button>
+    <button id="deleteCardBtn" class="danger"><span class="btn-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/></svg></span><span data-i18n="ca.delete">Удалить</span></button>
+  </div>
 </div>
 
 <div id="iconScreen" class="screen">
@@ -999,39 +1073,40 @@
   <button id="changePinDoneBtn" class="sec" data-i18n="changepin.doneBtn" style="margin-top:8px">Готово</button>
 </div>
 
-<div id="warnModal" class="modal-overlay" style="display:none">
+<div id="warnModal" class="modal-overlay sheet-modal" style="display:none">
   <div class="modal-box">
+    <div class="sheet-handle"></div>
     <h2 id="warnTitle">⚠️ Внимание</h2>
     <p class="danger-text" id="warnText"></p>
     <button id="warnCancelBtn" class="sec" data-i18n="action.cancel">Отмена</button>
-    <button id="warnConfirmBtn" class="danger" data-i18n="wizard.continue">Продолжить</button>
+    <button id="warnConfirmBtn" data-i18n="wizard.continue">Продолжить</button>
   </div>
 </div>
 
-<div id="folderActionsMenu" class="modal-overlay" style="display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
+<div id="folderActionsMenu" class="modal-overlay" style="justify-content:center;display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
   <div class="sheet" id="folderActionsSheet" style="touch-action:none">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="folderActionsTitle">Папка</div>
     <div class="sheet-item" id="faIcon"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 17l5-5 4 4 3-3 4 4"/></svg></span><span data-i18n="fa.icon">Изменить иконку</span></div>
     <div class="sheet-item" id="faRename"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 10-10-3-3L5 16l-1 4z"/><path d="M14 6l3 3"/></svg></span><span data-i18n="fa.rename">Переименовать</span></div>
     <div class="sheet-item" id="faSort"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v14M8 17l-3-3M8 17l3-3"/><path d="M16 21V7M16 7l3 3M16 7l-3 3"/></svg></span><span data-i18n="menu.sort">Сортировка</span></div>
-    <div class="sheet-item" id="faDelete" style="color:var(--ios-red)"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/></svg></span><span data-i18n="fa.delete">Удалить папку</span></div>
-    <div class="sheet-item" id="faCancel" data-i18n="action.cancel" style="justify-content:center;color:var(--ios-blue);font-weight:700">Отмена</div>
+    <div class="sheet-item danger" id="faDelete"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/></svg></span><span data-i18n="fa.delete">Удалить папку</span></div>
+    <div class="sheet-item cancel" id="faCancel" data-i18n="action.cancel">Отмена</div>
   </div>
 </div>
 
-<div id="folderIconSheet" class="modal-overlay" style="display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
+<div id="folderIconSheet" class="modal-overlay" style="justify-content:center;display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
   <div class="sheet" id="folderIconSheetInner" style="touch-action:none">
     <div class="sheet-handle"></div>
     <div class="sheet-title" data-i18n="folder.iconSheetTitle">Иконка папки</div>
     <div style="padding:4px 16px 20px">
       <div class="icon-grid" id="folderIconPickGrid" style="margin:0"></div>
     </div>
-    <div class="sheet-item" id="folderIconCancel" data-i18n="action.cancel" style="justify-content:center;color:var(--ios-blue);font-weight:700">Отмена</div>
+    <div class="sheet-item cancel" id="folderIconCancel" data-i18n="action.cancel">Отмена</div>
   </div>
 </div>
 
-<div id="cardActionsMenu" class="modal-overlay" style="display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
+<div id="cardActionsMenu" class="modal-overlay" style="justify-content:center;display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
   <div class="sheet" id="cardActionsSheet" style="touch-action:none">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="cardActionsTitle">Карточка</div>
@@ -1040,12 +1115,12 @@
     <div class="sheet-item" id="caShare"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"/><path d="M21 3l-9 9"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg></span><span data-i18n="ca.share">Поделиться</span></div>
     <div class="sheet-item" id="caEdit"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 10-10-3-3L5 16l-1 4z"/><path d="M14 6l3 3"/></svg></span><span data-i18n="ca.edit">Изменить</span></div>
     <div class="sheet-item" id="caSort"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v14M8 17l-3-3M8 17l3-3"/><path d="M16 21V7M16 7l3 3M16 7l-3 3"/></svg></span><span data-i18n="menu.sort">Сортировка</span></div>
-    <div class="sheet-item" id="caDelete" style="color:var(--ios-red)"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/></svg></span><span data-i18n="ca.delete">Удалить</span></div>
-    <div class="sheet-item" id="caCancel" data-i18n="action.cancel" style="justify-content:center;color:var(--ios-blue);font-weight:700">Отмена</div>
+    <div class="sheet-item danger" id="caDelete"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/></svg></span><span data-i18n="ca.delete">Удалить</span></div>
+    <div class="sheet-item cancel" id="caCancel" data-i18n="action.cancel">Отмена</div>
   </div>
 </div>
 
-<div id="shareSheetMenu" class="modal-overlay" style="display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
+<div id="shareSheetMenu" class="modal-overlay" style="justify-content:center;display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
   <div class="sheet" id="shareSheet" style="touch-action:none">
     <div class="sheet-handle"></div>
     <div class="sheet-title" data-i18n="share.via">Поделиться через</div>
@@ -1053,26 +1128,27 @@
     <div class="sheet-item" id="shareWhatsapp"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.5-4.5A8 8 0 1 1 8 20L3 21z"/><path d="M9 10c0 3 2 5 5 5"/></svg></span>WhatsApp</div>
     <div class="sheet-item" id="shareEmail"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 6.5l9 6.5 9-6.5"/></svg></span>Email</div>
     <div class="sheet-item" id="shareCopyFallback"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8"/><path d="M6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1z"/><path d="M9 10h6M9 14h6"/></svg></span><span data-i18n="ca.copy">Скопировать</span></div>
-    <div class="sheet-item" id="shareCancel" data-i18n="action.cancel" style="justify-content:center;color:var(--ios-blue);font-weight:700">Отмена</div>
+    <div class="sheet-item cancel" id="shareCancel" data-i18n="action.cancel">Отмена</div>
   </div>
 </div>
 
-<div id="langSheetMenu" class="modal-overlay" style="display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
+<div id="langSheetMenu" class="modal-overlay" style="justify-content:center;display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
   <div class="sheet" id="langSheet" style="touch-action:none">
     <div class="sheet-handle"></div>
     <div class="sheet-title" data-i18n="settings.language">Язык</div>
     <div class="lang-list" id="langList"></div>
-    <div class="sheet-item" id="langCancel" data-i18n="action.cancel" style="justify-content:center;color:var(--ios-blue);font-weight:700">Отмена</div>
+    <div class="lang-note" id="langNote"></div>
+    <div class="sheet-item cancel" id="langCancel" data-i18n="action.cancel">Отмена</div>
   </div>
 </div>
 
-<div id="sortSheetMenu" class="modal-overlay" style="display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
+<div id="sortSheetMenu" class="modal-overlay" style="justify-content:center;display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
   <div class="sheet" id="sortSheet" style="touch-action:none">
     <div class="sheet-handle"></div>
     <div class="sheet-title" data-i18n="menu.sort">Сортировка</div>
     <div class="sheet-item" id="sortAlpha"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6M4 9h4M4 13h2"/><path d="M15 3v14M15 17l-3-3M15 17l3-3"/></svg></span><span data-i18n="sort.alpha">По алфавиту (А→Я)</span></div>
     <div class="sheet-item" id="sortManual"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12V5a1.5 1.5 0 0 1 3 0v6M11 11V4a1.5 1.5 0 0 1 3 0v7M14 11.5V6a1.5 1.5 0 0 1 3 0v9c0 4-2.5 6.5-6 6.5S5 18.5 5 15v-3a1.5 1.5 0 0 1 3 0"/></svg></span><span data-i18n="sort.manual">Вручную (таскать пальцем)</span></div>
-    <div class="sheet-item" id="sortCancel" data-i18n="action.cancel" style="justify-content:center;color:var(--ios-blue);font-weight:700">Отмена</div>
+    <div class="sheet-item cancel" id="sortCancel" data-i18n="action.cancel">Отмена</div>
   </div>
 </div>
 
@@ -1082,16 +1158,37 @@
 
 <div id="toast" class="toast"><span id="toastText"></span><button id="toastUndoBtn" class="toast-undo-btn" style="display:none" data-i18n="toast.undo">Отменить</button></div>
 
-<div id="wipeModal" class="modal-overlay" style="display:none">
+<div id="wipeModal" class="modal-overlay sheet-modal" style="display:none">
   <div class="modal-box">
+    <div class="sheet-handle"></div>
     <h2 data-i18n="wipe.title">⚠️ Удаление данных</h2>
     <p class="danger-text" data-i18n="wipe.text">Все карточки, папки и настройки будут удалены безвозвратно. Восстановить их можно только из резервной копии.</p>
     <div class="countdown" id="wipeCountdown">30</div>
     <p class="countdown-label" id="wipeCountdownLabel" data-i18n="wipe.protectionLabel">Защита от случайного нажатия</p>
     <button id="wipeCancelBtn" class="sec" data-i18n="action.cancel">Отмена</button>
-    <button id="wipeConfirmBtn" class="danger" disabled data-i18n="wipe.confirmBtn">Удалить навсегда</button>
+    <button id="wipeConfirmBtn" class="danger solid" disabled data-i18n="wipe.confirmBtn">Удалить навсегда</button>
   </div>
-</div><script>const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : {
+</div>
+<div id="pickSheetMenu" class="modal-overlay" style="justify-content:center;display:none;align-items:flex-end;padding:0;background:rgba(0,0,0,0.35)">
+  <div class="sheet" id="pickSheet" style="touch-action:none">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="pickTitle"></div>
+    <div class="lang-list" id="pickList"></div>
+    <div class="sheet-item cancel" id="pickCancel" data-i18n="action.cancel">Отмена</div>
+  </div>
+</div>
+
+<div id="dialogMenu" class="modal-overlay sheet-modal" style="display:none">
+  <div class="modal-box">
+    <div class="sheet-handle"></div>
+    <h2 id="dialogTitle" style="display:none"></h2>
+    <p id="dialogText"></p>
+    <input id="dialogInput" autocomplete="off" style="display:none">
+    <button id="dialogOk" type="button"></button>
+    <button id="dialogCancel" type="button" class="sec" data-i18n="action.cancel">Отмена</button>
+  </div>
+</div>
+<script>const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : {
   ready: () => {}, expand: () => {}, CloudStorage: null, themeParams: {},
   BiometricManager: null
 };
@@ -1235,6 +1332,14 @@ let cryptoKey = null;
 let currentTheme = 'gray';
 const I18N = {
   ru: {
+    'dialog.confirm': 'Подтвердить',
+    'dialog.useAnyway': 'Использовать',
+    'dialog.change': 'Сменить',
+    'dialog.replace': 'Заменить',
+    'lang.srcTelegram': 'Telegram передал язык аккаунта: {code}',
+    'lang.srcSystem': 'Telegram не передал язык аккаунта — используется язык устройства: {code}',
+    'lang.srcNone': 'Язык не определён — используется английский',
+    'lang.hint': 'Если вы только что сменили язык в Telegram, полностью закройте и снова откройте Telegram — какое-то время он продолжает передавать прежний язык. Либо выберите язык вручную.',
     'promo.sub': 'VPN в Telegram',
     'lang.auto': 'Как в Telegram',
     'lang.manual': 'Выбран вручную',
@@ -1656,6 +1761,14 @@ const I18N = {
     'tpl.blank': 'Пустая карточка',
   },
   en: {
+    'dialog.confirm': 'Confirm',
+    'dialog.useAnyway': 'Use it',
+    'dialog.change': 'Change',
+    'dialog.replace': 'Replace',
+    'lang.srcTelegram': 'Telegram reports your account language: {code}',
+    'lang.srcSystem': 'Telegram didn\'t provide the account language — using the device language: {code}',
+    'lang.srcNone': 'Language not detected — using English',
+    'lang.hint': 'If you just changed the language in Telegram, fully close and reopen Telegram — it keeps reporting the old language for a while. Or pick a language manually.',
     'promo.sub': 'VPN in Telegram',
     'lang.auto': 'Same as Telegram',
     'lang.manual': 'Chosen manually',
@@ -2077,6 +2190,14 @@ const I18N = {
     'tpl.blank': 'Blank item',
   },
   uk: {
+    'dialog.confirm': 'Підтвердити',
+    'dialog.useAnyway': 'Використати',
+    'dialog.change': 'Змінити',
+    'dialog.replace': 'Замінити',
+    'lang.srcTelegram': 'Telegram передав мову облікового запису: {code}',
+    'lang.srcSystem': 'Telegram не передав мову облікового запису — використовується мова пристрою: {code}',
+    'lang.srcNone': 'Мову не визначено — використовується англійська',
+    'lang.hint': 'Якщо ви щойно змінили мову в Telegram, повністю закрийте й знову відкрийте Telegram — якийсь час він передає попередню мову. Або виберіть мову вручну.',
     'promo.sub': 'VPN у Telegram',
     'lang.auto': 'Як у Telegram',
     'lang.manual': 'Вибрано вручну',
@@ -2498,6 +2619,14 @@ const I18N = {
     'tpl.blank': 'Порожня картка',
   },
   es: {
+    'dialog.confirm': 'Confirmar',
+    'dialog.useAnyway': 'Usar',
+    'dialog.change': 'Cambiar',
+    'dialog.replace': 'Reemplazar',
+    'lang.srcTelegram': 'Telegram informa el idioma de tu cuenta: {code}',
+    'lang.srcSystem': 'Telegram no proporcionó el idioma de la cuenta; se usa el del dispositivo: {code}',
+    'lang.srcNone': 'Idioma no detectado; se usa inglés',
+    'lang.hint': 'Si acabas de cambiar el idioma en Telegram, cierra por completo y vuelve a abrir Telegram: durante un tiempo sigue informando el idioma anterior. O elige un idioma manualmente.',
     'promo.sub': 'VPN en Telegram',
     'lang.auto': 'Igual que Telegram',
     'lang.manual': 'Elegido manualmente',
@@ -2919,6 +3048,14 @@ const I18N = {
     'tpl.blank': 'Tarjeta vacía',
   },
   de: {
+    'dialog.confirm': 'Bestätigen',
+    'dialog.useAnyway': 'Verwenden',
+    'dialog.change': 'Ändern',
+    'dialog.replace': 'Ersetzen',
+    'lang.srcTelegram': 'Telegram meldet die Sprache Ihres Kontos: {code}',
+    'lang.srcSystem': 'Telegram hat keine Kontosprache übermittelt – es wird die Gerätesprache verwendet: {code}',
+    'lang.srcNone': 'Sprache nicht erkannt – es wird Englisch verwendet',
+    'lang.hint': 'Wenn Sie die Sprache in Telegram gerade geändert haben, schließen Sie Telegram vollständig und öffnen Sie es neu – es meldet eine Weile noch die alte Sprache. Oder wählen Sie die Sprache manuell.',
     'promo.sub': 'VPN in Telegram',
     'lang.auto': 'Wie in Telegram',
     'lang.manual': 'Manuell gewählt',
@@ -3340,6 +3477,14 @@ const I18N = {
     'tpl.blank': 'Leerer Eintrag',
   },
   fr: {
+    'dialog.confirm': 'Confirmer',
+    'dialog.useAnyway': 'Utiliser',
+    'dialog.change': 'Changer',
+    'dialog.replace': 'Remplacer',
+    'lang.srcTelegram': 'Telegram indique la langue de votre compte : {code}',
+    'lang.srcSystem': 'Telegram n\'a pas transmis la langue du compte — langue de l\'appareil utilisée : {code}',
+    'lang.srcNone': 'Langue non détectée — anglais utilisé',
+    'lang.hint': 'Si vous venez de changer la langue dans Telegram, fermez complètement puis rouvrez Telegram : il continue un moment à transmettre l\'ancienne langue. Ou choisissez la langue manuellement.',
     'promo.sub': 'VPN dans Telegram',
     'lang.auto': 'Comme dans Telegram',
     'lang.manual': 'Choisie manuellement',
@@ -3761,6 +3906,14 @@ const I18N = {
     'tpl.blank': 'Fiche vide',
   },
   pt: {
+    'dialog.confirm': 'Confirmar',
+    'dialog.useAnyway': 'Usar',
+    'dialog.change': 'Alterar',
+    'dialog.replace': 'Substituir',
+    'lang.srcTelegram': 'O Telegram informa o idioma da sua conta: {code}',
+    'lang.srcSystem': 'O Telegram não enviou o idioma da conta — usando o idioma do dispositivo: {code}',
+    'lang.srcNone': 'Idioma não detectado — usando inglês',
+    'lang.hint': 'Se você acabou de mudar o idioma no Telegram, feche completamente e reabra o Telegram — ele continua informando o idioma anterior por um tempo. Ou escolha o idioma manualmente.',
     'promo.sub': 'VPN no Telegram',
     'lang.auto': 'Igual ao Telegram',
     'lang.manual': 'Escolhido manualmente',
@@ -4182,6 +4335,14 @@ const I18N = {
     'tpl.blank': 'Item vazio',
   },
   tr: {
+    'dialog.confirm': 'Onayla',
+    'dialog.useAnyway': 'Kullan',
+    'dialog.change': 'Değiştir',
+    'dialog.replace': 'Değiştir',
+    'lang.srcTelegram': 'Telegram hesap dilinizi bildiriyor: {code}',
+    'lang.srcSystem': 'Telegram hesap dilini iletmedi — cihaz dili kullanılıyor: {code}',
+    'lang.srcNone': 'Dil algılanamadı — İngilizce kullanılıyor',
+    'lang.hint': 'Telegram\'da dili yeni değiştirdiyseniz Telegram\'ı tamamen kapatıp yeniden açın — bir süre eski dili iletmeye devam eder. Ya da dili elle seçin.',
     'promo.sub': 'Telegram\'da VPN',
     'lang.auto': 'Telegram ile aynı',
     'lang.manual': 'Elle seçildi',
@@ -4603,6 +4764,14 @@ const I18N = {
     'tpl.blank': 'Boş kart',
   },
   it: {
+    'dialog.confirm': 'Conferma',
+    'dialog.useAnyway': 'Usa',
+    'dialog.change': 'Cambia',
+    'dialog.replace': 'Sostituisci',
+    'lang.srcTelegram': 'Telegram segnala la lingua del tuo account: {code}',
+    'lang.srcSystem': 'Telegram non ha fornito la lingua dell\'account — uso quella del dispositivo: {code}',
+    'lang.srcNone': 'Lingua non rilevata — uso l\'inglese',
+    'lang.hint': 'Se hai appena cambiato lingua in Telegram, chiudi completamente e riapri Telegram: per un po\' continua a comunicare la lingua precedente. Oppure scegli la lingua manualmente.',
     'promo.sub': 'VPN su Telegram',
     'lang.auto': 'Come in Telegram',
     'lang.manual': 'Scelta manuale',
@@ -5024,6 +5193,14 @@ const I18N = {
     'tpl.blank': 'Voce vuota',
   },
   pl: {
+    'dialog.confirm': 'Potwierdź',
+    'dialog.useAnyway': 'Użyj',
+    'dialog.change': 'Zmień',
+    'dialog.replace': 'Zastąp',
+    'lang.srcTelegram': 'Telegram przekazuje język konta: {code}',
+    'lang.srcSystem': 'Telegram nie przekazał języka konta — używany jest język urządzenia: {code}',
+    'lang.srcNone': 'Nie wykryto języka — używany jest angielski',
+    'lang.hint': 'Jeśli właśnie zmieniłeś język w Telegramie, całkowicie zamknij i ponownie otwórz Telegram — przez pewien czas nadal przekazuje poprzedni język. Możesz też wybrać język ręcznie.',
     'promo.sub': 'VPN w Telegramie',
     'lang.auto': 'Jak w Telegramie',
     'lang.manual': 'Wybrano ręcznie',
@@ -5473,14 +5650,32 @@ function parseLangPref(raw){
   return null;
 }
 function readLangPref(){ try { return parseLangPref(localStorage.getItem(LANG_KEY)); } catch(e){ return null; } }
+// Откуда взят язык: 'telegram' — аккаунт (user.language_code), 'system' — язык устройства, 'none' — не определён.
+function readTelegramLangRaw(){
+  let code = null, from = 'none';
+  try { const u = tg.initDataUnsafe && tg.initDataUnsafe.user; if(u && u.language_code){ code = u.language_code; from = 'telegram'; } } catch(e){}
+  if(!code){
+    // на случай, если initDataUnsafe пуст, но сырые данные запуска есть (строка initData или параметр в адресе)
+    try {
+      let raw = tg.initData || '';
+      if(!raw){ raw = new URLSearchParams((location.hash || '').replace(/^#/, '')).get('tgWebAppData') || ''; }
+      if(raw){ const u = JSON.parse(new URLSearchParams(raw).get('user') || 'null'); if(u && u.language_code){ code = u.language_code; from = 'telegram'; } }
+    } catch(e){}
+  }
+  if(!code){ try { code = (navigator.languages && navigator.languages[0]) || navigator.language || null; if(code) from = 'system'; } catch(e){} }
+  return { code: code, src: from };
+}
 function telegramLang(){
-  let code = null;
-  try { code = (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code) || null; } catch(e){}
-  if(!code){ try { code = (navigator.languages && navigator.languages[0]) || navigator.language || null; } catch(e){} }
+  let code = readTelegramLangRaw().code;
   if(!code) return null;
   code = String(code).toLowerCase().split(/[-_]/)[0];
   if(code === 'be') code = 'ru';   // белорусский → ближайший из доступных
   return SUPPORTED_LANGS.indexOf(code) !== -1 ? code : null;
+}
+function langNoteText(){
+  const r = readTelegramLangRaw();
+  const first = r.src === 'telegram' ? t('lang.srcTelegram', {code: r.code}) : (r.src === 'system' ? t('lang.srcSystem', {code: r.code}) : t('lang.srcNone'));
+  return first + '\n' + t('lang.hint');
 }
 function resolveLang(pref){
   if(pref && pref.mode === 'manual') return pref.lang;
@@ -5553,6 +5748,7 @@ function openLangSheet(){
   };
   add('auto', svgWrap(ICONS_SVG['🌐'], 20), t('lang.auto'), LANG_NAMES[telegramLang() || 'en'], langMode === 'auto');
   SUPPORTED_LANGS.forEach(id => add(id, id.toUpperCase(), LANG_NAMES[id], '', langMode === 'manual' && currentLang === id));
+  $('langNote').textContent = langNoteText();
   $('langSheetMenu').style.display = 'flex';
   const sel = list.querySelector('.lang-item.sel'); if(sel && sel.scrollIntoView){ try { sel.scrollIntoView({block:'center'}); } catch(e){} }
 }
@@ -5597,6 +5793,14 @@ function renderThemeRow(activeId){
 }
 // Тема: data-color-scheme переключается нами, а не Telegram.
 // Иначе при чужом режиме (тёмный Telegram / светлое приложение) текст сливался с фоном.
+// Шапка и фон самого Telegram вокруг мини-приложения — в цвет темы (в тёмной — чисто чёрные, для AMOLED).
+function syncTelegramChrome(){
+  const dark = document.documentElement.getAttribute('data-color-scheme') === 'dark';
+  const bg = dark ? '#000000' : '#F1F2FA';
+  try { if(typeof tg.setHeaderColor === 'function') tg.setHeaderColor(bg); } catch(e){}
+  try { if(typeof tg.setBackgroundColor === 'function') tg.setBackgroundColor(bg); } catch(e){}
+  try { if(typeof tg.setBottomBarColor === 'function') tg.setBottomBarColor(bg); } catch(e){}
+}
 function applyColorScheme(mode){
   const html = document.documentElement;
   if(mode === 'light' || mode === 'dark'){
@@ -5612,6 +5816,7 @@ function applyColorScheme(mode){
     html.setAttribute('data-color-scheme', dark ? 'dark' : 'light');
   }
   updateThemeIcon();
+  syncTelegramChrome();
 }
 function updateThemeIcon(){
   const btn = $('navThemeBtn'); if(!btn) return;
@@ -6791,7 +6996,7 @@ async function tryPin(){
       renderPinDots(); return;
     }
     if(pinBuffer.length <= 4 && WEAK_PINS.includes(pinBuffer)){
-      if(!confirm(t('pin.weak', {pin: pinBuffer}))){
+      if(!(await uiConfirm(t('pin.weak', {pin: pinBuffer}), {okText: t('dialog.useAnyway')}))){
         pinBuffer=''; pinMode='create'; tempPin='';
         $('pinError').textContent = t('pin.chooseAnother');
         $('pinSubmitBtn').textContent = t('pin.next');
@@ -6849,7 +7054,7 @@ async function recoveryContinue(){
   }
 }
 async function recoverySkip(){
-  if(!confirm(t('confirm.skipRecovery'))) return;
+  if(!(await uiConfirm(t('confirm.skipRecovery'), {okText: t('recovery.skipBtn'), danger: true}))) return;
   try {
     currentMeta.recoveryOffered = true;
     currentMeta.hasRecovery = false;
@@ -6920,9 +7125,9 @@ async function changePinSubmit(){
     oldKey = await deriveKey(oldPin, unb64(currentMeta.salt));
     await decryptJSON(oldKey, currentMeta.verify);
   } catch(e){ errEl.textContent = t('changepin.oldWrong'); return; }
-  if(newPin === oldPin){ if(!confirm(t('changepin.sameConfirm'))) return; }
+  if(newPin === oldPin){ if(!(await uiConfirm(t('changepin.sameConfirm'), {okText: t('dialog.change')}))) return; }
   if(newPin.length <= 4 && WEAK_PINS.includes(newPin)){
-    if(!confirm(t('pin.weak', {pin: newPin}))) return;
+    if(!(await uiConfirm(t('pin.weak', {pin: newPin}), {okText: t('dialog.useAnyway')}))) return;
   }
 
   errEl.textContent = '';
@@ -7593,7 +7798,7 @@ async function restoreLastTrashItem(){
 async function deleteTrashItemPermanently(index){
   const item = vault.trash[index];
   if(!item) return;
-  if(!confirm(t('confirm.deleteForever'))) return;
+  if(!(await uiConfirm(t('confirm.deleteForever'), {okText: t('ca.delete'), danger: true}))) return;
   vault.trash.splice(index, 1);
   await saveConf();
   updateTrashBadge();
@@ -7602,7 +7807,7 @@ async function deleteTrashItemPermanently(index){
 }
 async function clearTrash(){
   if(trashCount() === 0){ toast(t('trash.empty')); return; }
-  if(!confirm(t('confirm.clearTrash'))) return;
+  if(!(await uiConfirm(t('confirm.clearTrash'), {okText: t('trash.clearBtn'), danger: true}))) return;
   vault.trash = [];
   await saveConf();
   updateTrashBadge();
@@ -7687,10 +7892,7 @@ function renderTrash(){
 
 async function checkTrashLimitBeforeAdd(){
   if(trashCount() >= TRASH_LIMIT){
-    const ok = confirm(
-      t('trash.fullConfirmHead', {max: TRASH_LIMIT}) +
-      t('confirm.openTrashNow')
-    );
+    const ok = await uiConfirm(t('trash.fullConfirmHead', {max: TRASH_LIMIT}) + t('confirm.openTrashNow'), {okText: t('pin.open')});
     if(ok){ openTrash(); }
     return false;
   }
@@ -7871,7 +8073,7 @@ $('shareEmail').onclick = () => {
 $('shareCopyFallback').onclick = () => { closeShareSheet(); copyToClipboard(shareText); };
 async function deleteCardById(id){
   if(!(await checkTrashLimitBeforeAdd())) return;
-  if(!confirm(t('confirm.trashCard'))) return;
+  if(!(await uiConfirm(t('confirm.trashCard'), {okText: t('ca.delete'), danger: true}))) return;
   const card = vault.cards.find(x => x.id === id);
   if(!card) return;
   const ok = await moveCardToTrash(card);
@@ -7928,7 +8130,7 @@ async function deleteFolderById(folderId){
   const msg =
     t('confirm.trashFolder', {name: f.name}) + (childrenCount ? t('confirm.nestedFolders', {n: childrenCount}) : '') + (cardsToMove.length ? t('confirm.cardsInside', {n: cardsToMove.length}) : '');
 
-  if(!confirm(msg)) return;
+  if(!(await uiConfirm(msg, {okText: t('fa.delete'), danger: true}))) return;
 
   const ok = await moveFolderToTrash(f.id);
   if(!ok) return;
@@ -7944,7 +8146,7 @@ async function deleteFolderById(folderId){
 async function renameFolderById(folderId){
   const f = vault.folders.find(x => x.id === folderId);
   if(!f) return;
-  const newName = prompt(t('prompt.folderName'), f.name);
+  const newName = await uiPrompt(t('prompt.folderName'), f.name, {okText: t('action.save')});
   if(newName === null) return;
   const trimmed = newName.trim();
   if(!trimmed){ toast(t('err.nameEmpty')); return; }
@@ -8075,6 +8277,7 @@ function openFolderEditor(id){
     });
   };
   addOptions(null, 0);
+  updatePickRow('folderParent');
   renderIconGrid('folderIconGrid', selectedIcon, (ic) => { selectedIcon = ic; });
   $('deleteFolderBtn').style.display = id ? 'block' : 'none';
   show('folderEditorScreen');
@@ -8133,7 +8336,7 @@ async function deleteFolder(){
 
   const msg =
     t('confirm.trashFolder', {name: f.name}) + (childrenCount ? t('confirm.nestedFolders', {n: childrenCount}) : '') + (cardsToMove.length ? t('confirm.cardsInside', {n: cardsToMove.length}) : '');
-  if(!confirm(msg)) return;
+  if(!(await uiConfirm(msg, {okText: t('fa.delete'), danger: true}))) return;
 
   const ok = await moveFolderToTrash(f.id);
   if(!ok) return;
@@ -8306,7 +8509,7 @@ async function startImport(){
   const confirmMsg = willClear
     ? t('import.confirmClear', {c: totalCards, f: totalFolders})
     : t('import.confirmAdd', {c: totalCards, f: totalFolders});
-  if(!confirm(confirmMsg)) return;
+  if(!(await uiConfirm(confirmMsg, {okText: t('import.startBtn'), danger: willClear}))) return;
   importBusy = true;
   $('importStartBtn').disabled = true;
   try {
@@ -8463,6 +8666,7 @@ function openEditor(id){
   else if(pendingTemplate){ pendingTemplate.fields.forEach(name=>addFieldRow(t(name),'',uid())); }
   else { addFieldRow(t('f.login'),'',uid()); addFieldRow(t('f.password'),'',uid()); addFieldRow(t('f.note'),'',uid()); }
   $('deleteCardBtn').style.display = id ? 'block' : 'none';
+  updatePickRow('cardFolder');
   show('editScreen');
 }
 function updateIconPreview(){
@@ -8519,14 +8723,14 @@ function addFieldRow(name='', value='', id=uid()){
     }
   });
 
-  fetchIconBtn.onclick = (e) => {
+  fetchIconBtn.onclick = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     const host = extractHostForIcon(valInput.value);
     if(!host){ toast(t('err.enterSiteOrEmail')); return; }
     if(!editingCardIcon) editingCardIcon = { icon: '📄', customIcon: null, faviconDomain: null };
     if(editingCardIcon.customIcon || editingCardIcon.faviconDomain){
-      if(!confirm(t('confirm.replaceIcon', {host: host}))) return;
+      if(!(await uiConfirm(t('confirm.replaceIcon', {host: host}), {okText: t('dialog.replace')}))) return;
     }
     // Раньше иконка скачивалась через canvas и хранилась как base64-картинка внутри
     // карточки — но у Telegram CloudStorage лимит ~4096 символов на одно значение,
@@ -8682,7 +8886,7 @@ async function saveCard(){
 async function deleteCard(){
   if(!editingId) return;
   if(!(await checkTrashLimitBeforeAdd())) return;
-  if(!confirm(t('confirm.trashCard'))) return;
+  if(!(await uiConfirm(t('confirm.trashCard'), {okText: t('ca.delete'), danger: true}))) return;
   const card = vault.cards.find(x => x.id === editingId);
   if(!card) return;
   const ok = await moveCardToTrash(card);
@@ -8828,7 +9032,7 @@ async function makeBackup(){
   const backup = { app: 'safe_plus_mini', version: 4, salt: meta.salt, conf, cards, created: new Date().toISOString() };
   const str = JSON.stringify(backup);
   if(str.length > 500000){
-    if(!confirm(t('backup.sizeConfirm', {kb: Math.round(str.length/1024)}))) return;
+    if(!(await uiConfirm(t('backup.sizeConfirm', {kb: Math.round(str.length/1024)})))) return;
   }
   try {
     await navigator.clipboard.writeText(str);
@@ -8862,7 +9066,7 @@ async function doRestore(){
   try { conf = await decryptJSON(key, backup.conf); }
   catch(e){ toast(t('err.wrongPinOrBackup')); return; }
   const cardsCount = (backup.cards||[]).length;
-  if(!confirm(t('restore.confirm', {n: cardsCount}))) return;
+  if(!(await uiConfirm(t('restore.confirm', {n: cardsCount}), {okText: t('restore.confirmBtn'), danger: true}))) return;
   const idx = await getIndex();
   for(const k of idx.cards) await storeRemove(k);
   for(const k of idx.packs) await storeRemove(k);
@@ -8950,6 +9154,7 @@ async function reconcileMeta(fresh){
 async function lockNow(){
   cryptoKey=null; pinBuffer=''; pinMode='unlock';
   vault.cards = []; vault.trash = []; currentMeta = null; currentFolderId = null; isFavView = false;
+  closeAllOverlays();
   updateTrashBadge();
   $('lockHint').textContent=t('pin.enterHint');
   $('pinError').textContent='';
@@ -9057,6 +9262,7 @@ async function init(){
   // остальное (интерфейс, тема, язык) работает параллельно и берёт данные из этого же запроса.
   const bootP = bootPrefetch();
   PERF.boot0 = perfNow();
+  syncTelegramChrome();
   // Язык — синхронная часть применяется мгновенно, без ожидания сети.
   loadLang();
   // Клавиатуру PIN рисуем СРАЗУ — до любых обращений к хранилищу Telegram.
@@ -9119,7 +9325,7 @@ $('patternSwitchToPinBtn').onclick = () => {
   resetPatternSequence(); show('lockScreen');
 };
 
-$('navBackBtn').onclick = () => {
+$('navBackBtn').onclick = async () => {
   if(isFavView){
     isFavView = false;
     currentFolderId = null;
@@ -9132,7 +9338,7 @@ $('navBackBtn').onclick = () => {
     renderMainList();
     return;
   }
-  if(confirm(t('confirm.closeVault'))){
+  if(await uiConfirm(t('confirm.closeVault'), {okText: t('menu.exit'), danger: true})){
     if(tg && typeof tg.close === 'function'){ try { tg.close(); } catch(e){ lockNow(); } }
     else lockNow();
   }
@@ -9183,9 +9389,9 @@ $('menuCamera').onclick = () => { $('addMenu').style.display = 'none'; toast(t('
 $('menuSettings').onclick = () => { $('mainMenu').style.display = 'none'; openSettings(); };
 $('menuSort').onclick = () => { $('mainMenu').style.display = 'none'; openSortSheet(); };
 $('menuLock').onclick = () => { $('mainMenu').style.display = 'none'; lockNow(); };
-$('menuExit').onclick = () => {
+$('menuExit').onclick = async () => {
   $('mainMenu').style.display = 'none';
-  if(confirm(t('confirm.closeVault'))){
+  if(await uiConfirm(t('confirm.closeVault'), {okText: t('menu.exit'), danger: true})){
     if(tg && typeof tg.close === 'function'){ try { tg.close(); } catch(e){ lockNow(); } }
     else lockNow();
   }
@@ -9318,8 +9524,8 @@ $('recoveryManageBtn').onclick = ()=>{
   show('recoveryManageScreen');
 };
 $('recoveryManageBack').onclick = ()=>show('settingsScreen');
-$('recoveryRegenBtn').onclick = ()=>{
-  if(!confirm(t('confirm.newRecovery'))) return;
+$('recoveryRegenBtn').onclick = async ()=>{
+  if(!(await uiConfirm(t('confirm.newRecovery')))) return;
   startRecoveryOffer();
 };
 $('copyRecoveryBtn').onclick = async ()=>{
@@ -9350,6 +9556,97 @@ $('promoCard').onclick = (e) => {
   try { if(typeof tg.openTelegramLink === 'function'){ tg.openTelegramLink(PROMO_URL); return; } } catch(_){}
   try { window.open(PROMO_URL, '_blank', 'noopener'); } catch(_){}
 };
+// ============ Собственные окна подтверждения (вместо системных confirm/prompt) ============
+let _dlg = null;   // { resolve, cancelValue }
+function _dlgClose(val){
+  $('dialogMenu').style.display = 'none';
+  const d = _dlg; _dlg = null;
+  if(d) d.resolve(val === undefined ? d.cancelValue : val);
+}
+function _dlgOpen(text, o){
+  if(_dlg){ const p = _dlg; _dlg = null; p.resolve(p.cancelValue); }
+  return new Promise(resolve => {
+    _dlg = { resolve, cancelValue: o.isPrompt ? null : false };
+    const title = $('dialogTitle');
+    title.textContent = o.title || ''; title.style.display = o.title ? '' : 'none';
+    $('dialogText').textContent = text || ''; $('dialogText').style.display = text ? '' : 'none';
+    const inp = $('dialogInput');
+    inp.style.display = o.isPrompt ? '' : 'none';
+    if(o.isPrompt) inp.value = o.value || '';
+    const ok = $('dialogOk');
+    ok.textContent = o.okText || t('dialog.confirm');
+    ok.className = o.danger ? 'danger solid' : '';
+    ok.onclick = () => { _dlgClose(o.isPrompt ? inp.value : true); };
+    $('dialogCancel').onclick = () => { _dlgClose(); };
+    $('dialogMenu').style.display = 'flex';
+    if(o.isPrompt){ setTimeout(() => { try { inp.focus(); inp.select(); } catch(e){} }, 120); }
+  });
+}
+function uiConfirm(text, o){ return _dlgOpen(text, Object.assign({}, o || {}, { isPrompt: false })); }
+function uiPrompt(text, value, o){ return _dlgOpen(text, Object.assign({}, o || {}, { isPrompt: true, value: value })); }
+$('dialogMenu').addEventListener('click', (e) => { if(e.target === $('dialogMenu')) _dlgClose(); });
+$('dialogInput').addEventListener('keydown', (e) => { if(e.key === 'Enter'){ e.preventDefault(); $('dialogOk').click(); } });
+
+// ============ Выбор папки (шторка вместо системного списка) ============
+const PICK_IDS = {
+  cardFolder:   { title:'cardFolderTitle',   sub:'cardFolderSub',   ico:'cardFolderIco',   none:'edit.noFolder',     label:'edit.folderLabel' },
+  folderParent: { title:'folderParentTitle', sub:'folderParentSub', ico:'folderParentIco', none:'folder.rootOption', label:'folder.parentLabel' }
+};
+function updatePickRow(selId){
+  const m = PICK_IDS[selId]; if(!m) return;
+  const v = $(selId).value || '';
+  const f = v ? vault.folders.find(x => x.id === v) : null;
+  $(m.title).textContent = f ? f.name : t(m.none);
+  $(m.sub).textContent = (f && f.parentId) ? getFolderPath(f.parentId).map(x => x.name).join(' › ') : '';
+  $(m.ico).innerHTML = iconMarkup(f ? (f.icon || '📁') : '📁', 20);
+}
+function folderTreeItems(excludeId){
+  const out = [], banned = new Set();
+  if(excludeId){
+    banned.add(excludeId);
+    let added = true;
+    while(added){ added = false; vault.folders.forEach(x => { if(x.parentId && banned.has(x.parentId) && !banned.has(x.id)){ banned.add(x.id); added = true; } }); }
+  }
+  const walk = (pid, depth) => {
+    vault.folders.filter(f => (f.parentId || null) === pid)
+      .sort((a, b) => (a.name || '').localeCompare(b.name || '', LOCALES[currentLang] || 'en'))
+      .forEach(f => { if(banned.has(f.id)) return; out.push({ value: f.id, name: f.name, icon: f.icon, depth }); walk(f.id, depth + 1); });
+  };
+  walk(null, 0);
+  return out;
+}
+function openFolderPick(selId){
+  const m = PICK_IDS[selId]; if(!m) return;
+  const sel = $(selId);
+  $('pickTitle').textContent = t(m.label);
+  const list = $('pickList'); list.innerHTML = '';
+  const add = (value, name, icon, depth) => {
+    const d = document.createElement('div');
+    d.className = 'lang-item' + ((sel.value || '') === value ? ' sel' : '');
+    if(depth) d.style.marginLeft = (depth * 14) + 'px';
+    d.innerHTML = '<span class="lang-code">' + iconMarkup(icon || '📁', 20) + '</span><span class="lang-names"><b>' + esc(name) + '</b></span><span class="lang-check">' + ICON_CHECK_SVG + '</span>';
+    d.onclick = () => { sel.value = value; updatePickRow(selId); closePick(); };
+    list.appendChild(d);
+  };
+  add('', t(m.none), '📁', 0);
+  folderTreeItems(selId === 'folderParent' ? editingFolderId : null).forEach(f => add(f.value, f.name, f.icon, f.depth));
+  $('pickSheetMenu').style.display = 'flex';
+  const s = list.querySelector('.lang-item.sel'); if(s && s.scrollIntoView){ try { s.scrollIntoView({block:'center'}); } catch(e){} }
+}
+function closePick(){ $('pickSheetMenu').style.display = 'none'; }
+$('cardFolderRow').onclick = () => openFolderPick('cardFolder');
+$('folderParentRow').onclick = () => openFolderPick('folderParent');
+$('pickCancel').onclick = closePick;
+$('mainMenuCancel').onclick = () => { $('mainMenu').style.display = 'none'; };
+enableSheetSwipe('mainSheet', 'mainMenu');
+enableSheetSwipe('pickSheet', 'pickSheetMenu');
+
+// Все всплывающие окна закрываем при блокировке — чтобы содержимое не осталось на экране PIN.
+function closeAllOverlays(){
+  try { _dlgClose(); } catch(e){}
+  ['addMenu','mainMenu','folderActionsMenu','folderIconSheet','cardActionsMenu','shareSheetMenu','sortSheetMenu','langSheetMenu','pickSheetMenu','warnModal','dialogMenu']
+    .forEach(id => { const el = $(id); if(el) el.style.display = 'none'; });
+}
 $('langRow').onclick = openLangSheet;
 $('langCancel').onclick = closeLangSheet;
 $('openLinksInMiniToggle').onchange = async () => {
